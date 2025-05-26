@@ -4,12 +4,13 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
+I'm currently a junior-to-be majoring in Mathematics. I'm very interested in understanding the brain.
 
 ### More Information
 
-A place to include any other types of information that you'd like to include about yourself.
+Books, music are my cocoon. Amateur photographer. Electric guitar beginner.
 
 ### Contact me
 
-[email@domain.com](mailto:email@domain.com)
+[zzzzbbbbtttt20873@gmail.com](mailto:zzzzbbbbtttt20873@gmail.com)
+[23307110068@m.fudan.edu.cn](mailto:23307110068@m.fudan.edu.cn)
