@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Snow's Garage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            scroll-behavior: smooth;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
+            <div class="space-x-4">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
+                <a href="index.html#interests" class="text-slate-600 hover:text-sky-500 transition-colors">Interests</a>
+                <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
+                <a href="gallery.html" class="text-sky-500 font-semibold">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-violet-50 py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Gallery</h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+                Capturing moments, freezing time — A collection of visual stories.
+            </p>
+        </div>
+    </header>
+
+    <main class="py-16">
+        <div class="container mx-auto px-6">
+            <!-- 照片网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 照片项目 -->
+                <div class="group cursor-pointer">
+                    <div class="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <img src="images/photo1.jpg" alt="Photography 1" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/cbd5e0?text=Photo+1';">
+                        <div class="p-4 bg-white">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Photo Title 1</h3>
+                            <p class="text-slate-600 text-sm">Brief description of the photo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group cursor-pointer">
+                    <div class="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <img src="images/photo2.jpg" alt="Photography 2" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/cbd5e0?text=Photo+2';">
+                        <div class="p-4 bg-white">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Photo Title 2</h3>
+                            <p class="text-slate-600 text-sm">Brief description of the photo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group cursor-pointer">
+                    <div class="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <img src="images/photo3.jpg" alt="Photography 3" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/cbd5e0?text=Photo+3';">
+                        <div class="p-4 bg-white">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Photo Title 3</h3>
+                            <p class="text-slate-600 text-sm">Brief description of the photo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 你可以添加更多照片 -->
+            </div>
+
+            <!-- 返回首页按钮 -->
+            <div class="text-center mt-12">
+                <a href="index.html" class="inline-block px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors duration-300">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
+        <div class="container mx-auto px-6">
+            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
