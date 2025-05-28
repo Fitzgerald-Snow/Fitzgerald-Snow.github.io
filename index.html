@@ -63,30 +63,13 @@
     </header>
 
     <main>
-        <section id="research" class="py-16 md:py-24"></section>
-            <div class="container mx-auto px-6">
-                <h2 class="section-title">兴趣与技能</h2>
-                <div class="grid md:grid-cols-2 gap-10">
-                    <div>
-                        <h3 class="text-2xl font-semibold text-sky-600 mb-6">学术兴趣</h3>
-                        <ul class="list-disc list-inside space-y-2 text-slate-700 text-lg">
-                            <li>数学（例如：微积分、线性代数、概率论）</li>
-                            <li>计算神经科学（例如：神经网络模型、学习算法）</li>
-                            <li>文学（例如：[你喜欢的文学类型或作家]）</li>
-                            <li>哲学（例如：[你感兴趣的哲学流派或问题]）</li>
-                            <li>心理学/社会科学（例如：认知心理学、社会互动理论）</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-semibold text-sky-600 mb-6">技能栈</h3>
-                        <ul class="list-disc list-inside space-y-2 text-slate-700 text-lg">
-                            <li>编程语言：Python, MATLAB, (JavaScript?)</li>
-                            <li>工具/框架：[你使用的工具，例如：TensorFlow/PyTorch, Git]</li>
-                            <li>语言能力：中文 (母语), 英语 (流利)</li>
-                            <li>其他技能：[例如：学术写作、数据分析、批判性思维]</li>
-                        </ul>
-                    </div>
-                </div>
+        <section id="research" class="py-16 md:py-24 bg-sky-50">
+            <div class="container mx-auto px-6 text-center">
+                <a href="research.html" class="inline-block">
+                    <h2 class="section-title text-5xl hover:text-sky-500 transition-colors duration-300 mb-4">Research & Interests</h2>
+                </a>
+                <p class="text-lg text-slate-600 mt-0 mb-8 max-w-xl mx-auto">Being able to decide whether we are witnessing the neuronal activity that is underlying the composition of a poem (or the electronic transmission of a love letter) and not just meaningless flicker is one of the most burning problems in neuroscience.
+                </p>
             </div>
         </section>
 
@@ -100,13 +83,13 @@
             </div>
         </section>
 
-        <section id="gallery" class="py-16 md:py-24 bg-violet-50">
-            <div class="container mx-auto px-6 text-center">
+        <section id="gallery" class="py-16 md:py-24 bg-cover bg-center bg-fixed relative" style="background-image: url('images/gallery-cover.jpg');">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30"></div>
+            <div class="container mx-auto px-6 text-center relative z-10">
                 <a href="gallery.html" class="inline-block">
-                    <h2 class="section-title text-5xl hover:text-sky-500 transition-colors duration-300 mb-4">Gallery</h2>
+                    <h2 class="section-title text-5xl hover:text-white transition-colors duration-300 mb-4 text-white shadow-lg">Gallery</h2>
                 </a>
-                <p class="text-lg text-slate-600 mt-0 mb-8 max-w-xl mx-auto">Moments captured through the lens — Where light meets memory.
-                </p>
+                <p class="text-lg text-white mt-0 mb-8 max-w-xl mx-auto shadow-lg">Moments captured through the lens — Where light meets memory.</p>
             </div>
         </section>
 
