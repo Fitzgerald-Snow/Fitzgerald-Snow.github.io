@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research - snow's garage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            scroll-behavior: smooth;
+        }
+        .hero-bg {
+            background-color: #ede9fe;
+        }
+        .section-title {
+            @apply text-3xl font-bold text-center mb-12 text-slate-700;
+        }
+        .card {
+            @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
+        }
+        .btn {
+            @apply px-6 py-3 rounded-lg font-semibold transition-colors duration-300;
+        }
+        .btn-primary {
+            @apply bg-sky-500 hover:bg-sky-600 text-white;
+        }
+        .btn-secondary {
+            @apply bg-slate-200 hover:bg-slate-300 text-slate-700;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
+            <div class="space-x-4">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
+                <a href="research.html" class="text-sky-500 font-semibold">Research</a>
+                <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
+                <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-bg py-20 md:py-32">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Research</h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+                Documenting my journey through mathematics, computational neuroscience, and the fascinating intersections of mind and machine.
+            </p>
+        </div>
+    </header>
+
+    <main>
+        <section class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Current Research Areas</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-sky-600 mb-4">Computational Neuroscience</h3>
+                        <p class="text-slate-700 mb-4">Exploring neural network models and learning algorithms that bridge biological and artificial intelligence.</p>
+                        <div class="text-sm text-slate-500">
+                            <span class="bg-slate-100 px-2 py-1 rounded mr-2">Neural Networks</span>
+                            <span class="bg-slate-100 px-2 py-1 rounded">Machine Learning</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-sky-600 mb-4">Mathematical Modeling</h3>
+                        <p class="text-slate-700 mb-4">Applying mathematical frameworks to understand complex systems and cognitive processes.</p>
+                        <div class="text-sm text-slate-500">
+                            <span class="bg-slate-100 px-2 py-1 rounded mr-2">Calculus</span>
+                            <span class="bg-slate-100 px-2 py-1 rounded">Linear Algebra</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-sky-600 mb-4">Cognitive Psychology</h3>
+                        <p class="text-slate-700 mb-4">Investigating the mechanisms of human cognition and their computational analogues.</p>
+                        <div class="text-sm text-slate-500">
+                            <span class="bg-slate-100 px-2 py-1 rounded mr-2">Cognition</span>
+                            <span class="bg-slate-100 px-2 py-1 rounded">Psychology</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 md:py-24 bg-rose-50">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Research Articles & Progress</h2>
+                <div class="space-y-8">
+                    <div class="card">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-slate-800">Neural Network Dynamics in Learning</h3>
+                            <span class="text-sm text-slate-500 mt-2 md:mt-0">In Progress</span>
+                        </div>
+                        <p class="text-slate-700 mb-4">
+                            Investigating how different neural network architectures adapt and learn from environmental stimuli, with a focus on biological plausibility.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Python</span>
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">TensorFlow</span>
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Neuroscience</span>
+                        </div>
+                        <a href="#" class="btn btn-secondary">Read More</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-slate-800">Mathematical Foundations of Consciousness</h3>
+                            <span class="text-sm text-slate-500 mt-2 md:mt-0">Draft</span>
+                        </div>
+                        <p class="text-slate-700 mb-4">
+                            Exploring mathematical frameworks that might help us understand the emergence of consciousness from neural activity.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Mathematics</span>
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Philosophy</span>
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Consciousness</span>
+                        </div>
+                        <a href="#" class="btn btn-secondary">Read More</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-slate-800">Computational Models of Memory</h3>
+                            <span class="text-sm text-slate-500 mt-2 md:mt-0">Planning</span>
+                        </div>
+                        <p class="text-slate-700 mb-4">
+                            Developing computational models to understand how memories are formed, stored, and retrieved in both biological and artificial systems.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">MATLAB</span>
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Memory</span>
+                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Modeling</span>
+                        </div>
+                        <a href="#" class="btn btn-secondary">Read More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <h2 class="section-title">Tools & Methods</h2>
+                <div class="grid md:grid-cols-2 gap-10">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-sky-600 mb-6">Programming & Analysis</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700 text-lg">
+                            <li>Python (NumPy, SciPy, Matplotlib)</li>
+                            <li>MATLAB for mathematical modeling</li>
+                            <li>TensorFlow/PyTorch for neural networks</li>
+                            <li>Git for version control</li>
+                            <li>Jupyter notebooks for research documentation</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-sky-600 mb-6">Mathematical Frameworks</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700 text-lg">
+                            <li>Linear algebra and matrix theory</li>
+                            <li>Probability theory and statistics</li>
+                            <li>Differential equations</li>
+                            <li>Information theory</li>
+                            <li>Graph theory and network analysis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 md:py-24 bg-violet-50">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="section-title">Collaborate</h2>
+                <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+                    Interested in collaborating or discussing research ideas? I'm always open to new perspectives and interdisciplinary approaches.
+                </p>
+                <a href="index.html#contact" class="btn btn-primary">Get in Touch</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
+        <div class="container mx-auto px-6">
+            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html></p></section></div></p></div></p></div></p></div>
