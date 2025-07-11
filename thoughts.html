@@ -6,21 +6,29 @@
     <title>Thoughts | Snow's Garage</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
+    <style type="text/tailwindcss">
         body {
             font-family: 'Times New Roman', Times, serif;
             scroll-behavior: smooth;
         }
-        .hero-bg { /* Kept for consistency, though not used on this page directly */
-            background-color: #fee9ec;
+        .hero-bg {
+            background-color: #fef7ed; /* 温暖的奶油色背景 */
         }
-        .section-title { /* Copied for potential use, though main title is styled directly */
+        .section-title {
             @apply text-3xl font-bold text-center mb-12 text-slate-700;
         }
         .card {
             @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
         }
-        /* Copied nav styles */
+        .btn {
+            @apply px-6 py-3 rounded-lg font-semibold transition-colors duration-300;
+        }
+        .btn-primary {
+            @apply bg-sky-500 hover:bg-sky-600 text-white;
+        }
+        .btn-secondary {
+            @apply bg-slate-200 hover:bg-slate-300 text-slate-700;
+        }
         nav {
             position: sticky;
             top: 0;
@@ -28,6 +36,43 @@
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+        }
+        .tag {
+            @apply px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm font-medium;
+        }
+        .search-bar {
+            @apply w-full max-w-md mx-auto mb-8 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent;
+        }
+        .filter-btn {
+            @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer;
+        }
+        .filter-btn.active {
+            @apply bg-sky-600 text-white;
+        }
+        .filter-btn:not(.active) {
+            @apply bg-slate-200 text-slate-700 hover:bg-slate-300;
+        }
+        .thought-item {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        .thought-item.hidden {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+        .quick-add {
+            @apply fixed bottom-6 right-6 bg-sky-600 text-white p-4 rounded-full shadow-lg hover:bg-sky-700 transition-colors cursor-pointer;
+        }
+        .modal {
+            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+        }
+        .modal-content {
+            @apply bg-white p-6 rounded-xl max-w-md w-full mx-4 max-h-96 overflow-y-auto;
+        }
+        .reading-time {
+            @apply text-xs text-slate-400 ml-2;
         }
     </style>
 </head>
@@ -38,66 +83,247 @@
             <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
             <div class="space-x-4">
                 <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
-                <a href="research.html" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
+                <a href="index.html#research" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
                 <a href="thoughts.html" class="text-sky-500 font-semibold">Thoughts</a>
-                <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
-                <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
+                <a href="index.html#music" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
+                <a href="index.html#gallery" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
                 <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto px-6 py-12 md:py-16">
-        <header class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-bold text-sky-700 mb-6">Thought Cabinet</h1>
-            <p class="text-lg text-slate-600 max-w-xl mx-auto">
+    <header class="hero-bg py-20 md:py-32">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Thought Cabinet</h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
                 Am I the ocean or in it — Where is Snow's wandering mind?
             </p>
-        </header>
-        
-        <div class="grid md:grid-cols-1 lg:grid-cols-2 gap-10">
-            <article class="card flex flex-col">
-                <header class="mb-3">
-                    <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                        <a href="#">第一篇随想的标题</a>
-                    </h3>
-                    <p class="text-sm text-slate-500 mt-1">发表于：<time datetime="2025-05-27">2025年5月27日</time></p>
-                </header>
-                <div class="text-slate-700 space-y-4 flex-grow">
-                    <p>
-                        这是这篇随想的开头部分或摘要。你可以畅所欲言，写下你对某个数学概念的顿悟、对计算神经科学某个模型的新理解，或者对一本哲学著作的读后感。
-                    </p>
-                    <p>
-                        保持好奇，持续思考，这里是你的专属空间。
-                    </p>
-                </div>
-                <footer class="mt-6">
-                    <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                </footer>
-            </article>
             
-            <article class="card flex flex-col">
-                <header class="mb-3">
-                    <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                        <a href="#">关于[某个概念]的深入探讨</a>
-                    </h3>
-                    <p class="text-sm text-slate-500 mt-1">发表于：<time datetime="2025-05-25">2025年5月25日</time></p>
-                </header>
-                <div class="text-slate-700 space-y-4 flex-grow">
-                    <p>
-                        你可以在这里记录一些更具体的思考，比如对某个心理学实验的分析，或是对某个社会现象的观察和评论。
-                    </p>
-                    <p>
-                        这个模板的设计考虑了可读性和简洁性，希望能帮助你专注于内容本身。
-                    </p>
-                </div>
-                <footer class="mt-6">
-                    <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                </footer>
-            </article>
+            <!-- 搜索栏 -->
+            <input type="text" id="searchInput" class="search-bar" placeholder="搜索思考内容...">
             
+            <!-- 分类过滤 -->
+            <div class="flex flex-wrap justify-center gap-3 mt-8">
+                <button class="filter-btn active" data-category="all">全部</button>
+                <button class="filter-btn" data-category="mathematics">数学</button>
+                <button class="filter-btn" data-category="neuroscience">神经科学</button>
+                <button class="filter-btn" data-category="philosophy">哲学</button>
+                <button class="filter-btn" data-category="technology">技术</button>
+                <button class="filter-btn" data-category="life">生活感悟</button>
+                <button class="filter-btn" data-category="reading">读书笔记</button>
             </div>
+        </div>
+    </header>
+
+    <main class="py-16 md:py-24">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-1 lg:grid-cols-2 gap-10" id="thoughtsGrid">
+                <!-- 示例思考条目 -->
+                <article class="card flex flex-col thought-item" data-category="mathematics" data-keywords="数学 微积分 极限 思维">
+                    <header class="mb-4">
+                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
+                            <a href="#">关于极限概念的直觉理解</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2">
+                            发表于：<time datetime="2025-07-10">2025年7月10日</time>
+                            <span class="reading-time">• 3分钟阅读</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="tag">数学</span>
+                            <span class="tag">微积分</span>
+                        </div>
+                    </header>
+                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
+                        <p>
+                            今天在重新思考微积分中的极限概念时，突然意识到极限不仅仅是一个数学工具，更是一种思维方式。它教会我们如何处理"无穷接近但永远不相等"的矛盾。
+                        </p>
+                        <p>
+                            这种思维方式在生活中也很有用：完美主义者往往追求绝对的完美，但极限告诉我们，有时候"无限接近"就已经足够了。
+                        </p>
+                    </div>
+                    <footer class="mt-6">
+                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
+                    </footer>
+                </article>
+                
+                <article class="card flex flex-col thought-item" data-category="neuroscience" data-keywords="神经科学 意识 自由意志">
+                    <header class="mb-4">
+                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
+                            <a href="#">意识的硬问题与计算神经科学</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2">
+                            发表于：<time datetime="2025-07-08">2025年7月8日</time>
+                            <span class="reading-time">• 5分钟阅读</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="tag">神经科学</span>
+                            <span class="tag">意识</span>
+                        </div>
+                    </header>
+                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
+                        <p>
+                            Chalmers的"意识硬问题"一直困扰着我。为什么我们有主观体验？为什么神经元的放电会产生"红色的感觉"？计算神经科学能否解答这个问题？
+                        </p>
+                        <p>
+                            最近读到一些关于全局工作空间理论的研究，让我对意识的计算基础有了新的理解...
+                        </p>
+                    </div>
+                    <footer class="mt-6">
+                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
+                    </footer>
+                </article>
+                
+                <article class="card flex flex-col thought-item" data-category="philosophy" data-keywords="哲学 存在主义 萨特 自由">
+                    <header class="mb-4">
+                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
+                            <a href="#">重读《存在与虚无》的感悟</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2">
+                            发表于：<time datetime="2025-07-05">2025年7月5日</time>
+                            <span class="reading-time">• 4分钟阅读</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="tag">哲学</span>
+                            <span class="tag">存在主义</span>
+                        </div>
+                    </header>
+                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
+                        <p>
+                            萨特说"存在先于本质"，这句话在我25岁时听来是激进的，现在却显得如此真实。我们每个人都是先存在，然后通过选择和行动来定义自己的本质。
+                        </p>
+                        <p>
+                            这种自由既是礼物也是重担。我们被"判定"为自由的，必须承担选择的全部责任。
+                        </p>
+                    </div>
+                    <footer class="mt-6">
+                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
+                    </footer>
+                </article>
+                
+                <article class="card flex flex-col thought-item" data-category="technology" data-keywords="人工智能 机器学习 伦理">
+                    <header class="mb-4">
+                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
+                            <a href="#">AI时代的人文思考</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2">
+                            发表于：<time datetime="2025-07-03">2025年7月3日</time>
+                            <span class="reading-time">• 6分钟阅读</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="tag">技术</span>
+                            <span class="tag">人工智能</span>
+                        </div>
+                    </header>
+                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
+                        <p>
+                            当我们讨论AI的未来时，技术问题往往占据主导地位。但我觉得更重要的是思考：在AI能够完成越来越多人类任务的时代，什么才是人类独有的价值？
+                        </p>
+                        <p>
+                            也许答案不在于我们能做什么，而在于我们选择做什么，以及我们如何赋予行动以意义。
+                        </p>
+                    </div>
+                    <footer class="mt-6">
+                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
+                    </footer>
+                </article>
+                
+                <article class="card flex flex-col thought-item" data-category="life" data-keywords="生活 时间 效率 平衡">
+                    <header class="mb-4">
+                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
+                            <a href="#">关于时间管理的反思</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2">
+                            发表于：<time datetime="2025-07-01">2025年7月1日</time>
+                            <span class="reading-time">• 2分钟阅读</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="tag">生活感悟</span>
+                            <span class="tag">时间管理</span>
+                        </div>
+                    </header>
+                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
+                        <p>
+                            最近意识到，我们谈论"时间管理"，但其实我们管理的不是时间，而是注意力和精力。时间对每个人都是公平的，但我们如何分配注意力却大不相同。
+                        </p>
+                        <p>
+                            真正的效率不是做更多的事，而是做更重要的事，并且全心全意地去做。
+                        </p>
+                    </div>
+                    <footer class="mt-6">
+                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
+                    </footer>
+                </article>
+                
+                <article class="card flex flex-col thought-item" data-category="reading" data-keywords="阅读 村上春树 文学">
+                    <header class="mb-4">
+                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
+                            <a href="#">《挪威的森林》重读笔记</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2">
+                            发表于：<time datetime="2025-06-28">2025年6月28日</time>
+                            <span class="reading-time">• 3分钟阅读</span>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="tag">读书笔记</span>
+                            <span class="tag">文学</span>
+                        </div>
+                    </header>
+                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
+                        <p>
+                            十年后重读《挪威的森林》，感受完全不同了。年轻时关注的是渡边君的爱情困扰，现在更能体会到村上春树对生死、记忆和成长的深刻思考。
+                        </p>
+                        <p>
+                            "死并非生的对立面，而作为生的一部分永存。"这句话现在读来格外沉重。
+                        </p>
+                    </div>
+                    <footer class="mt-6">
+                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
+                    </footer>
+                </article>
+            </div>
+            
+            <!-- 分页 -->
+            <div class="flex justify-center mt-16">
+                <div class="flex space-x-2">
+                    <button class="btn btn-secondary">上一页</button>
+                    <button class="btn btn-primary">1</button>
+                    <button class="btn btn-secondary">2</button>
+                    <button class="btn btn-secondary">3</button>
+                    <button class="btn btn-secondary">下一页</button>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- 快速添加按钮 -->
+    <div class="quick-add" id="quickAddBtn">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+    </div>
+
+    <!-- 快速添加模态框 -->
+    <div class="modal hidden" id="quickAddModal">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">快速记录想法</h3>
+            <form id="quickAddForm">
+                <input type="text" id="quickTitle" placeholder="想法标题" class="w-full p-3 border rounded-lg mb-3">
+                <textarea id="quickContent" placeholder="写下你的想法..." class="w-full p-3 border rounded-lg mb-3 h-32"></textarea>
+                <select id="quickCategory" class="w-full p-3 border rounded-lg mb-4">
+                    <option value="life">生活感悟</option>
+                    <option value="mathematics">数学</option>
+                    <option value="neuroscience">神经科学</option>
+                    <option value="philosophy">哲学</option>
+                    <option value="technology">技术</option>
+                    <option value="reading">读书笔记</option>
+                </select>
+                <div class="flex space-x-3">
+                    <button type="submit" class="btn btn-primary flex-1">保存</button>
+                    <button type="button" id="cancelAdd" class="btn btn-secondary flex-1">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <footer class="bg-slate-800 text-slate-300 py-10 text-center">
         <div class="container mx-auto px-6">
@@ -107,7 +333,99 @@
     </footer>
 
     <script>
+        // 设置当前年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // 搜索功能
+        const searchInput = document.getElementById('searchInput');
+        const thoughtItems = document.querySelectorAll('.thought-item');
+        
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            thoughtItems.forEach(item => {
+                const keywords = item.dataset.keywords.toLowerCase();
+                const title = item.querySelector('h3').textContent.toLowerCase();
+                const content = item.querySelector('.text-slate-700').textContent.toLowerCase();
+                
+                if (keywords.includes(query) || title.includes(query) || content.includes(query)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+
+        // 分类过滤功能
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 更新按钮状态
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.dataset.category;
+                
+                thoughtItems.forEach(item => {
+                    if (category === 'all' || item.dataset.category === category) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // 快速添加功能
+        const quickAddBtn = document.getElementById('quickAddBtn');
+        const quickAddModal = document.getElementById('quickAddModal');
+        const cancelAdd = document.getElementById('cancelAdd');
+        const quickAddForm = document.getElementById('quickAddForm');
+
+        quickAddBtn.addEventListener('click', () => {
+            quickAddModal.classList.remove('hidden');
+        });
+
+        cancelAdd.addEventListener('click', () => {
+            quickAddModal.classList.add('hidden');
+            quickAddForm.reset();
+        });
+
+        quickAddModal.addEventListener('click', (e) => {
+            if (e.target === quickAddModal) {
+                quickAddModal.classList.add('hidden');
+                quickAddForm.reset();
+            }
+        });
+
+        quickAddForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('quickTitle').value;
+            const content = document.getElementById('quickContent').value;
+            const category = document.getElementById('quickCategory').value;
+            
+            if (title && content) {
+                // 这里应该是提交到后端的逻辑
+                // 现在只是简单的提示
+                alert('想法已保存！（这里需要连接后端数据库）');
+                quickAddModal.classList.add('hidden');
+                quickAddForm.reset();
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
     </script>
 
 </body>
