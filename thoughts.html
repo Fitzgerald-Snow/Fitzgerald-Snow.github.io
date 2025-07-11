@@ -69,7 +69,10 @@
             @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
         }
         .modal-content {
-            @apply bg-white p-6 rounded-xl max-w-md w-full mx-4 max-h-96 overflow-y-auto;
+            @apply bg-white p-6 rounded-xl max-w-md w-full mx-4 max-h-96 overflow-y-auto relative;
+        }
+        .close-btn {
+            @apply absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer text-2xl font-bold;
         }
         .reading-time {
             @apply text-xs text-slate-400 ml-2;
@@ -305,6 +308,7 @@
     <!-- 快速添加模态框 -->
     <div class="modal hidden" id="quickAddModal">
         <div class="modal-content">
+            <div class="close-btn" id="closeModal">&times;</div>
             <h3 class="text-xl font-semibold mb-4">快速记录想法</h3>
             <form id="quickAddForm">
                 <input type="text" id="quickTitle" placeholder="想法标题" class="w-full p-3 border rounded-lg mb-3">
@@ -379,22 +383,38 @@
         // 快速添加功能
         const quickAddBtn = document.getElementById('quickAddBtn');
         const quickAddModal = document.getElementById('quickAddModal');
+        const closeModal = document.getElementById('closeModal');
         const cancelAdd = document.getElementById('cancelAdd');
         const quickAddForm = document.getElementById('quickAddForm');
 
+        // 打开模态框
         quickAddBtn.addEventListener('click', () => {
             quickAddModal.classList.remove('hidden');
         });
 
-        cancelAdd.addEventListener('click', () => {
+        // 关闭模态框的多种方式
+        function closeModalFunction() {
             quickAddModal.classList.add('hidden');
             quickAddForm.reset();
-        });
+        }
 
+        // 点击 X 按钮关闭
+        closeModal.addEventListener('click', closeModalFunction);
+
+        // 点击取消按钮关闭
+        cancelAdd.addEventListener('click', closeModalFunction);
+
+        // 点击背景关闭
         quickAddModal.addEventListener('click', (e) => {
             if (e.target === quickAddModal) {
-                quickAddModal.classList.add('hidden');
-                quickAddForm.reset();
+                closeModalFunction();
+            }
+        });
+
+        // 按ESC键关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !quickAddModal.classList.contains('hidden')) {
+                closeModalFunction();
             }
         });
 
@@ -409,8 +429,7 @@
                 // 这里应该是提交到后端的逻辑
                 // 现在只是简单的提示
                 alert('想法已保存！（这里需要连接后端数据库）');
-                quickAddModal.classList.add('hidden');
-                quickAddForm.reset();
+                closeModalFunction();
             }
         });
 
