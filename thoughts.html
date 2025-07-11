@@ -5,29 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thoughts | Snow's Garage</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style type="text/tailwindcss">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
         body {
             font-family: 'Times New Roman', Times, serif;
             scroll-behavior: smooth;
         }
         .hero-bg {
-            background-color: #fef7ed; /* 温暖的奶油色背景 */
-        }
-        .section-title {
-            @apply text-3xl font-bold text-center mb-12 text-slate-700;
-        }
-        .card {
-            @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
-        }
-        .btn {
-            @apply px-6 py-3 rounded-lg font-semibold transition-colors duration-300;
-        }
-        .btn-primary {
-            @apply bg-sky-500 hover:bg-sky-600 text-white;
-        }
-        .btn-secondary {
-            @apply bg-slate-200 hover:bg-slate-300 text-slate-700;
+            background-color: #fdf2f8;
         }
         nav {
             position: sticky;
@@ -37,45 +24,34 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        .tag {
-            @apply px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm font-medium;
+        .admin-panel {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 2px dashed #d1d5db;
         }
-        .search-bar {
-            @apply w-full max-w-md mx-auto mb-8 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent;
+        .thought-card {
+            @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6;
         }
-        .filter-btn {
-            @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer;
+        .admin-mode .admin-only {
+            display: block !important;
         }
-        .filter-btn.active {
-            @apply bg-sky-600 text-white;
+        .admin-only {
+            display: none;
         }
-        .filter-btn:not(.active) {
-            @apply bg-slate-200 text-slate-700 hover:bg-slate-300;
+        .edit-form {
+            @apply mt-4 p-4 bg-slate-50 rounded-lg border;
         }
-        .thought-item {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.3s ease;
+        .upvote-btn {
+            @apply flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200;
         }
-        .thought-item.hidden {
-            opacity: 0;
-            transform: translateY(10px);
+        .upvote-btn:not(.voted) {
+            @apply bg-slate-100 hover:bg-slate-200 text-slate-600;
+        }
+        .upvote-btn.voted {
+            @apply bg-sky-100 text-sky-600;
+        }
+        .loading {
+            opacity: 0.6;
             pointer-events: none;
-        }
-        .quick-add {
-            @apply fixed bottom-6 right-6 bg-sky-600 text-white p-4 rounded-full shadow-lg hover:bg-sky-700 transition-colors cursor-pointer;
-        }
-        .modal {
-            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
-        }
-        .modal-content {
-            @apply bg-white p-6 rounded-xl max-w-md w-full mx-4 max-h-96 overflow-y-auto relative;
-        }
-        .close-btn {
-            @apply absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer text-2xl font-bold;
-        }
-        .reading-time {
-            @apply text-xs text-slate-400 ml-2;
         }
     </style>
 </head>
@@ -91,6 +67,7 @@
                 <a href="index.html#music" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
                 <a href="index.html#gallery" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
                 <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
+                <button id="adminBtn" class="text-slate-400 hover:text-sky-500 transition-colors text-sm">Admin</button>
             </div>
         </div>
     </nav>
@@ -101,349 +78,346 @@
             <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
                 Am I the ocean or in it — Where is Snow's wandering mind?
             </p>
-            
-            <!-- 搜索栏 -->
-            <input type="text" id="searchInput" class="search-bar" placeholder="搜索思考内容...">
-            
-            <!-- 分类过滤 -->
-            <div class="flex flex-wrap justify-center gap-3 mt-8">
-                <button class="filter-btn active" data-category="all">全部</button>
-                <button class="filter-btn" data-category="mathematics">数学</button>
-                <button class="filter-btn" data-category="neuroscience">神经科学</button>
-                <button class="filter-btn" data-category="philosophy">哲学</button>
-                <button class="filter-btn" data-category="technology">技术</button>
-                <button class="filter-btn" data-category="life">生活感悟</button>
-                <button class="filter-btn" data-category="reading">读书笔记</button>
-            </div>
         </div>
     </header>
 
     <main class="py-16 md:py-24">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-1 lg:grid-cols-2 gap-10" id="thoughtsGrid">
-                <!-- 示例思考条目 -->
-                <article class="card flex flex-col thought-item" data-category="mathematics" data-keywords="数学 微积分 极限 思维">
-                    <header class="mb-4">
-                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                            <a href="#">关于极限概念的直觉理解</a>
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-2">
-                            发表于：<time datetime="2025-07-10">2025年7月10日</time>
-                            <span class="reading-time">• 3分钟阅读</span>
-                        </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="tag">数学</span>
-                            <span class="tag">微积分</span>
-                        </div>
-                    </header>
-                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
-                        <p>
-                            今天在重新思考微积分中的极限概念时，突然意识到极限不仅仅是一个数学工具，更是一种思维方式。它教会我们如何处理"无穷接近但永远不相等"的矛盾。
-                        </p>
-                        <p>
-                            这种思维方式在生活中也很有用：完美主义者往往追求绝对的完美，但极限告诉我们，有时候"无限接近"就已经足够了。
-                        </p>
-                    </div>
-                    <footer class="mt-6">
-                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                    </footer>
-                </article>
-                
-                <article class="card flex flex-col thought-item" data-category="neuroscience" data-keywords="神经科学 意识 自由意志">
-                    <header class="mb-4">
-                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                            <a href="#">意识的硬问题与计算神经科学</a>
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-2">
-                            发表于：<time datetime="2025-07-08">2025年7月8日</time>
-                            <span class="reading-time">• 5分钟阅读</span>
-                        </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="tag">神经科学</span>
-                            <span class="tag">意识</span>
-                        </div>
-                    </header>
-                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
-                        <p>
-                            Chalmers的"意识硬问题"一直困扰着我。为什么我们有主观体验？为什么神经元的放电会产生"红色的感觉"？计算神经科学能否解答这个问题？
-                        </p>
-                        <p>
-                            最近读到一些关于全局工作空间理论的研究，让我对意识的计算基础有了新的理解...
-                        </p>
-                    </div>
-                    <footer class="mt-6">
-                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                    </footer>
-                </article>
-                
-                <article class="card flex flex-col thought-item" data-category="philosophy" data-keywords="哲学 存在主义 萨特 自由">
-                    <header class="mb-4">
-                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                            <a href="#">重读《存在与虚无》的感悟</a>
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-2">
-                            发表于：<time datetime="2025-07-05">2025年7月5日</time>
-                            <span class="reading-time">• 4分钟阅读</span>
-                        </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="tag">哲学</span>
-                            <span class="tag">存在主义</span>
-                        </div>
-                    </header>
-                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
-                        <p>
-                            萨特说"存在先于本质"，这句话在我25岁时听来是激进的，现在却显得如此真实。我们每个人都是先存在，然后通过选择和行动来定义自己的本质。
-                        </p>
-                        <p>
-                            这种自由既是礼物也是重担。我们被"判定"为自由的，必须承担选择的全部责任。
-                        </p>
-                    </div>
-                    <footer class="mt-6">
-                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                    </footer>
-                </article>
-                
-                <article class="card flex flex-col thought-item" data-category="technology" data-keywords="人工智能 机器学习 伦理">
-                    <header class="mb-4">
-                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                            <a href="#">AI时代的人文思考</a>
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-2">
-                            发表于：<time datetime="2025-07-03">2025年7月3日</time>
-                            <span class="reading-time">• 6分钟阅读</span>
-                        </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="tag">技术</span>
-                            <span class="tag">人工智能</span>
-                        </div>
-                    </header>
-                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
-                        <p>
-                            当我们讨论AI的未来时，技术问题往往占据主导地位。但我觉得更重要的是思考：在AI能够完成越来越多人类任务的时代，什么才是人类独有的价值？
-                        </p>
-                        <p>
-                            也许答案不在于我们能做什么，而在于我们选择做什么，以及我们如何赋予行动以意义。
-                        </p>
-                    </div>
-                    <footer class="mt-6">
-                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                    </footer>
-                </article>
-                
-                <article class="card flex flex-col thought-item" data-category="life" data-keywords="生活 时间 效率 平衡">
-                    <header class="mb-4">
-                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                            <a href="#">关于时间管理的反思</a>
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-2">
-                            发表于：<time datetime="2025-07-01">2025年7月1日</time>
-                            <span class="reading-time">• 2分钟阅读</span>
-                        </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="tag">生活感悟</span>
-                            <span class="tag">时间管理</span>
-                        </div>
-                    </header>
-                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
-                        <p>
-                            最近意识到，我们谈论"时间管理"，但其实我们管理的不是时间，而是注意力和精力。时间对每个人都是公平的，但我们如何分配注意力却大不相同。
-                        </p>
-                        <p>
-                            真正的效率不是做更多的事，而是做更重要的事，并且全心全意地去做。
-                        </p>
-                    </div>
-                    <footer class="mt-6">
-                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                    </footer>
-                </article>
-                
-                <article class="card flex flex-col thought-item" data-category="reading" data-keywords="阅读 村上春树 文学">
-                    <header class="mb-4">
-                        <h3 class="text-2xl font-semibold text-sky-700 hover:text-sky-500 transition-colors">
-                            <a href="#">《挪威的森林》重读笔记</a>
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-2">
-                            发表于：<time datetime="2025-06-28">2025年6月28日</time>
-                            <span class="reading-time">• 3分钟阅读</span>
-                        </p>
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span class="tag">读书笔记</span>
-                            <span class="tag">文学</span>
-                        </div>
-                    </header>
-                    <div class="text-slate-700 space-y-4 flex-grow leading-relaxed">
-                        <p>
-                            十年后重读《挪威的森林》，感受完全不同了。年轻时关注的是渡边君的爱情困扰，现在更能体会到村上春树对生死、记忆和成长的深刻思考。
-                        </p>
-                        <p>
-                            "死并非生的对立面，而作为生的一部分永存。"这句话现在读来格外沉重。
-                        </p>
-                    </div>
-                    <footer class="mt-6">
-                        <a href="#" class="text-sky-600 hover:text-sky-700 font-semibold hover:underline">阅读全文 &rarr;</a>
-                    </footer>
-                </article>
-            </div>
+        <div class="container mx-auto px-6 max-w-4xl">
             
-            <!-- 分页 -->
-            <div class="flex justify-center mt-16">
-                <div class="flex space-x-2">
-                    <button class="btn btn-secondary">上一页</button>
-                    <button class="btn btn-primary">1</button>
-                    <button class="btn btn-secondary">2</button>
-                    <button class="btn btn-secondary">3</button>
-                    <button class="btn btn-secondary">下一页</button>
-                </div>
+            <!-- 管理员面板 -->
+            <div id="adminPanel" class="admin-only admin-panel p-6 rounded-xl mb-8">
+                <h3 class="text-xl font-semibold mb-4 text-slate-700">✏️ Add New Thought</h3>
+                <form id="thoughtForm">
+                    <input type="text" id="thoughtTitle" placeholder="Title of your thought..." 
+                           class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    <textarea id="thoughtContent" placeholder="What's on your mind?" 
+                              class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                    <div class="flex space-x-3">
+                        <button type="submit" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
+                            Add Thought
+                        </button>
+                        <button type="button" id="cancelBtn" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loadingDiv" class="text-center py-8">
+                <p class="text-slate-600">Loading thoughts...</p>
+            </div>
+
+            <!-- 思想列表 -->
+            <div id="thoughtsList">
+                <!-- 动态加载的思想会出现在这里 -->
             </div>
         </div>
     </main>
 
-    <!-- 快速添加按钮 -->
-    <div class="quick-add" id="quickAddBtn">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-        </svg>
-    </div>
-
-    <!-- 快速添加模态框 -->
-    <div class="modal hidden" id="quickAddModal">
-        <div class="modal-content">
-            <div class="close-btn" id="closeModal">&times;</div>
-            <h3 class="text-xl font-semibold mb-4">快速记录想法</h3>
-            <form id="quickAddForm">
-                <input type="text" id="quickTitle" placeholder="想法标题" class="w-full p-3 border rounded-lg mb-3">
-                <textarea id="quickContent" placeholder="写下你的想法..." class="w-full p-3 border rounded-lg mb-3 h-32"></textarea>
-                <select id="quickCategory" class="w-full p-3 border rounded-lg mb-4">
-                    <option value="life">生活感悟</option>
-                    <option value="mathematics">数学</option>
-                    <option value="neuroscience">神经科学</option>
-                    <option value="philosophy">哲学</option>
-                    <option value="technology">技术</option>
-                    <option value="reading">读书笔记</option>
-                </select>
-                <div class="flex space-x-3">
-                    <button type="submit" class="btn btn-primary flex-1">保存</button>
-                    <button type="button" id="cancelAdd" class="btn btn-secondary flex-1">取消</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <footer class="bg-slate-800 text-slate-300 py-10 text-center">
         <div class="container mx-auto px-6">
             <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
-            <p class="text-sm mt-2">Powered by Tailwind CSS</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS + Firebase</p>
         </div>
     </footer>
 
     <script>
+        // Firebase 配置 - 你需要替换为你自己的配置
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // 设置当前年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // 搜索功能
-        const searchInput = document.getElementById('searchInput');
-        const thoughtItems = document.querySelectorAll('.thought-item');
-        
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            thoughtItems.forEach(item => {
-                const keywords = item.dataset.keywords.toLowerCase();
-                const title = item.querySelector('h3').textContent.toLowerCase();
-                const content = item.querySelector('.text-slate-700').textContent.toLowerCase();
-                
-                if (keywords.includes(query) || title.includes(query) || content.includes(query)) {
-                    item.classList.remove('hidden');
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-        });
+        // 管理员登录状态
+        let isAdmin = false;
+        const adminBtn = document.getElementById('adminBtn');
+        const adminPanel = document.getElementById('adminPanel');
+        const thoughtForm = document.getElementById('thoughtForm');
+        const thoughtsList = document.getElementById('thoughtsList');
+        const loadingDiv = document.getElementById('loadingDiv');
 
-        // 分类过滤功能
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                // 更新按钮状态
-                filterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                const category = this.dataset.category;
-                
-                thoughtItems.forEach(item => {
-                    if (category === 'all' || item.dataset.category === category) {
-                        item.classList.remove('hidden');
-                    } else {
-                        item.classList.add('hidden');
-                    }
-                });
-            });
-        });
-
-        // 快速添加功能
-        const quickAddBtn = document.getElementById('quickAddBtn');
-        const quickAddModal = document.getElementById('quickAddModal');
-        const closeModal = document.getElementById('closeModal');
-        const cancelAdd = document.getElementById('cancelAdd');
-        const quickAddForm = document.getElementById('quickAddForm');
-
-        // 打开模态框
-        quickAddBtn.addEventListener('click', () => {
-            quickAddModal.classList.remove('hidden');
-        });
-
-        // 关闭模态框的多种方式
-        function closeModalFunction() {
-            quickAddModal.classList.add('hidden');
-            quickAddForm.reset();
+        // 生成用户唯一标识
+        function getUserId() {
+            let userId = localStorage.getItem('thoughtsUserId');
+            if (!userId) {
+                userId = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now();
+                localStorage.setItem('thoughtsUserId', userId);
+            }
+            return userId;
         }
 
-        // 点击 X 按钮关闭
-        closeModal.addEventListener('click', closeModalFunction);
-
-        // 点击取消按钮关闭
-        cancelAdd.addEventListener('click', closeModalFunction);
-
-        // 点击背景关闭
-        quickAddModal.addEventListener('click', (e) => {
-            if (e.target === quickAddModal) {
-                closeModalFunction();
+        // 简单的管理员验证
+        adminBtn.addEventListener('click', () => {
+            if (!isAdmin) {
+                const password = prompt('Enter admin password:');
+                if (password === 'snow2025') {
+                    isAdmin = true;
+                    document.body.classList.add('admin-mode');
+                    adminBtn.textContent = 'Logout';
+                    adminBtn.classList.remove('text-slate-400');
+                    adminBtn.classList.add('text-sky-500');
+                } else if (password !== null) {
+                    alert('Incorrect password');
+                }
+            } else {
+                isAdmin = false;
+                document.body.classList.remove('admin-mode');
+                adminBtn.textContent = 'Admin';
+                adminBtn.classList.add('text-slate-400');
+                adminBtn.classList.remove('text-sky-500');
             }
         });
 
-        // 按ESC键关闭
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !quickAddModal.classList.contains('hidden')) {
-                closeModalFunction();
-            }
-        });
-
-        quickAddForm.addEventListener('submit', (e) => {
+        // 添加新思想
+        thoughtForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const title = document.getElementById('quickTitle').value;
-            const content = document.getElementById('quickContent').value;
-            const category = document.getElementById('quickCategory').value;
+            const title = document.getElementById('thoughtTitle').value.trim();
+            const content = document.getElementById('thoughtContent').value.trim();
             
             if (title && content) {
-                // 这里应该是提交到后端的逻辑
-                // 现在只是简单的提示
-                alert('想法已保存！（这里需要连接后端数据库）');
-                closeModalFunction();
+                try {
+                    await db.collection('thoughts').add({
+                        title: title,
+                        content: content,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        upvotes: 0,
+                        upvotedBy: []
+                    });
+                    
+                    thoughtForm.reset();
+                    loadThoughts(); // 重新加载思想列表
+                } catch (error) {
+                    console.error('Error adding thought:', error);
+                    alert('Error adding thought. Please try again.');
+                }
             }
         });
 
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
+        // 取消按钮
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            thoughtForm.reset();
+        });
+
+        // 加载思想列表
+        async function loadThoughts() {
+            try {
+                loadingDiv.style.display = 'block';
+                thoughtsList.innerHTML = '';
+
+                const snapshot = await db.collection('thoughts')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                loadingDiv.style.display = 'none';
+
+                if (snapshot.empty) {
+                    thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const thought = doc.data();
+                    const thoughtElement = createThoughtElement(doc.id, thought);
+                    thoughtsList.appendChild(thoughtElement);
+                });
+
+            } catch (error) {
+                console.error('Error loading thoughts:', error);
+                loadingDiv.style.display = 'none';
+                thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
+            }
+        }
+
+        // 创建思想元素
+        function createThoughtElement(id, thought) {
+            const userId = getUserId();
+            const hasUpvoted = thought.upvotedBy && thought.upvotedBy.includes(userId);
+            const date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) : 'Recently';
+
+            const article = document.createElement('article');
+            article.className = 'thought-card';
+            article.setAttribute('data-id', id);
+
+            article.innerHTML = `
+                <div class="flex justify-between items-start mb-4 admin-only">
+                    <button class="edit-btn text-sky-600 hover:text-sky-700 text-sm" data-id="${id}">Edit</button>
+                    <button class="delete-btn text-red-600 hover:text-red-700 text-sm" data-id="${id}">Delete</button>
+                </div>
+                <div class="content">
+                    <h2 class="text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
+                    <p class="text-sm text-slate-500 mb-4">${date}</p>
+                    <div class="text-slate-700 leading-relaxed mb-4">
+                        <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" data-id="${id}">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="upvote-count">${thought.upvotes || 0}</span>
+                        </button>
+                        <span class="text-xs text-slate-400">${hasUpvoted ? 'You upvoted this' : 'Click to upvote'}</span>
+                    </div>
+                </div>
+            `;
+
+            // 添加事件监听器
+            const editBtn = article.querySelector('.edit-btn');
+            const deleteBtn = article.querySelector('.delete-btn');
+            const upvoteBtn = article.querySelector('.upvote-btn');
+
+            if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
+            if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
+            if (upvoteBtn) upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
+
+            return article;
+        }
+
+        // 处理点赞
+        async function handleUpvote(thoughtId, button) {
+            const userId = getUserId();
+            
+            if (button.classList.contains('voted')) {
+                return; // 已经点过赞了
+            }
+
+            try {
+                button.classList.add('loading');
+                
+                const thoughtRef = db.collection('thoughts').doc(thoughtId);
+                
+                await db.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(thoughtRef);
+                    if (!doc.exists) {
+                        throw new Error('Thought does not exist!');
+                    }
+
+                    const data = doc.data();
+                    const upvotedBy = data.upvotedBy || [];
+                    
+                    if (upvotedBy.includes(userId)) {
+                        throw new Error('Already upvoted');
+                    }
+
+                    const newUpvotes = (data.upvotes || 0) + 1;
+                    const newUpvotedBy = [...upvotedBy, userId];
+
+                    transaction.update(thoughtRef, {
+                        upvotes: newUpvotes,
+                        upvotedBy: newUpvotedBy
                     });
+                });
+
+                // 更新UI
+                button.classList.add('voted');
+                button.classList.remove('loading');
+                const countSpan = button.querySelector('.upvote-count');
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                
+                // 更新提示文字
+                const hint = button.parentElement.querySelector('.text-slate-400');
+                hint.textContent = 'You upvoted this';
+
+            } catch (error) {
+                console.error('Error upvoting:', error);
+                button.classList.remove('loading');
+                if (error.message !== 'Already upvoted') {
+                    alert('Error upvoting. Please try again.');
+                }
+            }
+        }
+
+        // 处理删除
+        async function handleDelete(thoughtId, article) {
+            if (confirm('Are you sure you want to delete this thought?')) {
+                try {
+                    await db.collection('thoughts').doc(thoughtId).delete();
+                    article.remove();
+                } catch (error) {
+                    console.error('Error deleting thought:', error);
+                    alert('Error deleting thought. Please try again.');
+                }
+            }
+        }
+
+        // 处理编辑
+        function handleEdit(thoughtId, article) {
+            const content = article.querySelector('.content');
+            const title = content.querySelector('h2').textContent;
+            const text = content.querySelector('.text-slate-700 p').innerHTML.replace(/<br>/g, '\n');
+
+            const editForm = document.createElement('div');
+            editForm.className = 'edit-form';
+            editForm.innerHTML = `
+                <input type="text" class="edit-title w-full p-3 border rounded-lg mb-3" value="${escapeHtml(title)}">
+                <textarea class="edit-content w-full p-3 border rounded-lg mb-3 h-32">${escapeHtml(text)}</textarea>
+                <div class="flex space-x-3">
+                    <button class="save-btn px-4 py-2 bg-sky-500 text-white rounded-lg">Save</button>
+                    <button class="cancel-edit-btn px-4 py-2 bg-slate-300 text-slate-700 rounded-lg">Cancel</button>
+                </div>
+            `;
+
+            content.insertAdjacentElement('afterend', editForm);
+            content.style.display = 'none';
+
+            // 保存编辑
+            editForm.querySelector('.save-btn').addEventListener('click', async () => {
+                const newTitle = editForm.querySelector('.edit-title').value.trim();
+                const newContent = editForm.querySelector('.edit-content').value.trim();
+                
+                if (newTitle && newContent) {
+                    try {
+                        await db.collection('thoughts').doc(thoughtId).update({
+                            title: newTitle,
+                            content: newContent
+                        });
+                        
+                        content.querySelector('h2').textContent = newTitle;
+                        content.querySelector('.text-slate-700 p').innerHTML = escapeHtml(newContent).replace(/\n/g, '<br>');
+                        
+                        editForm.remove();
+                        content.style.display = 'block';
+                    } catch (error) {
+                        console.error('Error updating thought:', error);
+                        alert('Error updating thought. Please try again.');
+                    }
                 }
             });
+
+            // 取消编辑
+            editForm.querySelector('.cancel-edit-btn').addEventListener('click', () => {
+                editForm.remove();
+                content.style.display = 'block';
+            });
+        }
+
+        // HTML 转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 页面加载时加载思想
+        document.addEventListener('DOMContentLoaded', () => {
+            loadThoughts();
         });
     </script>
 
