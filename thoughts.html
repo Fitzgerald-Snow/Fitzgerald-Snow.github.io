@@ -8,6 +8,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -37,22 +38,6 @@
         .admin-only {
             display: none;
         }
-        .edit-form {
-            @apply mt-4 p-4 bg-slate-50 rounded-lg border;
-        }
-        .upvote-btn {
-            @apply flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200;
-        }
-        .upvote-btn:not(.voted) {
-            @apply bg-slate-100 hover:bg-slate-200 text-slate-600;
-        }
-        .upvote-btn.voted {
-            @apply bg-sky-100 text-sky-600;
-        }
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -62,365 +47,164 @@
             <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
             <div class="space-x-4">
                 <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
-                <a href="index.html#research" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
                 <a href="thoughts.html" class="text-sky-500 font-semibold">Thoughts</a>
-                <a href="index.html#music" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
-                <a href="index.html#gallery" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
-                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
                 <button id="adminBtn" class="text-slate-400 hover:text-sky-500 transition-colors text-sm">Admin</button>
             </div>
         </div>
     </nav>
 
-    <header class="hero-bg py-20 md:py-32">
-        <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Thought Cabinet</h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-                Am I the ocean or in it — Where is Snow's wandering mind?
-            </p>
-        </div>
+    <header class="hero-bg py-20 md:py-32 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Thought Cabinet</h1>
+        <p class="text-lg md:text-xl text-slate-600 mb-8">Am I the ocean or in it — Where is Snow's wandering mind?</p>
     </header>
 
     <main class="py-16 md:py-24">
         <div class="container mx-auto px-6 max-w-4xl">
-            
-            <!-- 管理员面板 -->
             <div id="adminPanel" class="admin-only admin-panel p-6 rounded-xl mb-8">
-                <h3 class="text-xl font-semibold mb-4 text-slate-700">✏️ Add New Thought</h3>
+                <h3 class="text-xl font-semibold mb-4">✏️ Add New Thought</h3>
                 <form id="thoughtForm">
-                    <input type="text" id="thoughtTitle" placeholder="Title of your thought..." 
-                           class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    <textarea id="thoughtContent" placeholder="What's on your mind?" 
-                              class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
-                    <div class="flex space-x-3">
-                        <button type="submit" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
-                            Add Thought
-                        </button>
-                        <button type="button" id="cancelBtn" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-colors">
-                            Cancel
-                        </button>
-                    </div>
+                    <input type="text" id="thoughtTitle" placeholder="Title..." class="w-full p-3 border rounded mb-3">
+                    <textarea id="thoughtContent" placeholder="Your thought..." class="w-full p-3 border rounded mb-3 h-32"></textarea>
+                    <button type="submit" class="bg-sky-500 text-white px-4 py-2 rounded">Add</button>
+                    <button type="button" id="cancelBtn" class="ml-2 px-4 py-2 border rounded">Cancel</button>
                 </form>
             </div>
 
-            <!-- 加载状态 -->
             <div id="loadingDiv" class="text-center py-8">
                 <p class="text-slate-600">Loading thoughts...</p>
             </div>
 
-            <!-- 思想列表 -->
-            <div id="thoughtsList">
-                <!-- 动态加载的思想会出现在这里 -->
-            </div>
+            <div id="thoughtsList"></div>
         </div>
     </main>
 
     <footer class="bg-slate-800 text-slate-300 py-10 text-center">
-        <div class="container mx-auto px-6">
-            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
-            <p class="text-sm mt-2">Powered by Tailwind CSS + Firebase</p>
-        </div>
+        <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+        <p class="text-sm mt-2">Powered by Tailwind CSS + Firebase</p>
     </footer>
 
     <script>
-        // Firebase 配置 - 你需要替换为你自己的配置
         const firebaseConfig = {
-                apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
-                authDomain: "snow-s-garage.firebaseapp.com",
-                projectId: "snow-s-garage",
-                storageBucket: "snow-s-garage.firebasestorage.app",
-                messagingSenderId: "463583364015",
-                appId: "1:463583364015:web:e0820f3a7b9673d92b255a",
-                measurementId: "G-ZVCMHRMSVB"
-            };
+            apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
+            authDomain: "snow-s-garage.firebaseapp.com",
+            projectId: "snow-s-garage",
+            storageBucket: "snow-s-garage.appspot.com",
+            messagingSenderId: "463583364015",
+            appId: "1:463583364015:web:e0820f3a7b9673d92b255a"
+        };
 
-        // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        let currentUserId = null;
 
-        // 设置当前年份
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-        // 管理员登录状态
-        let isAdmin = false;
-        const adminBtn = document.getElementById('adminBtn');
-        const adminPanel = document.getElementById('adminPanel');
-        const thoughtForm = document.getElementById('thoughtForm');
-        const thoughtsList = document.getElementById('thoughtsList');
-        const loadingDiv = document.getElementById('loadingDiv');
-
-        // 生成用户唯一标识
-        function getUserId() {
-            let userId = localStorage.getItem('thoughtsUserId');
-            if (!userId) {
-                userId = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now();
-                localStorage.setItem('thoughtsUserId', userId);
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log("✅ Logged in:", currentUserId);
+                loadThoughts();
+            } else {
+                firebase.auth().signInAnonymously()
+                    .then(result => {
+                        currentUserId = result.user.uid;
+                        console.log("✅ Anonymous login:", currentUserId);
+                    })
+                    .catch(err => console.error("Login error:", err));
             }
-            return userId;
-        }
+        });
 
-        // 简单的管理员验证
-        adminBtn.addEventListener('click', () => {
+        let isAdmin = false;
+        document.getElementById('adminBtn').addEventListener('click', () => {
             if (!isAdmin) {
                 const password = prompt('Enter admin password:');
                 if (password === 'snow2025') {
                     isAdmin = true;
                     document.body.classList.add('admin-mode');
-                    adminBtn.textContent = 'Logout';
-                    adminBtn.classList.remove('text-slate-400');
-                    adminBtn.classList.add('text-sky-500');
-                } else if (password !== null) {
+                } else {
                     alert('Incorrect password');
                 }
             } else {
                 isAdmin = false;
                 document.body.classList.remove('admin-mode');
-                adminBtn.textContent = 'Admin';
-                adminBtn.classList.add('text-slate-400');
-                adminBtn.classList.remove('text-sky-500');
             }
         });
 
-        // 添加新思想
-        thoughtForm.addEventListener('submit', async (e) => {
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('thoughtForm').reset();
+        });
+
+        document.getElementById('thoughtForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const title = document.getElementById('thoughtTitle').value.trim();
             const content = document.getElementById('thoughtContent').value.trim();
-            
             if (title && content) {
-                try {
-                    await db.collection('thoughts').add({
-                        title: title,
-                        content: content,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        upvotes: 0,
-                        upvotedBy: []
-                    });
-                    
-                    thoughtForm.reset();
-                    loadThoughts(); // 重新加载思想列表
-                } catch (error) {
-                    console.error('Error adding thought:', error);
-                    alert('Error adding thought. Please try again.');
-                }
+                await db.collection('thoughts').add({
+                    title, content, timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    upvotes: 0, upvotedBy: []
+                });
+                e.target.reset();
+                loadThoughts();
             }
         });
 
-        // 取消按钮
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            thoughtForm.reset();
-        });
-
-        // 加载思想列表
         async function loadThoughts() {
-            try {
-                loadingDiv.style.display = 'block';
-                thoughtsList.innerHTML = '';
+            const thoughtsList = document.getElementById('thoughtsList');
+            const loadingDiv = document.getElementById('loadingDiv');
+            loadingDiv.style.display = 'block';
+            thoughtsList.innerHTML = '';
 
-                const snapshot = await db.collection('thoughts')
-                    .orderBy('timestamp', 'desc')
-                    .get();
+            const snapshot = await db.collection('thoughts').orderBy('timestamp', 'desc').get();
+            loadingDiv.style.display = 'none';
 
-                loadingDiv.style.display = 'none';
-
-                if (snapshot.empty) {
-                    thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
-                    return;
-                }
-
-                snapshot.forEach(doc => {
-                    const thought = doc.data();
-                    const thoughtElement = createThoughtElement(doc.id, thought);
-                    thoughtsList.appendChild(thoughtElement);
-                });
-
-            } catch (error) {
-                console.error('Error loading thoughts:', error);
-                loadingDiv.style.display = 'none';
-                thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
+            if (snapshot.empty) {
+                thoughtsList.innerHTML = '<p class="text-center text-slate-500">No thoughts yet.</p>';
+                return;
             }
+
+            snapshot.forEach(doc => {
+                const thought = doc.data();
+                const id = doc.id;
+                const date = thought.timestamp?.toDate().toLocaleDateString() || 'Recently';
+                const hasUpvoted = thought.upvotedBy?.includes(currentUserId);
+
+                const article = document.createElement('article');
+                article.className = 'thought-card';
+                article.innerHTML = `
+                    <h2 class="text-2xl font-bold">${thought.title}</h2>
+                    <p class="text-sm text-slate-500 mb-2">${date}</p>
+                    <p class="mb-4">${thought.content.replace(/\n/g, '<br>')}</p>
+                    <button class="upvote-btn ${hasUpvoted ? 'bg-sky-100 text-sky-600' : 'bg-slate-100 text-slate-600'} px-3 py-2 rounded" data-id="${id}">
+                        ⬆️ ${thought.upvotes || 0} Upvotes
+                    </button>
+                `;
+
+                const upvoteBtn = article.querySelector('.upvote-btn');
+                upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
+
+                thoughtsList.appendChild(article);
+            });
         }
 
-        // 创建思想元素
-        function createThoughtElement(id, thought) {
-            const userId = getUserId();
-            const hasUpvoted = thought.upvotedBy && thought.upvotedBy.includes(userId);
-            const date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }) : 'Recently';
-
-            const article = document.createElement('article');
-            article.className = 'thought-card';
-            article.setAttribute('data-id', id);
-
-            article.innerHTML = `
-                <div class="flex justify-between items-start mb-4 admin-only">
-                    <button class="edit-btn text-sky-600 hover:text-sky-700 text-sm" data-id="${id}">Edit</button>
-                    <button class="delete-btn text-red-600 hover:text-red-700 text-sm" data-id="${id}">Delete</button>
-                </div>
-                <div class="content">
-                    <h2 class="text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
-                    <p class="text-sm text-slate-500 mb-4">${date}</p>
-                    <div class="text-slate-700 leading-relaxed mb-4">
-                        <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" data-id="${id}">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="upvote-count">${thought.upvotes || 0}</span>
-                        </button>
-                        <span class="text-xs text-slate-400">${hasUpvoted ? 'You upvoted this' : 'Click to upvote'}</span>
-                    </div>
-                </div>
-            `;
-
-            // 添加事件监听器
-            const editBtn = article.querySelector('.edit-btn');
-            const deleteBtn = article.querySelector('.delete-btn');
-            const upvoteBtn = article.querySelector('.upvote-btn');
-
-            if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
-            if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
-            if (upvoteBtn) upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
-
-            return article;
-        }
-
-        // 处理点赞
         async function handleUpvote(thoughtId, button) {
-            const userId = getUserId();
-            
-            if (button.classList.contains('voted')) {
-                return; // 已经点过赞了
-            }
-
+            if (!currentUserId) return alert("Please wait until login completes.");
             try {
-                button.classList.add('loading');
-                
-                const thoughtRef = db.collection('thoughts').doc(thoughtId);
-                
-                await db.runTransaction(async (transaction) => {
-                    const doc = await transaction.get(thoughtRef);
-                    if (!doc.exists) {
-                        throw new Error('Thought does not exist!');
-                    }
-
+                await db.runTransaction(async (tx) => {
+                    const docRef = db.collection('thoughts').doc(thoughtId);
+                    const doc = await tx.get(docRef);
                     const data = doc.data();
-                    const upvotedBy = data.upvotedBy || [];
-                    
-                    if (upvotedBy.includes(userId)) {
-                        throw new Error('Already upvoted');
-                    }
-
-                    const newUpvotes = (data.upvotes || 0) + 1;
-                    const newUpvotedBy = [...upvotedBy, userId];
-
-                    transaction.update(thoughtRef, {
-                        upvotes: newUpvotes,
-                        upvotedBy: newUpvotedBy
+                    if (data.upvotedBy?.includes(currentUserId)) throw new Error("Already upvoted");
+                    tx.update(docRef, {
+                        upvotes: (data.upvotes || 0) + 1,
+                        upvotedBy: [...(data.upvotedBy || []), currentUserId]
                     });
                 });
-
-                // 更新UI
-                button.classList.add('voted');
-                button.classList.remove('loading');
-                const countSpan = button.querySelector('.upvote-count');
-                countSpan.textContent = parseInt(countSpan.textContent) + 1;
-                
-                // 更新提示文字
-                const hint = button.parentElement.querySelector('.text-slate-400');
-                hint.textContent = 'You upvoted this';
-
-            } catch (error) {
-                console.error('Error upvoting:', error);
-                button.classList.remove('loading');
-                if (error.message !== 'Already upvoted') {
-                    alert('Error upvoting. Please try again.');
-                }
+                loadThoughts();
+            } catch (err) {
+                console.error(err);
+                if (err.message !== 'Already upvoted') alert('Failed to upvote.');
             }
         }
 
-        // 处理删除
-        async function handleDelete(thoughtId, article) {
-            if (confirm('Are you sure you want to delete this thought?')) {
-                try {
-                    await db.collection('thoughts').doc(thoughtId).delete();
-                    article.remove();
-                } catch (error) {
-                    console.error('Error deleting thought:', error);
-                    alert('Error deleting thought. Please try again.');
-                }
-            }
-        }
-
-        // 处理编辑
-        function handleEdit(thoughtId, article) {
-            const content = article.querySelector('.content');
-            const title = content.querySelector('h2').textContent;
-            const text = content.querySelector('.text-slate-700 p').innerHTML.replace(/<br>/g, '\n');
-
-            const editForm = document.createElement('div');
-            editForm.className = 'edit-form';
-            editForm.innerHTML = `
-                <input type="text" class="edit-title w-full p-3 border rounded-lg mb-3" value="${escapeHtml(title)}">
-                <textarea class="edit-content w-full p-3 border rounded-lg mb-3 h-32">${escapeHtml(text)}</textarea>
-                <div class="flex space-x-3">
-                    <button class="save-btn px-4 py-2 bg-sky-500 text-white rounded-lg">Save</button>
-                    <button class="cancel-edit-btn px-4 py-2 bg-slate-300 text-slate-700 rounded-lg">Cancel</button>
-                </div>
-            `;
-
-            content.insertAdjacentElement('afterend', editForm);
-            content.style.display = 'none';
-
-            // 保存编辑
-            editForm.querySelector('.save-btn').addEventListener('click', async () => {
-                const newTitle = editForm.querySelector('.edit-title').value.trim();
-                const newContent = editForm.querySelector('.edit-content').value.trim();
-                
-                if (newTitle && newContent) {
-                    try {
-                        await db.collection('thoughts').doc(thoughtId).update({
-                            title: newTitle,
-                            content: newContent
-                        });
-                        
-                        content.querySelector('h2').textContent = newTitle;
-                        content.querySelector('.text-slate-700 p').innerHTML = escapeHtml(newContent).replace(/\n/g, '<br>');
-                        
-                        editForm.remove();
-                        content.style.display = 'block';
-                    } catch (error) {
-                        console.error('Error updating thought:', error);
-                        alert('Error updating thought. Please try again.');
-                    }
-                }
-            });
-
-            // 取消编辑
-            editForm.querySelector('.cancel-edit-btn').addEventListener('click', () => {
-                editForm.remove();
-                content.style.display = 'block';
-            });
-        }
-
-        // HTML 转义函数
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // 页面加载时加载思想
-        document.addEventListener('DOMContentLoaded', () => {
-            loadThoughts();
-        });
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
-
 </body>
 </html>
