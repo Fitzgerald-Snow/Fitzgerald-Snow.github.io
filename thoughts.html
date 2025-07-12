@@ -56,46 +56,192 @@
             opacity: 0.6;
             pointer-events: none;
         }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            /* 导航栏移动端优化 */
+            nav .container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            nav .space-x-4 {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            nav .space-x-4 > * {
+                margin-left: 0;
+                font-size: 0.875rem;
+            }
+            
+            /* 思想卡片移动端优化 */
+            .thought-card {
+                @apply p-4 mb-4;
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+            }
+            
+            /* 标题字体大小调整 */
+            .thought-card h2 {
+                font-size: 1.25rem;
+                line-height: 1.4;
+            }
+            
+            /* 按钮区域优化 */
+            .admin-only {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            
+            .admin-only button {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+            
+            /* 点赞按钮区域 */
+            .upvote-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            /* 表单优化 */
+            .admin-panel {
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+                border-radius: 0.5rem;
+            }
+            
+            .admin-panel input,
+            .admin-panel textarea {
+                font-size: 1rem; /* 防止iOS缩放 */
+            }
+            
+            .admin-panel .flex {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .admin-panel button {
+                width: 100%;
+                padding: 0.75rem;
+            }
+            
+            /* 编辑表单优化 */
+            .edit-form .flex {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .edit-form button {
+                width: 100%;
+            }
+        }
+        
+        /* 小屏幕设备进一步优化 */
+        @media (max-width: 480px) {
+            /* 更紧凑的间距 */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Hero区域优化 */
+            .hero-bg {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+            
+            .hero-bg h1 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .hero-bg p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            /* 主内容区优化 */
+            main {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+            
+            /* 思想卡片进一步优化 */
+            .thought-card {
+                border-radius: 0.5rem;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            }
+            
+            /* 点赞区域优化 */
+            .thought-card .flex:last-child {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .thought-card .flex:last-child .text-xs {
+                margin-left: 0;
+            }
+        }
+        
+        /* 触摸优化 */
+        @media (hover: none) and (pointer: coarse) {
+            /* 移除hover效果，增加触摸目标大小 */
+            .upvote-btn,
+            .edit-btn,
+            .delete-btn,
+            button {
+                min-height: 44px; /* iOS推荐的最小触摸目标 */
+            }
+            
+            /* 移除悬停效果 */
+            .thought-card:hover {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
     <nav class="shadow-md">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
-            <div class="space-x-4">
-                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
-                <a href="index.html#research" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
-                <a href="thoughts.html" class="text-sky-500 font-semibold">Thoughts</a>
-                <a href="index.html#music" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
-                <a href="index.html#gallery" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
-                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
-                <button id="adminBtn" class="text-slate-400 hover:text-sky-500 transition-colors text-sm">Admin</button>
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center md:flex-row flex-col">
+            <a href="index.html" class="text-2xl font-bold text-sky-600 mb-2 md:mb-0">Fitzgerald Snow</a>
+            <div class="flex flex-wrap justify-center md:space-x-4 space-x-2 space-y-1 md:space-y-0">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">About me</a>
+                <a href="index.html#research" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Research</a>
+                <a href="thoughts.html" class="text-sky-500 font-semibold px-2 py-1">Thoughts</a>
+                <a href="index.html#music" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Music</a>
+                <a href="index.html#gallery" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Contact me</a>
+                <button id="adminBtn" class="text-slate-400 hover:text-sky-500 transition-colors text-sm px-2 py-1">Admin</button>
             </div>
         </div>
     </nav>
 
-    <header class="hero-bg py-20 md:py-32">
+    <header class="hero-bg py-12 md:py-20 lg:py-32">
         <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Thought Cabinet</h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+            <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-sky-700 mb-4 md:mb-6">Thought Cabinet</h1>
+            <p class="text-base md:text-lg lg:text-xl text-slate-600 mb-6 md:mb-8 max-w-2xl mx-auto">
                 Am I the ocean or in it — Where is Snow's wandering mind?
             </p>
         </div>
     </header>
 
-    <main class="py-16 md:py-24">
-        <div class="container mx-auto px-6 max-w-4xl">
+    <main class="py-8 md:py-16 lg:py-24">
+        <div class="container mx-auto px-4 md:px-6 max-w-4xl">
             
             <!-- 管理员面板 -->
-            <div id="adminPanel" class="admin-only admin-panel p-6 rounded-xl mb-8">
-                <h3 class="text-xl font-semibold mb-4 text-slate-700">✏️ Add New Thought</h3>
+            <div id="adminPanel" class="admin-only admin-panel p-4 md:p-6 rounded-xl mb-6 md:mb-8">
+                <h3 class="text-lg md:text-xl font-semibold mb-4 text-slate-700">✏️ Add New Thought</h3>
                 <form id="thoughtForm">
                     <input type="text" id="thoughtTitle" placeholder="Title of your thought..." 
-                           class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                           class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500 text-base">
                     <textarea id="thoughtContent" placeholder="What's on your mind?" 
-                              class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
-                    <div class="flex space-x-3">
+                              class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 text-base"></textarea>
+                    <div class="flex flex-col md:flex-row gap-3">
                         <button type="submit" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
                             Add Thought
                         </button>
