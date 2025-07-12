@@ -32,11 +32,13 @@
         .thought-card {
             @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6;
         }
+        /* 确保 admin-only 元素默认隐藏 */
+        .admin-only {
+            display: none !important;
+        }
+        /* 只有在 admin-mode 激活时才显示 */
         .admin-mode .admin-only {
             display: block !important;
-        }
-        .admin-only {
-            display: none;
         }
         .edit-form {
             @apply mt-4 p-4 bg-slate-50 rounded-lg border;
