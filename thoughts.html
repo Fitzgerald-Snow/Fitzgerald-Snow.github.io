@@ -123,16 +123,16 @@
     </footer>
 
     <script>
-        // Firebase 配置 - 你需要替换为你自己的配置
+        // Firebase 配置
         const firebaseConfig = {
-                apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
-                authDomain: "snow-s-garage.firebaseapp.com",
-                projectId: "snow-s-garage",
-                storageBucket: "snow-s-garage.firebasestorage.app",
-                messagingSenderId: "463583364015",
-                appId: "1:463583364015:web:e0820f3a7b9673d92b255a",
-                measurementId: "G-ZVCMHRMSVB"
-            };
+            apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
+            authDomain: "snow-s-garage.firebaseapp.com",
+            projectId: "snow-s-garage",
+            storageBucket: "snow-s-garage.firebasestorage.app",
+            messagingSenderId: "463583364015",
+            appId: "1:463583364015:web:e0820f3a7b9673d92b255a",
+            measurementId: "G-ZVCMHRMSVB"
+        };
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
@@ -184,6 +184,11 @@
         // 添加新思想
         thoughtForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (!isAdmin) {
+                alert('Admin access required');
+                return;
+            }
             
             const title = document.getElementById('thoughtTitle').value.trim();
             const content = document.getElementById('thoughtContent').value.trim();
@@ -284,8 +289,22 @@
             const deleteBtn = article.querySelector('.delete-btn');
             const upvoteBtn = article.querySelector('.upvote-btn');
 
-            if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
-            if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
+            if (editBtn) editBtn.addEventListener('click', () => {
+                if (isAdmin) {
+                    handleEdit(id, article);
+                } else {
+                    alert('Admin access required');
+                }
+            });
+            
+            if (deleteBtn) deleteBtn.addEventListener('click', () => {
+                if (isAdmin) {
+                    handleDelete(id, article);
+                } else {
+                    alert('Admin access required');
+                }
+            });
+            
             if (upvoteBtn) upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
 
             return article;
@@ -347,6 +366,11 @@
 
         // 处理删除
         async function handleDelete(thoughtId, article) {
+            if (!isAdmin) {
+                alert('Admin access required');
+                return;
+            }
+            
             if (confirm('Are you sure you want to delete this thought?')) {
                 try {
                     await db.collection('thoughts').doc(thoughtId).delete();
@@ -360,6 +384,11 @@
 
         // 处理编辑
         function handleEdit(thoughtId, article) {
+            if (!isAdmin) {
+                alert('Admin access required');
+                return;
+            }
+            
             const content = article.querySelector('.content');
             const title = content.querySelector('h2').textContent;
             const text = content.querySelector('.text-slate-700 p').innerHTML.replace(/<br>/g, '\n');
