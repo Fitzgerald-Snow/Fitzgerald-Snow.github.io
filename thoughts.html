@@ -11,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Computer Modern', 'Latin Modern Roman', 'Times New Roman', 'TeX Gyre Termes', serif;
             scroll-behavior: smooth;
         }
         .hero-bg {
@@ -24,6 +24,11 @@
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease-in-out;
+        }
+        /* 导航栏隐藏状态 */
+        nav.nav-hidden {
+            transform: translateY(-100%);
         }
         .admin-panel {
             background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
@@ -57,6 +62,18 @@
             pointer-events: none;
         }
         
+        /* LaTeX风格的字体设置 */
+        .thought-content {
+            font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes', serif;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+        }
+        
+        .thought-title {
+            font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes', serif;
+            font-weight: 700;
+        }
+        
         /* 移动端优化 */
         @media (max-width: 768px) {
             /* 导航栏移动端优化 */
@@ -88,6 +105,15 @@
                 line-height: 1.4;
             }
             
+            /* 思想内容LaTeX样式优化 */
+            .thought-content {
+                font-size: 1.1rem;
+                line-height: 1.7;
+                text-align: justify;
+                hyphens: auto;
+                word-spacing: 0.1em;
+            }
+            
             /* 按钮区域优化 */
             .admin-only {
                 flex-direction: column;
@@ -116,6 +142,7 @@
             .admin-panel input,
             .admin-panel textarea {
                 font-size: 1rem; /* 防止iOS缩放 */
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes', serif;
             }
             
             .admin-panel .flex {
@@ -137,6 +164,11 @@
             .edit-form button {
                 width: 100%;
             }
+            
+            .edit-form input,
+            .edit-form textarea {
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes', serif;
+            }
         }
         
         /* 小屏幕设备进一步优化 */
@@ -156,11 +188,13 @@
             .hero-bg h1 {
                 font-size: 2rem;
                 margin-bottom: 1rem;
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes', serif;
             }
             
             .hero-bg p {
                 font-size: 1rem;
                 margin-bottom: 1.5rem;
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes', serif;
             }
             
             /* 主内容区优化 */
@@ -424,9 +458,185 @@
                     <button class="delete-btn text-red-600 hover:text-red-700 text-sm" data-id="${id}">Delete</button>
                 </div>
                 <div class="content">
-                    <h2 class="text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
+                    <h2 class="thought-title text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
                     <p class="text-sm text-slate-500 mb-4">${date}</p>
-                    <div class="text-slate-700 leading-relaxed mb-4">
+                    <div class="thought-content text-slate-700 leading-relaxed mb-4">
+                        <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" data-id="${id}">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="upvote-count">${thought.upvotes || 0}</span>
+                        </button>
+                        <span class="text-xs text-slate-400">${hasUpvoted ? 'You upvoted this' : 'Click to upvote'}</span>
+                    </div>
+                </div>
+            `;
+
+            // 添加事件监听器
+            const editBtn = article.querySelector('.edit-btn');
+            const deleteBtn = article.querySelector('.delete-btn');
+            const upvoteBtn = article.querySelector('.upvote-btn');
+
+            if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
+            if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
+            if (upvoteBtn) upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
+
+            return article;
+        }
+
+        // 移动端导航栏自动隐藏功能
+        let lastScrollTop = 0;
+        let isScrolling = false;
+        const nav = document.querySelector('nav');
+        
+        function handleScroll() {
+            if (window.innerWidth <= 768) { // 只在移动端生效
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // 向下滚动且超过100px，隐藏导航栏
+                    nav.classList.add('nav-hidden');
+                } else if (scrollTop < lastScrollTop) {
+                    // 向上滚动，显示导航栏
+                    nav.classList.remove('nav-hidden');
+                }
+                
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // 防止负值
+            }
+        }
+
+        // 节流函数，避免频繁触发
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // 监听滚动事件
+        window.addEventListener('scroll', throttle(handleScroll, 100));
+
+        // 监听窗口大小变化，桌面端时显示导航栏
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                nav.classList.remove('nav-hidden');
+            }
+        });
+
+        // Firebase 认证状态监听
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // 用户已登录
+                loadThoughts();
+            } else {
+                // 用户未登录，尝试匿名登录
+                auth.signInAnonymously().catch(error => {
+                    console.error('匿名登录失败:', error);
+                    loadingDiv.innerHTML = '<p class="text-red-500">Error: Please refresh the page to continue.</p>';
+                });
+            }
+        });
+
+        // 添加新思想
+        thoughtForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('thoughtTitle').value.trim();
+            const content = document.getElementById('thoughtContent').value.trim();
+            
+            if (title && content) {
+                try {
+                    await db.collection('thoughts').add({
+                        title: title,
+                        content: content,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        upvotes: 0,
+                        upvotedBy: []
+                    });
+                    
+                    thoughtForm.reset();
+                    loadThoughts(); // 重新加载思想列表
+                } catch (error) {
+                    console.error('Error adding thought:', error);
+                    alert('Error adding thought. Please try again.');
+                }
+            }
+        });
+
+        // 取消按钮
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            thoughtForm.reset();
+        });
+
+        // 加载思想列表
+        async function loadThoughts() {
+            try {
+                loadingDiv.style.display = 'block';
+                thoughtsList.innerHTML = '';
+
+                const snapshot = await db.collection('thoughts')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                loadingDiv.style.display = 'none';
+
+                if (snapshot.empty) {
+                    thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
+                    return;
+                }
+
+                // 确保用户已登录
+                const userId = await getUserId();
+                if (!userId) {
+                    thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error: Please refresh the page to continue.</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const thought = doc.data();
+                    const thoughtElement = createThoughtElement(doc.id, thought);
+                    thoughtsList.appendChild(thoughtElement);
+                });
+
+            } catch (error) {
+                console.error('Error loading thoughts:', error);
+                loadingDiv.style.display = 'none';
+                thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
+            }
+        }
+
+        // 创建思想元素
+        function createThoughtElement(id, thought) {
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+            const hasUpvoted = userId && thought.upvotedBy && thought.upvotedBy.includes(userId);
+            const date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) : 'Recently';
+
+            const article = document.createElement('article');
+            article.className = 'thought-card';
+            article.setAttribute('data-id', id);
+
+            article.innerHTML = `
+                <div class="flex justify-between items-start mb-4 admin-only">
+                    <button class="edit-btn text-sky-600 hover:text-sky-700 text-sm" data-id="${id}">Edit</button>
+                    <button class="delete-btn text-red-600 hover:text-red-700 text-sm" data-id="${id}">Delete</button>
+                </div>
+                <div class="content">
+                    <h2 class="thought-title text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
+                    <p class="text-sm text-slate-500 mb-4">${date}</p>
+                    <div class="thought-content text-slate-700 leading-relaxed mb-4">
                         <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
                     </div>
                     <div class="flex justify-between items-center">
