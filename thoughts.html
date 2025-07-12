@@ -8,6 +8,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -128,7 +129,7 @@
             apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
             authDomain: "snow-s-garage.firebaseapp.com",
             projectId: "snow-s-garage",
-            storageBucket: "snow-s-garage.firebasestorage.app",
+            storageBucket: "snow-s-garage.appspot.com",
             messagingSenderId: "463583364015",
             appId: "1:463583364015:web:e0820f3a7b9673d92b255a",
             measurementId: "G-ZVCMHRMSVB"
@@ -137,6 +138,7 @@
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // 设置当前年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -149,14 +151,19 @@
         const thoughtsList = document.getElementById('thoughtsList');
         const loadingDiv = document.getElementById('loadingDiv');
 
-        // 生成用户唯一标识
-        function getUserId() {
-            let userId = localStorage.getItem('thoughtsUserId');
-            if (!userId) {
-                userId = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now();
-                localStorage.setItem('thoughtsUserId', userId);
+        // 获取用户ID (使用Firebase认证)
+        async function getUserId() {
+            const user = auth.currentUser;
+            if (user) return user.uid;
+            
+            // 匿名登录
+            try {
+                const cred = await auth.signInAnonymously();
+                return cred.user.uid;
+            } catch (error) {
+                console.error('匿名登录失败:', error);
+                return null;
             }
-            return userId;
         }
 
         // 简单的管理员验证
@@ -184,11 +191,6 @@
         // 添加新思想
         thoughtForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            if (!isAdmin) {
-                alert('Admin access required');
-                return;
-            }
             
             const title = document.getElementById('thoughtTitle').value.trim();
             const content = document.getElementById('thoughtContent').value.trim();
@@ -234,6 +236,13 @@
                     return;
                 }
 
+                // 确保用户已登录
+                const userId = await getUserId();
+                if (!userId) {
+                    thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error: Please refresh the page to continue.</p>';
+                    return;
+                }
+
                 snapshot.forEach(doc => {
                     const thought = doc.data();
                     const thoughtElement = createThoughtElement(doc.id, thought);
@@ -249,8 +258,8 @@
 
         // 创建思想元素
         function createThoughtElement(id, thought) {
-            const userId = getUserId();
-            const hasUpvoted = thought.upvotedBy && thought.upvotedBy.includes(userId);
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+            const hasUpvoted = userId && thought.upvotedBy && thought.upvotedBy.includes(userId);
             const date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -289,22 +298,8 @@
             const deleteBtn = article.querySelector('.delete-btn');
             const upvoteBtn = article.querySelector('.upvote-btn');
 
-            if (editBtn) editBtn.addEventListener('click', () => {
-                if (isAdmin) {
-                    handleEdit(id, article);
-                } else {
-                    alert('Admin access required');
-                }
-            });
-            
-            if (deleteBtn) deleteBtn.addEventListener('click', () => {
-                if (isAdmin) {
-                    handleDelete(id, article);
-                } else {
-                    alert('Admin access required');
-                }
-            });
-            
+            if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
+            if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
             if (upvoteBtn) upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
 
             return article;
@@ -312,7 +307,11 @@
 
         // 处理点赞
         async function handleUpvote(thoughtId, button) {
-            const userId = getUserId();
+            const userId = await getUserId();
+            if (!userId) {
+                alert('Please refresh the page to continue');
+                return;
+            }
             
             if (button.classList.contains('voted')) {
                 return; // 已经点过赞了
@@ -333,7 +332,7 @@
                     const upvotedBy = data.upvotedBy || [];
                     
                     if (upvotedBy.includes(userId)) {
-                        throw new Error('Already upvoted');
+                        throw new Error('You have already upvoted this thought');
                     }
 
                     const newUpvotes = (data.upvotes || 0) + 1;
@@ -358,19 +357,12 @@
             } catch (error) {
                 console.error('Error upvoting:', error);
                 button.classList.remove('loading');
-                if (error.message !== 'Already upvoted') {
-                    alert('Error upvoting. Please try again.');
-                }
+                alert(error.message || 'Error upvoting. Please try again.');
             }
         }
 
         // 处理删除
         async function handleDelete(thoughtId, article) {
-            if (!isAdmin) {
-                alert('Admin access required');
-                return;
-            }
-            
             if (confirm('Are you sure you want to delete this thought?')) {
                 try {
                     await db.collection('thoughts').doc(thoughtId).delete();
@@ -384,11 +376,6 @@
 
         // 处理编辑
         function handleEdit(thoughtId, article) {
-            if (!isAdmin) {
-                alert('Admin access required');
-                return;
-            }
-            
             const content = article.querySelector('.content');
             const title = content.querySelector('h2').textContent;
             const text = content.querySelector('.text-slate-700 p').innerHTML.replace(/<br>/g, '\n');
@@ -446,8 +433,15 @@
         }
 
         // 页面加载时加载思想
-        document.addEventListener('DOMContentLoaded', () => {
-            loadThoughts();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化认证
+            try {
+                await auth.signInAnonymously();
+                loadThoughts();
+            } catch (error) {
+                console.error('Authentication failed:', error);
+                loadingDiv.innerHTML = '<p class="text-red-500">Error: Please refresh the page to continue.</p>';
+            }
         });
     </script>
 
