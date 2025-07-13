@@ -333,6 +333,12 @@
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
+
+        firebase.firestore().settings({
+            host: "snowbook.zzzzbbbbttt20873.workers.dev",  
+            ssl:  true                                     
+        });
+
         const db = firebase.firestore();
         const auth = firebase.auth();
 
