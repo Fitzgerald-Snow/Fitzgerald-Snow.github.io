@@ -336,7 +336,8 @@
 
         firebase.firestore().settings({
             host: "snowbook.zzzzbbbbttt20873.workers.dev",  
-            ssl:  true                                     
+            ssl:  true,
+            experimentalAutoDetectLongPolling: true                                     
         });
 
         const db = firebase.firestore();
