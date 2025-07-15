@@ -23,6 +23,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         body {
             font-family: 'Computer Modern', 'Latin Modern Roman', 'Times New Roman', 'TeX Gyre Termes';
@@ -76,6 +77,61 @@
             pointer-events: none;
         }
         
+        /* 图片上传区域样式 */
+        .image-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .image-upload-area:hover {
+            border-color: #0ea5e9;
+            background-color: #f8fafc;
+        }
+        .image-upload-area.dragover {
+            border-color: #0ea5e9;
+            background-color: #e0f2fe;
+        }
+        
+        /* 图片预览样式 */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+        }
+        .remove-image-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 思想中的图片样式 */
+        .thought-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
         /* LaTeX风格的字体设置 */
         .thought-content {
             font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
@@ -126,6 +182,15 @@
                 text-align: justify;
                 hyphens: auto;
                 word-spacing: 0.1em;
+            }
+            
+            /* 图片上传区域移动端优化 */
+            .image-upload-area {
+                padding: 1.5rem;
+            }
+            
+            .image-preview {
+                max-height: 150px;
             }
             
             /* 按钮区域优化 */
@@ -289,6 +354,31 @@
                            class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500 text-base">
                     <textarea id="thoughtContent" placeholder="What's on your mind?" 
                               class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 text-base"></textarea>
+                    
+                    <!-- 图片上传区域 -->
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">📸 Add Image (Optional)</label>
+                        <div id="imageUploadArea" class="image-upload-area">
+                            <input type="file" id="imageInput" accept="image/*" class="hidden">
+                            <div id="uploadPrompt">
+                                <svg class="mx-auto h-12 w-12 text-slate-400 mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <p class="text-slate-600">Click to upload image or drag and drop</p>
+                                <p class="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB (Optional)</p>
+                            </div>
+                            <div id="imagePreviewContainer" class="hidden">
+                                <!-- 图片预览将在这里显示 -->
+                            </div>
+                        </div>
+                        <div id="uploadProgress" class="hidden mt-2">
+                            <div class="bg-slate-200 rounded-full h-2">
+                                <div id="progressBar" class="bg-sky-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p class="text-sm text-slate-600 mt-1" id="progressText">Uploading...</p>
+                        </div>
+                    </div>
+
                     <div class="flex flex-col md:flex-row gap-3">
                         <button type="submit" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
                             Add Thought
@@ -333,11 +423,12 @@
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
-
-        
-
         const db = firebase.firestore();
         const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        // 全局变量
+        let currentImageFile = null;
 
         // 设置当前年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -349,6 +440,150 @@
         const thoughtForm = document.getElementById('thoughtForm');
         const thoughtsList = document.getElementById('thoughtsList');
         const loadingDiv = document.getElementById('loadingDiv');
+
+        // 图片上传相关元素
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        // 图片上传处理
+        function setupImageUpload() {
+            // 点击上传区域触发文件选择
+            imageUploadArea.addEventListener('click', () => {
+                if (!currentImageFile) {
+                    imageInput.click();
+                }
+            });
+
+            // 文件选择处理
+            imageInput.addEventListener('change', handleImageSelect);
+
+            // 拖拽上传处理
+            imageUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUploadArea.classList.add('dragover');
+            });
+
+            imageUploadArea.addEventListener('dragleave', () => {
+                imageUploadArea.classList.remove('dragover');
+            });
+
+            imageUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    handleImageFile(files[0]);
+                }
+            });
+        }
+
+        // 处理图片选择
+        function handleImageSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageFile(file);
+            }
+        }
+
+        // 处理图片文件
+        function handleImageFile(file) {
+            // 检查文件大小 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must be less than 5MB');
+                return;
+            }
+
+            // 检查文件类型
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            currentImageFile = file;
+            showImagePreview(file);
+        }
+
+        // 显示图片预览
+        function showImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadPrompt.classList.add('hidden');
+                imagePreviewContainer.classList.remove('hidden');
+                
+                imagePreviewContainer.innerHTML = `
+                    <div class="image-preview-container">
+                        <img src="${e.target.result}" alt="Preview" class="image-preview">
+                        <button type="button" class="remove-image-btn" onclick="removeImagePreview()">×</button>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">${file.name}</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 移除图片预览
+        function removeImagePreview() {
+            currentImageFile = null;
+            imageInput.value = '';
+            uploadPrompt.classList.remove('hidden');
+            imagePreviewContainer.classList.add('hidden');
+            imagePreviewContainer.innerHTML = '';
+        }
+
+        // 上传图片到 Firebase Storage
+        async function uploadImage(file) {
+            if (!file) return null;
+
+            try {
+                // 显示上传进度
+                uploadProgress.classList.remove('hidden');
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Uploading...';
+
+                // 生成唯一文件名
+                const timestamp = Date.now();
+                const fileName = `thoughts/${timestamp}_${file.name}`;
+                const storageRef = storage.ref(fileName);
+
+                // 上传文件并监听进度
+                const uploadTask = storageRef.put(file);
+
+                return new Promise((resolve, reject) => {
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            // 更新进度
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            progressBar.style.width = progress + '%';
+                            progressText.textContent = `Uploading... ${Math.round(progress)}%`;
+                        },
+                        (error) => {
+                            console.error('Upload error:', error);
+                            uploadProgress.classList.add('hidden');
+                            reject(error);
+                        },
+                        async () => {
+                            // 上传完成，获取下载URL
+                            try {
+                                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                                uploadProgress.classList.add('hidden');
+                                resolve(downloadURL);
+                            } catch (error) {
+                                uploadProgress.classList.add('hidden');
+                                reject(error);
+                            }
+                        }
+                    );
+                });
+            } catch (error) {
+                uploadProgress.classList.add('hidden');
+                throw error;
+            }
+        }
 
         // 获取用户ID (使用Firebase认证)
         async function getUserId() {
@@ -387,7 +622,7 @@
             }
         });
 
-        // 添加新思想 - 只定义一次
+        // 添加新思想 - 更新版本，支持图片
         thoughtForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -401,20 +636,61 @@
             
             if (title && content) {
                 try {
-                    console.log('Adding thought...'); // 调试信息
-                    await db.collection('thoughts').add({
+                    console.log('Adding thought...');
+                    
+                    // 禁用提交按钮防止重复提交
+                    const submitBtn = thoughtForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Adding...';
+
+                    let imageUrl = null;
+                    
+                    // 如果有图片，先上传图片
+                    if (currentImageFile) {
+                        try {
+                            imageUrl = await uploadImage(currentImageFile);
+                            console.log('Image uploaded:', imageUrl);
+                        } catch (error) {
+                            console.error('Image upload failed:', error);
+                            alert('Image upload failed. Please try again.');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Add Thought';
+                            return;
+                        }
+                    }
+
+                    // 添加思想到 Firestore
+                    const thoughtData = {
                         title: title,
                         content: content,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         upvotes: 0,
                         upvotedBy: []
-                    });
+                    };
+
+                    // 如果有图片URL，添加到数据中
+                    if (imageUrl) {
+                        thoughtData.imageUrl = imageUrl;
+                    }
+
+                    await db.collection('thoughts').add(thoughtData);
                     
+                    // 重置表单
                     thoughtForm.reset();
-                    loadThoughts(); // 重新加载思想列表
+                    removeImagePreview();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Thought';
+                    
+                    // 重新加载思想列表
+                    loadThoughts();
                 } catch (error) {
                     console.error('Error adding thought:', error);
                     alert('Error adding thought. Please try again.');
+                    
+                    // 恢复提交按钮
+                    const submitBtn = thoughtForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Thought';
                 }
             }
         });
@@ -422,9 +698,10 @@
         // 取消按钮
         document.getElementById('cancelBtn').addEventListener('click', () => {
             thoughtForm.reset();
+            removeImagePreview();
         });
 
-        // 加载思想列表 - 只定义一次
+        // 加载思想列表
         async function loadThoughts() {
             try {
                 loadingDiv.style.display = 'block';
@@ -454,7 +731,7 @@
             }
         }
 
-        // 创建思想元素
+        // 创建思想元素 - 更新版本，支持图片显示
         function createThoughtElement(id, thought) {
             const userId = auth.currentUser ? auth.currentUser.uid : null;
             const hasUpvoted = userId && thought.upvotedBy && thought.upvotedBy.includes(userId);
@@ -468,6 +745,10 @@
             article.className = 'thought-card';
             article.setAttribute('data-id', id);
 
+            // 构建图片HTML
+            const imageHtml = thought.imageUrl ? 
+                `<img src="${thought.imageUrl}" alt="Thought image" class="thought-image" loading="lazy">` : '';
+
             article.innerHTML = `
                 <div class="flex justify-between items-start mb-4 admin-only">
                     <button class="edit-btn text-sky-600 hover:text-sky-700 text-sm" data-id="${id}">Edit</button>
@@ -476,6 +757,7 @@
                 <div class="content">
                     <h2 class="thought-title font-cm text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
                     <p class="text-sm text-slate-500 mb-4">${date}</p>
+                    ${imageHtml}
                     <div class="thought-content font-cm text-slate-700 leading-relaxed mb-4">
                         <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
                     </div>
@@ -684,7 +966,12 @@
             return div.innerHTML;
         }
 
-        // Firebase 认证状态监听 - 只监听一次
+        // 初始化图片上传功能
+        document.addEventListener('DOMContentLoaded', () => {
+            setupImageUpload();
+        });
+
+        // Firebase 认证状态监听
         auth.onAuthStateChanged(user => {
             if (user) {
                 console.log('User authenticated:', user.uid);
@@ -697,6 +984,9 @@
                 });
             }
         });
+
+        // 暴露到全局作用域，供HTML中的onclick使用
+        window.removeImagePreview = removeImagePreview;
     </script>
 
 </body>
