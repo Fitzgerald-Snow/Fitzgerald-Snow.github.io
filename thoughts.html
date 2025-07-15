@@ -23,10 +23,12 @@
     <script src="https://web.sdk.qcloud.com/tcb-js-sdk/2.3.1/tcb.js"></script>
     
     <!-- Firebase (保留作为备用) -->
+    <!--
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    -->
     <style>
         body {
             font-family: 'Computer Modern', 'Latin Modern Roman', 'Times New Roman', 'TeX Gyre Termes';
@@ -456,16 +458,28 @@
                     console.log('✅ 腾讯云开发已启用');
                     return true;
                 } catch (error) {
-                    console.log('⚠️ 腾讯云开发连接失败，切换到Firebase:', error.message);
+                    console.log('⚠️ 腾讯云开发连接失败:', error.message);
+                    console.log('📝 Firebase数据保留，可在海外环境通过恢复脚本访问');
+                    
+                    // 不尝试初始化Firebase，因为脚本已被注释
                     USE_TENCENT_CLOUD = false;
-                    return initFirebase();
+                    return false;
                 }
             } else {
-                return initFirebase();
+                // Firebase脚本被注释，无法初始化
+                console.log('ℹ️ Firebase脚本未加载，请在海外环境取消注释使用');
+                return false;
             }
         }
 
+        // 修改initFirebase函数
         function initFirebase() {
+            // 检查Firebase是否可用
+            if (typeof firebase === 'undefined') {
+                console.log('⚠️ Firebase脚本未加载，无法初始化');
+                return false;
+            }
+            
             try {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
