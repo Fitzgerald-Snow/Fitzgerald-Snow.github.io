@@ -408,7 +408,7 @@
     <footer class="bg-slate-800 text-slate-300 py-10 text-center">
         <div class="container mx-auto px-6">
             <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
-            <p class="text-sm mt-2">Powered by Tailwind CSS + CloudBase</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS + FireBase</p>
         </div>
     </footer>
 
@@ -662,26 +662,144 @@
             }
         }
 
-        function handleImageFile(file) {
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Image size must be less than 5MB');
-                return;
-            }
+        // 图片压缩函数
+        function compressImage(file, maxSizeMB = 5, quality = 0.8) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = () => {
+                    // 计算新的尺寸
+                    let { width, height } = calculateNewDimensions(img.width, img.height, file.size, maxSizeMB);
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // 绘制压缩后的图片
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 转换为Blob，逐步降低质量直到满足大小要求
+                    compressToSize(canvas, file.name, file.type, maxSizeMB, quality, resolve);
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
 
+        // 计算新尺寸
+        function calculateNewDimensions(originalWidth, originalHeight, originalSize, maxSizeMB) {
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            
+            // 如果原图已经小于5MB，保持原尺寸
+            if (originalSize <= maxSizeBytes) {
+                return { width: originalWidth, height: originalHeight };
+            }
+            
+            // 计算压缩比例
+            const ratio = Math.sqrt(maxSizeBytes / originalSize);
+            const maxDimension = 1920; // 最大尺寸限制
+            
+            let width = Math.min(originalWidth * ratio, maxDimension);
+            let height = Math.min(originalHeight * ratio, maxDimension);
+            
+            // 保持宽高比
+            if (width / originalWidth < height / originalHeight) {
+                height = (width / originalWidth) * originalHeight;
+            } else {
+                width = (height / originalHeight) * originalWidth;
+            }
+            
+            return { width: Math.round(width), height: Math.round(height) };
+        }
+
+        // 压缩到指定大小
+        function compressToSize(canvas, fileName, mimeType, quality, maxSizeMB, callback) {
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            
+            canvas.toBlob((blob) => {
+                if (blob.size <= maxSizeBytes || quality <= 0.1) {
+                    // 创建新的File对象
+                    const compressedFile = new File([blob], fileName, {
+                        type: mimeType,
+                        lastModified: Date.now()
+                    });
+                    callback(compressedFile);
+                } else {
+                    // 继续降低质量
+                    compressToSize(canvas, fileName, mimeType, quality - 0.1, maxSizeMB, callback);
+                }
+            }, mimeType, quality);
+        }
+
+        // 显示压缩进度
+        function showCompressionProgress() {
+            uploadPrompt.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500 mb-2"></div>
+                    <p class="text-slate-600">Compressing image...</p>
+                    <p class="text-xs text-slate-400 mt-1">Please wait</p>
+                </div>
+            `;
+        }
+
+        // 隐藏压缩进度，恢复上传提示
+        function hideCompressionProgress() {
+            uploadPrompt.innerHTML = `
+                <svg class="mx-auto h-12 w-12 text-slate-400 mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <p class="text-slate-600">Click to upload image or drag and drop</p>
+                <p class="text-xs text-slate-400 mt-1">Any size image (Auto-compressed to under 5MB)</p>
+            `;
+        }
+
+        // 修改handleImageFile函数，添加自动压缩功能
+        async function handleImageFile(file) {
             if (!file.type.startsWith('image/')) {
                 alert('Please select an image file');
                 return;
             }
 
-            currentImageFile = file;
-            showImagePreview(file);
+            try {
+                let processedFile = file;
+                
+                // 如果文件大于5MB，进行压缩
+                if (file.size > 5 * 1024 * 1024) {
+                    console.log(`📸 原图大小: ${(file.size / 1024 / 1024).toFixed(2)}MB，开始压缩...`);
+                    
+                    // 显示压缩进度
+                    showCompressionProgress();
+                    
+                    processedFile = await compressImage(file, 5, 0.8);
+                    console.log(`✅ 压缩完成: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
+                    
+                    // 隐藏压缩进度
+                    hideCompressionProgress();
+                } else {
+                    console.log(`✅ 图片大小合适: ${(file.size / 1024 / 1024).toFixed(2)}MB，无需压缩`);
+                }
+                
+                currentImageFile = processedFile;
+                showImagePreview(processedFile);
+                
+            } catch (error) {
+                console.error('❌ 图片处理失败:', error);
+                hideCompressionProgress();
+                alert('Image processing failed. Please try another image.');
+            }
         }
 
+        // 更新showImagePreview函数，显示压缩信息
         function showImagePreview(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 uploadPrompt.classList.add('hidden');
                 imagePreviewContainer.classList.remove('hidden');
+                
+                const sizeInfo = file.size > 1024 * 1024 ? 
+                    `${(file.size / 1024 / 1024).toFixed(2)}MB` : 
+                    `${(file.size / 1024).toFixed(0)}KB`;
                 
                 imagePreviewContainer.innerHTML = `
                     <div class="image-preview-container">
@@ -689,17 +807,10 @@
                         <button type="button" class="remove-image-btn" onclick="removeImagePreview()">×</button>
                     </div>
                     <p class="text-sm text-slate-600 mt-2">${file.name}</p>
+                    <p class="text-xs text-slate-400">Size: ${sizeInfo}</p>
                 `;
             };
             reader.readAsDataURL(file);
-        }
-
-        function removeImagePreview() {
-            currentImageFile = null;
-            imageInput.value = '';
-            uploadPrompt.classList.remove('hidden');
-            imagePreviewContainer.classList.add('hidden');
-            imagePreviewContainer.innerHTML = '';
         }
 
         // 管理员验证
@@ -1037,6 +1148,18 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', async () => {
+            // 更新上传提示文字
+            const uploadPromptElement = document.getElementById('uploadPrompt');
+            if (uploadPromptElement) {
+                uploadPromptElement.innerHTML = `
+                    <svg class="mx-auto h-12 w-12 text-slate-400 mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="text-slate-600">Click to upload image or drag and drop</p>
+                    <p class="text-xs text-slate-400 mt-1">Any size image (Auto-compressed to under 5MB)</p>
+                `;
+            }
+            
             setupImageUpload();
             
             try {
