@@ -19,7 +19,10 @@
       },
     }
     </script>
-    <!-- Firebase -->
+    <!-- 腾讯云开发 SDK -->
+    <script src="https://web.sdk.qcloud.com/tcb-js-sdk/2.3.1/tcb.js"></script>
+    
+    <!-- Firebase (保留作为备用) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -405,12 +408,21 @@
     <footer class="bg-slate-800 text-slate-300 py-10 text-center">
         <div class="container mx-auto px-6">
             <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
-            <p class="text-sm mt-2">Powered by Tailwind CSS + Firebase</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS + CloudBase</p>
         </div>
     </footer>
 
     <script>
-        // Firebase 配置
+        // 智能服务选择：优先腾讯云，失败时使用Firebase
+        let USE_TENCENT_CLOUD = true;
+
+        // 腾讯云配置
+        const tcbConfig = {
+            env: '636c-cloud1-9g38u24gf87f3164', // 你的环境ID
+            region: 'ap-shanghai'
+        };
+
+        // Firebase 配置（保留作为备用）
         const firebaseConfig = {
             apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
             authDomain: "snow-s-garage.firebaseapp.com",
@@ -421,27 +433,191 @@
             measurementId: "G-ZVCMHRMSVB"
         };
 
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const storage = firebase.storage();
-
         // 全局变量
+        let db, auth, storage, tcbApp;
         let currentImageFile = null;
+        let isAdmin = false;
+
+        // 初始化服务
+        async function initServices() {
+            if (USE_TENCENT_CLOUD) {
+                try {
+                    console.log('🚀 初始化腾讯云开发...');
+                    tcbApp = window.tcb.init(tcbConfig);
+                    
+                    // 初始化服务
+                    auth = tcbApp.auth();
+                    db = tcbApp.database();
+                    storage = tcbApp;
+                    
+                    // 测试连接
+                    await auth.signInAnonymously();
+                    
+                    console.log('✅ 腾讯云开发已启用');
+                    return true;
+                } catch (error) {
+                    console.log('⚠️ 腾讯云开发连接失败，切换到Firebase:', error.message);
+                    USE_TENCENT_CLOUD = false;
+                    return initFirebase();
+                }
+            } else {
+                return initFirebase();
+            }
+        }
+
+        function initFirebase() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                storage = firebase.storage();
+                console.log('✅ Firebase已启用作为备用服务');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase初始化失败:', error);
+                return false;
+            }
+        }
+
+        // 统一数据库接口
+        const DatabaseService = {
+            async addThought(thoughtData) {
+                if (USE_TENCENT_CLOUD) {
+                    const tcbData = {
+                        ...thoughtData,
+                        _createTime: new Date(),
+                        _updateTime: new Date()
+                    };
+                    delete tcbData.timestamp; // 移除Firebase时间戳字段
+                    return await db.collection('thoughts').add(tcbData);
+                } else {
+                    return await db.collection('thoughts').add(thoughtData);
+                }
+            },
+            
+            async getThoughts() {
+                if (USE_TENCENT_CLOUD) {
+                    const res = await db.collection('thoughts')
+                        .orderBy('_createTime', 'desc')
+                        .get();
+                    return res.data.map(item => ({
+                        id: item._id,
+                        ...item
+                    }));
+                } else {
+                    const snapshot = await db.collection('thoughts')
+                        .orderBy('timestamp', 'desc')
+                        .get();
+                    return snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                }
+            },
+            
+            async updateThought(id, data) {
+                if (USE_TENCENT_CLOUD) {
+                    const updateData = { ...data, _updateTime: new Date() };
+                    return await db.collection('thoughts').doc(id).update(updateData);
+                } else {
+                    return await db.collection('thoughts').doc(id).update(data);
+                }
+            },
+            
+            async deleteThought(id) {
+                if (USE_TENCENT_CLOUD) {
+                    return await db.collection('thoughts').doc(id).remove();
+                } else {
+                    return await db.collection('thoughts').doc(id).delete();
+                }
+            }
+        };
+
+        // 统一存储接口
+        const StorageService = {
+            async uploadImage(file) {
+                if (USE_TENCENT_CLOUD) {
+                    try {
+                        const cloudPath = `thoughts/${Date.now()}_${file.name}`;
+                        const result = await tcbApp.uploadFile({
+                            cloudPath: cloudPath,
+                            filePath: file
+                        });
+                        
+                        const downloadResult = await tcbApp.getTempFileURL({
+                            fileList: [result.fileID]
+                        });
+                        
+                        return downloadResult.fileList[0].tempFileURL;
+                    } catch (error) {
+                        console.error('腾讯云图片上传失败，切换到Firebase:', error);
+                        USE_TENCENT_CLOUD = false;
+                        return await this.uploadToFirebase(file);
+                    }
+                } else {
+                    return await this.uploadToFirebase(file);
+                }
+            },
+
+            async uploadToFirebase(file) {
+                const timestamp = Date.now();
+                const fileName = `thoughts/${timestamp}_${file.name}`;
+                const storageRef = storage.ref(fileName);
+                const uploadTask = await storageRef.put(file);
+                return await uploadTask.snapshot.ref.getDownloadURL();
+            }
+        };
+
+        // 获取用户ID
+        async function getUserId() {
+            if (USE_TENCENT_CLOUD) {
+                try {
+                    const userInfo = await auth.getCurrenUser();
+                    return userInfo ? userInfo.uid : null;
+                } catch (error) {
+                    return null;
+                }
+            } else {
+                const user = auth.currentUser;
+                return user ? user.uid : null;
+            }
+        }
+
+        // 用户认证
+        async function authenticateUser() {
+            if (USE_TENCENT_CLOUD) {
+                try {
+                    // 腾讯云在初始化时已经认证
+                    console.log('✅ 腾讯云用户认证成功');
+                    return true;
+                } catch (error) {
+                    console.error('❌ 腾讯云认证失败:', error);
+                    return false;
+                }
+            } else {
+                return new Promise((resolve) => {
+                    auth.onAuthStateChanged(user => {
+                        if (user) {
+                            resolve(true);
+                        } else {
+                            auth.signInAnonymously()
+                                .then(() => resolve(true))
+                                .catch(() => resolve(false));
+                        }
+                    });
+                });
+            }
+        }
 
         // 设置当前年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // 管理员登录状态
-        let isAdmin = false;
+        // DOM 元素
         const adminBtn = document.getElementById('adminBtn');
         const adminPanel = document.getElementById('adminPanel');
         const thoughtForm = document.getElementById('thoughtForm');
         const thoughtsList = document.getElementById('thoughtsList');
         const loadingDiv = document.getElementById('loadingDiv');
-
-        // 图片上传相关元素
         const imageUploadArea = document.getElementById('imageUploadArea');
         const imageInput = document.getElementById('imageInput');
         const uploadPrompt = document.getElementById('uploadPrompt');
@@ -452,17 +628,14 @@
 
         // 图片上传处理
         function setupImageUpload() {
-            // 点击上传区域触发文件选择
             imageUploadArea.addEventListener('click', () => {
                 if (!currentImageFile) {
                     imageInput.click();
                 }
             });
 
-            // 文件选择处理
             imageInput.addEventListener('change', handleImageSelect);
 
-            // 拖拽上传处理
             imageUploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 imageUploadArea.classList.add('dragover');
@@ -482,7 +655,6 @@
             });
         }
 
-        // 处理图片选择
         function handleImageSelect(e) {
             const file = e.target.files[0];
             if (file) {
@@ -490,15 +662,12 @@
             }
         }
 
-        // 处理图片文件
         function handleImageFile(file) {
-            // 检查文件大小 (5MB)
             if (file.size > 5 * 1024 * 1024) {
                 alert('Image size must be less than 5MB');
                 return;
             }
 
-            // 检查文件类型
             if (!file.type.startsWith('image/')) {
                 alert('Please select an image file');
                 return;
@@ -508,7 +677,6 @@
             showImagePreview(file);
         }
 
-        // 显示图片预览
         function showImagePreview(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -526,7 +694,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 移除图片预览
         function removeImagePreview() {
             currentImageFile = null;
             imageInput.value = '';
@@ -535,72 +702,7 @@
             imagePreviewContainer.innerHTML = '';
         }
 
-        // 上传图片到 Firebase Storage
-        async function uploadImage(file) {
-            if (!file) return null;
-
-            try {
-                // 显示上传进度
-                uploadProgress.classList.remove('hidden');
-                progressBar.style.width = '0%';
-                progressText.textContent = 'Uploading...';
-
-                // 生成唯一文件名
-                const timestamp = Date.now();
-                const fileName = `thoughts/${timestamp}_${file.name}`;
-                const storageRef = storage.ref(fileName);
-
-                // 上传文件并监听进度
-                const uploadTask = storageRef.put(file);
-
-                return new Promise((resolve, reject) => {
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            // 更新进度
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            progressBar.style.width = progress + '%';
-                            progressText.textContent = `Uploading... ${Math.round(progress)}%`;
-                        },
-                        (error) => {
-                            console.error('Upload error:', error);
-                            uploadProgress.classList.add('hidden');
-                            reject(error);
-                        },
-                        async () => {
-                            // 上传完成，获取下载URL
-                            try {
-                                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                                uploadProgress.classList.add('hidden');
-                                resolve(downloadURL);
-                            } catch (error) {
-                                uploadProgress.classList.add('hidden');
-                                reject(error);
-                            }
-                        }
-                    );
-                });
-            } catch (error) {
-                uploadProgress.classList.add('hidden');
-                throw error;
-            }
-        }
-
-        // 获取用户ID (使用Firebase认证)
-        async function getUserId() {
-            const user = auth.currentUser;
-            if (user) return user.uid;
-            
-            // 匿名登录
-            try {
-                const cred = await auth.signInAnonymously();
-                return cred.user.uid;
-            } catch (error) {
-                console.error('匿名登录失败:', error);
-                return null;
-            }
-        }
-
-        // 简单的管理员验证
+        // 管理员验证
         adminBtn.addEventListener('click', () => {
             if (!isAdmin) {
                 const password = prompt('Enter admin password:');
@@ -622,7 +724,7 @@
             }
         });
 
-        // 添加新思想 - 更新版本，支持图片
+        // 更新添加思想函数
         thoughtForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -638,20 +740,18 @@
                 try {
                     console.log('Adding thought...');
                     
-                    // 禁用提交按钮防止重复提交
                     const submitBtn = thoughtForm.querySelector('button[type="submit"]');
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Adding...';
 
                     let imageUrl = null;
                     
-                    // 如果有图片，先上传图片
                     if (currentImageFile) {
                         try {
-                            imageUrl = await uploadImage(currentImageFile);
-                            console.log('Image uploaded:', imageUrl);
+                            imageUrl = await StorageService.uploadImage(currentImageFile);
+                            console.log('✅ Image uploaded:', imageUrl);
                         } catch (error) {
-                            console.error('Image upload failed:', error);
+                            console.error('❌ Image upload failed:', error);
                             alert('Image upload failed. Please try again.');
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Add Thought';
@@ -659,35 +759,33 @@
                         }
                     }
 
-                    // 添加思想到 Firestore
                     const thoughtData = {
                         title: title,
                         content: content,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         upvotes: 0,
                         upvotedBy: []
                     };
 
-                    // 如果有图片URL，添加到数据中
+                    if (!USE_TENCENT_CLOUD) {
+                        thoughtData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    }
+
                     if (imageUrl) {
                         thoughtData.imageUrl = imageUrl;
                     }
 
-                    await db.collection('thoughts').add(thoughtData);
+                    await DatabaseService.addThought(thoughtData);
                     
-                    // 重置表单
                     thoughtForm.reset();
                     removeImagePreview();
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Add Thought';
                     
-                    // 重新加载思想列表
                     loadThoughts();
                 } catch (error) {
-                    console.error('Error adding thought:', error);
+                    console.error('❌ Error adding thought:', error);
                     alert('Error adding thought. Please try again.');
                     
-                    // 恢复提交按钮
                     const submitBtn = thoughtForm.querySelector('button[type="submit"]');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Add Thought';
@@ -707,45 +805,48 @@
                 loadingDiv.style.display = 'block';
                 thoughtsList.innerHTML = '';
 
-                const snapshot = await db.collection('thoughts')
-                    .orderBy('timestamp', 'desc')
-                    .get();
-
+                const thoughts = await DatabaseService.getThoughts();
+                
                 loadingDiv.style.display = 'none';
 
-                if (snapshot.empty) {
+                if (thoughts.length === 0) {
                     thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
                     return;
                 }
 
-                snapshot.forEach(doc => {
-                    const thought = doc.data();
-                    const thoughtElement = createThoughtElement(doc.id, thought);
+                thoughts.forEach(thought => {
+                    const thoughtElement = createThoughtElement(thought.id, thought);
                     thoughtsList.appendChild(thoughtElement);
                 });
 
             } catch (error) {
-                console.error('Error loading thoughts:', error);
+                console.error('❌ Error loading thoughts:', error);
                 loadingDiv.style.display = 'none';
                 thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
             }
         }
 
-        // 创建思想元素 - 更新版本，支持图片显示
+        // 创建思想元素
         function createThoughtElement(id, thought) {
-            const userId = auth.currentUser ? auth.currentUser.uid : null;
-            const hasUpvoted = userId && thought.upvotedBy && thought.upvotedBy.includes(userId);
-            const date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }) : 'Recently';
+            let date = 'Recently';
+            if (USE_TENCENT_CLOUD && thought._createTime) {
+                date = new Date(thought._createTime).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else if (!USE_TENCENT_CLOUD && thought.timestamp) {
+                date = thought.timestamp.toDate().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
 
             const article = document.createElement('article');
             article.className = 'thought-card';
             article.setAttribute('data-id', id);
 
-            // 构建图片HTML
             const imageHtml = thought.imageUrl ? 
                 `<img src="${thought.imageUrl}" alt="Thought image" class="thought-image" loading="lazy">` : '';
 
@@ -762,18 +863,18 @@
                         <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
                     </div>
                     <div class="flex justify-between items-center">
-                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" data-id="${id}">
+                        <button class="upvote-btn" data-id="${id}">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
                             <span class="upvote-count">${thought.upvotes || 0}</span>
                         </button>
-                        <span class="text-xs text-slate-400">${hasUpvoted ? 'You upvoted this' : 'Click to upvote'}</span>
+                        <span class="text-xs text-slate-400">Click to upvote</span>
                     </div>
                 </div>
             `;
 
-            // 添加事件监听器
+            // 事件监听器
             const editBtn = article.querySelector('.edit-btn');
             const deleteBtn = article.querySelector('.delete-btn');
             const upvoteBtn = article.querySelector('.upvote-btn');
@@ -787,57 +888,31 @@
 
         // 处理点赞
         async function handleUpvote(thoughtId, button) {
-            const userId = auth.currentUser ? auth.currentUser.uid : null;
-            if (!userId) {
-                alert('Please refresh the page to continue');
-                return;
-            }
-            
-            if (button.classList.contains('voted')) {
-                return; // 已经点过赞了
-            }
-
             try {
                 button.classList.add('loading');
                 
-                const thoughtRef = db.collection('thoughts').doc(thoughtId);
+                const thoughts = await DatabaseService.getThoughts();
+                const thought = thoughts.find(t => t.id === thoughtId);
                 
-                await db.runTransaction(async (transaction) => {
-                    const doc = await transaction.get(thoughtRef);
-                    if (!doc.exists) {
-                        throw new Error('Thought does not exist!');
-                    }
+                if (!thought) {
+                    throw new Error('Thought does not exist!');
+                }
 
-                    const data = doc.data();
-                    const upvotedBy = data.upvotedBy || [];
-                    
-                    if (upvotedBy.includes(userId)) {
-                        throw new Error('You have already upvoted this thought');
-                    }
+                const newUpvotes = (thought.upvotes || 0) + 1;
 
-                    const newUpvotes = (data.upvotes || 0) + 1;
-                    const newUpvotedBy = [...upvotedBy, userId];
-
-                    transaction.update(thoughtRef, {
-                        upvotes: newUpvotes,
-                        upvotedBy: newUpvotedBy
-                    });
+                await DatabaseService.updateThought(thoughtId, {
+                    upvotes: newUpvotes,
+                    upvotedBy: thought.upvotedBy || []
                 });
 
-                // 更新UI
-                button.classList.add('voted');
                 button.classList.remove('loading');
                 const countSpan = button.querySelector('.upvote-count');
-                countSpan.textContent = parseInt(countSpan.textContent) + 1;
-                
-                // 更新提示文字
-                const hint = button.parentElement.querySelector('.text-slate-400');
-                hint.textContent = 'You upvoted this';
+                countSpan.textContent = newUpvotes;
 
             } catch (error) {
-                console.error('Error upvoting:', error);
+                console.error('❌ Error upvoting:', error);
                 button.classList.remove('loading');
-                alert(error.message || 'Error upvoting. Please try again.');
+                alert('Error upvoting. Please try again.');
             }
         }
 
@@ -850,10 +925,10 @@
             
             if (confirm('Are you sure you want to delete this thought?')) {
                 try {
-                    await db.collection('thoughts').doc(thoughtId).delete();
+                    await DatabaseService.deleteThought(thoughtId);
                     article.remove();
                 } catch (error) {
-                    console.error('Error deleting thought:', error);
+                    console.error('❌ Error deleting thought:', error);
                     alert('Error deleting thought. Please try again.');
                 }
             }
@@ -884,14 +959,13 @@
             content.insertAdjacentElement('afterend', editForm);
             content.style.display = 'none';
 
-            // 保存编辑
             editForm.querySelector('.save-btn').addEventListener('click', async () => {
                 const newTitle = editForm.querySelector('.edit-title').value.trim();
                 const newContent = editForm.querySelector('.edit-content').value.trim();
                 
                 if (newTitle && newContent) {
                     try {
-                        await db.collection('thoughts').doc(thoughtId).update({
+                        await DatabaseService.updateThought(thoughtId, {
                             title: newTitle,
                             content: newContent
                         });
@@ -902,40 +976,36 @@
                         editForm.remove();
                         content.style.display = 'block';
                     } catch (error) {
-                        console.error('Error updating thought:', error);
+                        console.error('❌ Error updating thought:', error);
                         alert('Error updating thought. Please try again.');
                     }
                 }
             });
 
-            // 取消编辑
             editForm.querySelector('.cancel-edit-btn').addEventListener('click', () => {
                 editForm.remove();
                 content.style.display = 'block';
             });
         }
 
-        // 移动端导航栏自动隐藏功能
+        // 移动端导航栏自动隐藏
         let lastScrollTop = 0;
         const nav = document.querySelector('nav');
         
         function handleScroll() {
-            if (window.innerWidth <= 768) { // 只在移动端生效
+            if (window.innerWidth <= 768) {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 
                 if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    // 向下滚动且超过100px，隐藏导航栏
                     nav.classList.add('nav-hidden');
                 } else if (scrollTop < lastScrollTop) {
-                    // 向上滚动，显示导航栏
                     nav.classList.remove('nav-hidden');
                 }
                 
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // 防止负值
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
             }
         }
 
-        // 节流函数，避免频繁触发
         function throttle(func, limit) {
             let inThrottle;
             return function() {
@@ -949,43 +1019,46 @@
             }
         }
 
-        // 监听滚动事件
         window.addEventListener('scroll', throttle(handleScroll, 100));
-
-        // 监听窗口大小变化，桌面端时显示导航栏
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 nav.classList.remove('nav-hidden');
             }
         });
 
-        // HTML 转义函数
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // 初始化图片上传功能
-        document.addEventListener('DOMContentLoaded', () => {
-            setupImageUpload();
-        });
+        // 更新Footer
+        document.querySelector('footer p:last-child').textContent = 'Powered by Tailwind CSS + CloudBase';
 
-        // Firebase 认证状态监听
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                console.log('User authenticated:', user.uid);
-                loadThoughts();
-            } else {
-                // 用户未登录，尝试匿名登录
-                auth.signInAnonymously().catch(error => {
-                    console.error('匿名登录失败:', error);
-                    loadingDiv.innerHTML = '<p class="text-red-500">Error: Please refresh the page to continue.</p>';
-                });
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            setupImageUpload();
+            
+            try {
+                const initialized = await initServices();
+                if (!initialized) {
+                    throw new Error('所有服务初始化失败');
+                }
+                
+                const authenticated = await authenticateUser();
+                if (authenticated) {
+                    loadThoughts();
+                } else {
+                    loadingDiv.innerHTML = '<p class="text-red-500">认证失败，请刷新页面重试。</p>';
+                }
+            } catch (error) {
+                console.error('❌ 初始化失败:', error);
+                loadingDiv.innerHTML = '<p class="text-red-500">服务初始化失败，请刷新页面重试。</p>';
             }
         });
 
-        // 暴露到全局作用域，供HTML中的onclick使用
+        // 保留所有其他现有函数...
+        // 暴露到全局作用域
         window.removeImagePreview = removeImagePreview;
     </script>
 
