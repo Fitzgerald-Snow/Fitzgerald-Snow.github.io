@@ -1,0 +1,41 @@
+# .github/workflows/sync-thoughts.yml
+name: Sync Thoughts Data        # 工作流名字
+
+on:                              # 触发条件
+  schedule:                      #   ① 定时：每 6 小时一次
+    - cron: '0 */6 * * *'
+  workflow_dispatch:             #   ② 人手点按钮也行
+
+permissions:                     # 让机器人有推代码的权力
+  contents: write
+
+jobs:
+  sync:                          # 只有一个 job，叫 sync
+    runs-on: ubuntu-latest       # 在 GitHub 的 Linux 虚机上跑
+
+    steps:                       # ====== 下面是一步步指令 ======
+      - uses: actions/checkout@v4          # ① 拉取你的代码
+      - uses: actions/setup-node@v4        # ② 安装 Node 18
+        with:
+          node-version: 18
+
+      - name: Decode service account       # ③ 解码私钥文件
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 -d > firebase-service-account.json
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - run: npm ci                        # ④ 安装依赖
+      - run: npm run sync-thoughts         # ⑤ 运行你的同步脚本
+
+      - name: Commit & push if changed     # ⑥ 如果静态文件更新就提交
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name  "GitHub Action"
+          if [[ `git status --porcelain` ]]; then
+            git add thoughts-static.js
+            git commit -m "🤖 自动更新静态思想数据"
+            git push
+          else
+            echo "No changes – skip commit."
+          fi
