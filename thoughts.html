@@ -24,6 +24,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- 静态思想数据作为备用 -->
+    <script src="thoughts-static.js"></script>
     <style>
         body {
             font-family: 'Computer Modern', 'Latin Modern Roman', 'Times New Roman', 'TeX Gyre Termes';
@@ -307,6 +310,11 @@
                 <p class="text-slate-600">Loading thoughts...</p>
             </div>
 
+            <!-- 连接状态提示 -->
+            <div id="connectionStatus" class="hidden mb-6 p-4 rounded-lg">
+                <!-- 动态生成的状态信息 -->
+            </div>
+
             <!-- 思想列表 -->
             <div id="thoughtsList">
                 <!-- 动态加载的思想会出现在这里 -->
@@ -343,14 +351,19 @@
 
         // 管理员登录状态
         let isAdmin = false;
+        let useStaticMode = false; // 是否使用静态模式
+        let firebaseConnected = false; // Firebase连接状态
         const adminBtn = document.getElementById('adminBtn');
         const adminPanel = document.getElementById('adminPanel');
         const thoughtForm = document.getElementById('thoughtForm');
         const thoughtsList = document.getElementById('thoughtsList');
         const loadingDiv = document.getElementById('loadingDiv');
+        const connectionStatus = document.getElementById('connectionStatus');
 
         // 获取用户ID (使用Firebase认证)
         async function getUserId() {
+            if (useStaticMode) return null;
+            
             const user = auth.currentUser;
             if (user) return user.uid;
             
@@ -364,8 +377,65 @@
             }
         }
 
+        // 检测Firebase连接状态
+        async function checkFirebaseConnection() {
+            try {
+                // 尝试连接Firebase
+                await auth.signInAnonymously();
+                
+                // 尝试读取一条数据来验证连接
+                const testQuery = await db.collection('thoughts').limit(1).get();
+                
+                firebaseConnected = true;
+                useStaticMode = false;
+                showConnectionStatus('firebase');
+                return true;
+            } catch (error) {
+                console.log('Firebase连接失败，使用静态模式:', error.message);
+                firebaseConnected = false;
+                useStaticMode = true;
+                showConnectionStatus('static');
+                return false;
+            }
+        }
+
+        // 显示连接状态
+        function showConnectionStatus(mode) {
+            const statusDiv = connectionStatus;
+            statusDiv.classList.remove('hidden');
+            
+            if (mode === 'firebase') {
+                statusDiv.className = 'mb-6 p-4 rounded-lg bg-green-50 border border-green-200';
+                statusDiv.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-green-800 font-medium">🌐 Connected to live service</span>
+                    </div>
+                    <p class="text-green-700 text-sm mt-1">You can interact with posts and see real-time updates.</p>
+                `;
+            } else {
+                statusDiv.className = 'mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200';
+                statusDiv.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-amber-800 font-medium">📖 Reading mode</span>
+                    </div>
+                    <p class="text-amber-700 text-sm mt-1">Showing cached content. Interactive features are temporarily unavailable.</p>
+                `;
+            }
+        }
+
         // 简单的管理员验证
         adminBtn.addEventListener('click', () => {
+            if (useStaticMode) {
+                alert('Admin features are not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
             if (!isAdmin) {
                 const password = prompt('Enter admin password:');
                 if (password === 'snow2025') {
@@ -389,6 +459,11 @@
         // 添加新思想
         thoughtForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (useStaticMode) {
+                alert('Adding thoughts is not available in reading mode. Please check your network connection.');
+                return;
+            }
             
             if (!isAdmin) {
                 alert('Admin access required');
@@ -448,46 +523,89 @@
                 loadingDiv.style.display = 'block';
                 thoughtsList.innerHTML = '';
 
-                const snapshot = await db.collection('thoughts')
-                    .orderBy('timestamp', 'desc')
-                    .get();
+                if (useStaticMode) {
+                    // 使用静态数据
+                    loadingDiv.style.display = 'none';
+                    
+                    if (!staticThoughts || staticThoughts.length === 0) {
+                        thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts available in offline mode.</p>';
+                        return;
+                    }
 
-                loadingDiv.style.display = 'none';
+                    // 按时间排序静态数据
+                    const sortedThoughts = staticThoughts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    sortedThoughts.forEach(thought => {
+                        const thoughtElement = createThoughtElement(thought.id, thought, true);
+                        thoughtsList.appendChild(thoughtElement);
+                    });
+                } else {
+                    // 使用Firebase数据
+                    const snapshot = await db.collection('thoughts')
+                        .orderBy('timestamp', 'desc')
+                        .get();
 
-                if (snapshot.empty) {
-                    thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
-                    return;
+                    loadingDiv.style.display = 'none';
+
+                    if (snapshot.empty) {
+                        thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const thought = doc.data();
+                        const thoughtElement = createThoughtElement(doc.id, thought, false);
+                        thoughtsList.appendChild(thoughtElement);
+                    });
                 }
-
-                snapshot.forEach(doc => {
-                    const thought = doc.data();
-                    const thoughtElement = createThoughtElement(doc.id, thought);
-                    thoughtsList.appendChild(thoughtElement);
-                });
 
             } catch (error) {
                 console.error('Error loading thoughts:', error);
                 loadingDiv.style.display = 'none';
-                thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
+                
+                if (!useStaticMode) {
+                    // 如果Firebase加载失败，尝试使用静态数据
+                    console.log('Firebase failed, switching to static mode...');
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts(); // 递归调用，但这次会使用静态模式
+                } else {
+                    thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
+                }
             }
         }
 
         // 创建思想元素
-        function createThoughtElement(id, thought) {
-            const userId = auth.currentUser ? auth.currentUser.uid : null;
+        function createThoughtElement(id, thought, isStaticData = false) {
+            const userId = (!useStaticMode && auth.currentUser) ? auth.currentUser.uid : null;
             const hasUpvoted = userId && thought.upvotedBy && thought.upvotedBy.includes(userId);
-            const date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }) : 'Recently';
+            
+            // 处理时间戳
+            let date;
+            if (isStaticData) {
+                date = new Date(thought.timestamp).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else {
+                date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }) : 'Recently';
+            }
 
             const article = document.createElement('article');
             article.className = 'thought-card';
             article.setAttribute('data-id', id);
 
+            // 在静态模式下隐藏管理员控制按钮
+            const adminControlsStyle = (useStaticMode || isStaticData) ? 'style="display: none !important;"' : '';
+            
             article.innerHTML = `
-                <div class="flex justify-between items-start mb-4 admin-only">
+                <div class="flex justify-between items-start mb-4 admin-only" ${adminControlsStyle}>
                     <button class="edit-btn text-sky-600 hover:text-sky-700 text-sm" data-id="${id}">Edit</button>
                     <button class="delete-btn text-red-600 hover:text-red-700 text-sm" data-id="${id}">Delete</button>
                 </div>
@@ -498,31 +616,43 @@
                         <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
                     </div>
                     <div class="flex justify-between items-center">
-                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''}" data-id="${id}">
+                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''} ${useStaticMode || isStaticData ? 'opacity-50 cursor-not-allowed' : ''}" data-id="${id}" ${useStaticMode || isStaticData ? 'disabled' : ''}>
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
                             <span class="upvote-count">${thought.upvotes || 0}</span>
                         </button>
-                        <span class="text-xs text-slate-400">${hasUpvoted ? 'You upvoted this' : 'Click to upvote'}</span>
+                        <span class="text-xs text-slate-400">
+                            ${useStaticMode || isStaticData ? 'Interactions unavailable in reading mode' : 
+                              (hasUpvoted ? 'You upvoted this' : 'Click to upvote')}
+                        </span>
                     </div>
                 </div>
             `;
 
-            // 添加事件监听器
-            const editBtn = article.querySelector('.edit-btn');
-            const deleteBtn = article.querySelector('.delete-btn');
-            const upvoteBtn = article.querySelector('.upvote-btn');
+            // 只在非静态模式下添加事件监听器
+            if (!useStaticMode && !isStaticData) {
+                const editBtn = article.querySelector('.edit-btn');
+                const deleteBtn = article.querySelector('.delete-btn');
+                const upvoteBtn = article.querySelector('.upvote-btn');
 
-            if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
-            if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
-            if (upvoteBtn) upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
+                if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
+                if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
+                if (upvoteBtn && !upvoteBtn.disabled) {
+                    upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
+                }
+            }
 
             return article;
         }
 
         // 处理点赞
         async function handleUpvote(thoughtId, button) {
+            if (useStaticMode) {
+                alert('Upvoting is not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
             const userId = auth.currentUser ? auth.currentUser.uid : null;
             if (!userId) {
                 alert('Please refresh the page to continue');
@@ -579,6 +709,11 @@
 
         // 处理删除
         async function handleDelete(thoughtId, article) {
+            if (useStaticMode) {
+                alert('Editing features are not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
             if (!isAdmin) {
                 alert('Admin access required');
                 return;
@@ -597,6 +732,11 @@
 
         // 处理编辑
         function handleEdit(thoughtId, article) {
+            if (useStaticMode) {
+                alert('Editing features are not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
             if (!isAdmin) {
                 alert('Admin access required');
                 return;
@@ -703,16 +843,58 @@
         }
 
         // Firebase 认证状态监听
-        auth.onAuthStateChanged(user => {
-            if (user) {
+        auth.onAuthStateChanged(async user => {
+            if (user && !useStaticMode) {
                 console.log('User authenticated:', user.uid);
                 loadThoughts();
-            } else {
+            } else if (!useStaticMode) {
                 // 用户未登录，尝试匿名登录
-                auth.signInAnonymously().catch(error => {
+                try {
+                    await auth.signInAnonymously();
+                } catch (error) {
                     console.error('匿名登录失败:', error);
-                    loadingDiv.innerHTML = '<p class="text-red-500">Error: Please refresh the page to continue.</p>';
-                });
+                    // 切换到静态模式
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts();
+                }
+            }
+        });
+
+        // 页面加载时检测连接状态
+        window.addEventListener('load', async () => {
+            console.log('检测Firebase连接状态...');
+            
+            // 设置超时检测
+            const connectionTimeout = setTimeout(() => {
+                if (!firebaseConnected && !useStaticMode) {
+                    console.log('Firebase连接超时，切换到静态模式');
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts();
+                }
+            }, 5000); // 5秒超时
+
+            try {
+                const connected = await checkFirebaseConnection();
+                clearTimeout(connectionTimeout);
+                
+                if (connected) {
+                    console.log('Firebase连接成功');
+                    // Firebase连接成功时，认证状态监听器会处理加载
+                } else {
+                    console.log('Firebase连接失败，使用静态模式');
+                    loadThoughts();
+                }
+            } catch (error) {
+                clearTimeout(connectionTimeout);
+                console.error('连接检测出错:', error);
+                useStaticMode = true;
+                firebaseConnected = false;
+                showConnectionStatus('static');
+                loadThoughts();
             }
         });
     </script>
