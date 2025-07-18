@@ -4,7 +4,7 @@
 const staticThoughts = [
     {
         id: "static-001",
-        title: "On the Nature of Computational Creativity",
+        title: "Below are all AI generated.",
         content: "In the intersection of mathematics and art, we find algorithms that can compose music, generate poetry, and create visual masterpieces. Yet the question remains: is this true creativity, or merely sophisticated pattern matching? I believe creativity is not about the origin of ideas, but about their impact and meaning.",
         timestamp: new Date("2024-12-20"),
         upvotes: 12,
