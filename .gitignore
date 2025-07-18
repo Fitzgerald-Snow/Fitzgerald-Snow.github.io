@@ -20,3 +20,9 @@ yarn-debug.log
 # 编辑器配置文件
 .vscode/
 .idea/
+
+# Firebase服务账户密钥（敏感信息，绝不能上传）
+firebase-service-account.json
+
+# 临时测试文件
+test-static.html
