@@ -85,6 +85,7 @@
             font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
             line-height: 1.6;
             letter-spacing: 0.01em;
+            font-size: 1.125rem; /* 18px, 比默认大一号 */
         }
         
         .thought-title {
@@ -125,7 +126,7 @@
             
             /* 思想内容LaTeX样式优化 */
             .thought-content {
-                font-size: 1.1rem;
+                font-size: 1.25rem; /* 移动端稍大一些：20px */
                 line-height: 1.7;
                 text-align: justify;
                 hyphens: auto;
@@ -402,20 +403,13 @@
         // 显示连接状态
         function showConnectionStatus(mode) {
             const statusDiv = connectionStatus;
-            statusDiv.classList.remove('hidden');
             
             if (mode === 'firebase') {
-                statusDiv.className = 'mb-6 p-4 rounded-lg bg-green-50 border border-green-200';
-                statusDiv.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-green-800 font-medium">🌐 Connected to live service</span>
-                    </div>
-                    <p class="text-green-700 text-sm mt-1">You can interact with posts and see real-time updates.</p>
-                `;
+                // Firebase连接正常时，隐藏状态提示，保持界面简洁
+                statusDiv.classList.add('hidden');
             } else {
+                // 只在静态模式（阅读模式）下显示提示
+                statusDiv.classList.remove('hidden');
                 statusDiv.className = 'mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200';
                 statusDiv.innerHTML = `
                     <div class="flex items-center space-x-2">
