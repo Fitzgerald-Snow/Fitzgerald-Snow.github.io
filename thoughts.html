@@ -676,7 +676,7 @@
             }
 
             const article = document.createElement('article');
-            article.className = 'thought-card';
+            article.className = 'thought-card thought-item';
             article.setAttribute('data-id', id);
 
             // 在静态模式下隐藏管理员控制按钮
@@ -772,7 +772,30 @@
             }
 
             return comments.map(comment => {
-                const date = comment.timestamp ? new Date(comment.timestamp.seconds * 1000).toLocaleDateString() : 'Recently';
+                let date = 'Recently';
+                
+                try {
+                    if (comment.timestamp) {
+                        // 处理不同类型的时间戳
+                        if (comment.timestamp.seconds) {
+                            // Firestore Timestamp 对象
+                            date = new Date(comment.timestamp.seconds * 1000).toLocaleDateString();
+                        } else if (comment.timestamp.toDate) {
+                            // Firestore Timestamp 对象的另一种形式
+                            date = comment.timestamp.toDate().toLocaleDateString();
+                        } else if (typeof comment.timestamp === 'string') {
+                            // 字符串格式的日期
+                            date = new Date(comment.timestamp).toLocaleDateString();
+                        } else if (comment.timestamp instanceof Date) {
+                            // JavaScript Date 对象
+                            date = comment.timestamp.toLocaleDateString();
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error parsing comment timestamp:', error);
+                    date = 'Recently';
+                }
+                
                 const authorName = comment.author || 'Anonymous';
                 
                 return `
@@ -846,6 +869,11 @@
 
         // 添加评论
         async function handleAddComment(thoughtId, article) {
+            if (useStaticMode) {
+                alert('Comments are not available in reading mode. Please check your network connection.');
+                return;
+            }
+
             const nameInput = article.querySelector('.comment-name');
             const contentTextarea = article.querySelector('.comment-content');
             
@@ -862,29 +890,29 @@
                 addBtn.disabled = true;
                 addBtn.textContent = 'Adding...';
 
+                console.log('Adding comment to thought:', thoughtId);
+
+                // 确保用户已登录
+                const userId = auth.currentUser ? auth.currentUser.uid : null;
+                if (!userId) {
+                    // 尝试匿名登录
+                    await auth.signInAnonymously();
+                }
+
                 const thoughtRef = db.collection('thoughts').doc(thoughtId);
                 
-                await db.runTransaction(async (transaction) => {
-                    const doc = await transaction.get(thoughtRef);
-                    if (!doc.exists) {
-                        throw new Error('Thought does not exist!');
-                    }
+                // 简化评论添加，直接使用 arrayUnion
+                const newComment = {
+                    author: name,
+                    content: content,
+                    timestamp: firebase.firestore.Timestamp.now() // 使用客户端时间戳
+                };
 
-                    const data = doc.data();
-                    const comments = data.comments || [];
-                    
-                    const newComment = {
-                        author: name,
-                        content: content,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
-                    comments.push(newComment);
-
-                    transaction.update(thoughtRef, {
-                        comments: comments
-                    });
+                await thoughtRef.update({
+                    comments: firebase.firestore.FieldValue.arrayUnion(newComment)
                 });
+
+                console.log('Comment added successfully');
 
                 // 重置表单
                 nameInput.value = '';
@@ -892,12 +920,37 @@
                 addBtn.disabled = false;
                 addBtn.textContent = 'Add Comment';
                 
-                // 重新加载这个思想以显示新评论
-                loadThoughts();
+                // 立即更新UI而不是重新加载整个列表
+                const commentsListDiv = article.querySelector('.comments-list');
+                const currentComments = commentsListDiv.innerHTML;
+                
+                // 如果当前显示"No comments yet"，则替换
+                if (currentComments.includes('No comments yet')) {
+                    commentsListDiv.innerHTML = '';
+                }
+                
+                // 添加新评论到列表顶部
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment-item bg-slate-50 p-3 rounded-lg mb-3';
+                commentDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-medium text-slate-700 text-sm">${escapeHtml(name)}</span>
+                        <span class="text-xs text-slate-500">Just now</span>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed">${formatThoughtContent(content)}</p>
+                `;
+                commentsListDiv.insertBefore(commentDiv, commentsListDiv.firstChild);
+                
+                // 更新评论计数
+                const commentCount = article.querySelector('.comment-count');
+                if (commentCount) {
+                    const currentCount = parseInt(commentCount.textContent) || 0;
+                    commentCount.textContent = currentCount + 1;
+                }
 
             } catch (error) {
                 console.error('Error adding comment:', error);
-                alert('Error adding comment. Please try again.');
+                alert(`Error adding comment: ${error.message}. Please try again.`);
                 
                 const addBtn = article.querySelector('.add-comment-btn');
                 addBtn.disabled = false;
