@@ -80,6 +80,47 @@
             pointer-events: none;
         }
         
+        /* 评论系统样式 */
+        .comment-section {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+        
+        .comment-item {
+            @apply bg-slate-50 p-3 rounded-lg mb-3;
+        }
+        
+        .comment-form {
+            @apply mt-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300;
+        }
+        
+        .comment-toggle {
+            @apply text-slate-600 hover:text-sky-500 text-sm transition-colors cursor-pointer;
+        }
+        
+        /* 长内容折叠功能 */
+        .thought-content-collapsed {
+            max-height: 40vh; /* 最大高度为视窗高度的40% */
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .thought-content-collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, white);
+            pointer-events: none;
+        }
+        
+        .show-more-btn {
+            @apply mt-3 px-4 py-2 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-lg text-sm font-medium transition-colors cursor-pointer border border-sky-200;
+        }
+        
         /* LaTeX风格的字体设置 */
         .thought-content {
             font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
@@ -188,6 +229,32 @@
             .edit-form textarea {
                 font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
             }
+            
+            /* 评论区域移动端优化 */
+            .comment-section {
+                margin-top: 1rem;
+                padding-top: 1rem;
+            }
+            
+            .comment-form {
+                margin-top: 0.75rem;
+                padding: 0.75rem;
+            }
+            
+            .comment-form .flex {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .comment-form button {
+                width: 100%;
+                padding: 0.5rem;
+            }
+            
+            .comment-item {
+                margin-bottom: 0.75rem;
+                padding: 0.75rem;
+            }
         }
         
         /* 小屏幕设备进一步优化 */
@@ -277,8 +344,11 @@
     <header class="hero-bg py-12 md:py-20 lg:py-32">
         <div class="container mx-auto px-6 text-center">
             <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-sky-700 mb-4 md:mb-6">Thought Cabinet</h1>
-            <p class="text-base md:text-lg lg:text-xl text-slate-600 mb-6 md:mb-8 max-w-2xl mx-auto">
-                Am I the ocean or in it — Where is Snow's wandering mind?
+            <p class="text-base md:text-lg lg:text-xl text-slate-600 mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed">
+                Après tout, si cela ne conduit qu'à un certain degré d'érudition, plutôt que — d'une manière ou d'une autre — à faire sortir celui qui cherche autant que possible hors de son domaine propre, quelle valeur resterait-il à cette passion de savoir?
+            </p>
+            <p class="text-sm md:text-base text-slate-500 italic">
+                — Préface, <em>Histoire de la sexualité I</em>
             </p>
         </div>
     </header>
@@ -294,6 +364,19 @@
                            class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500 text-base">
                     <textarea id="thoughtContent" placeholder="What's on your mind?" 
                               class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 text-base"></textarea>
+                    
+                    <!-- 添加格式化提示 -->
+                    <div class="mb-3 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                        <p class="font-medium mb-2">✨ Formatting Tips:</p>
+                        <div class="space-y-1">
+                            <p><code># Heading 1</code> → <span class="text-lg font-bold">Heading 1</span></p>
+                            <p><code>## Heading 2</code> → <span class="text-base font-semibold">Heading 2</span></p>
+                            <p><code>### Heading 3</code> → <span class="text-sm font-semibold">Heading 3</span></p>
+                            <p><code>**bold text**</code> → <strong>bold text</strong></p>
+                            <p><code>*italic text*</code> → <em>italic text</em></p>
+                            <p><code>`code text`</code> → <code class="bg-slate-100 px-1 py-0.5 rounded">code text</code></p>
+                        </div>
+                    </div>
 
                     <div class="flex flex-col md:flex-row gap-3">
                         <button type="submit" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
@@ -482,7 +565,8 @@
                         content: content,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         upvotes: 0,
-                        upvotedBy: []
+                        upvotedBy: [],
+                        comments: []
                     };
 
                     await db.collection('thoughts').add(thoughtData);
@@ -606,20 +690,42 @@
                 <div class="content">
                     <h2 class="thought-title font-cm text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
                     <p class="text-sm text-slate-500 mb-4">${date}</p>
-                    <div class="thought-content font-cm text-slate-700 leading-relaxed mb-4">
-                        <p>${escapeHtml(thought.content).replace(/\n/g, '<br>')}</p>
+                    <div class="thought-content font-cm text-slate-700 leading-relaxed mb-4" data-full-height="">
+                        <div>${formatThoughtContent(thought.content)}</div>
                     </div>
+                    <button class="show-more-btn hidden" data-id="${id}">Show more</button>
                     <div class="flex justify-between items-center">
                         <button class="upvote-btn ${hasUpvoted ? 'voted' : ''} ${useStaticMode || isStaticData ? 'opacity-50 cursor-not-allowed' : ''}" data-id="${id}" ${useStaticMode || isStaticData ? 'disabled' : ''}>
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                            </svg>
+                            <span class="text-lg">${hasUpvoted ? '♥' : '♡'}</span>
                             <span class="upvote-count">${thought.upvotes || 0}</span>
                         </button>
-                        <span class="text-xs text-slate-400">
-                            ${useStaticMode || isStaticData ? 'Interactions unavailable in reading mode' : 
-                              (hasUpvoted ? 'You upvoted this' : 'Click to upvote')}
-                        </span>
+                        <div class="flex items-center space-x-4">
+                            <button class="comment-toggle" data-id="${id}" ${useStaticMode || isStaticData ? 'style="display: none;"' : ''}>
+                                💬 <span class="comment-count">${thought.comments ? thought.comments.length : 0}</span> Comments
+                            </button>
+                            <span class="text-xs text-slate-400">
+                                ${useStaticMode || isStaticData ? 'Interactions unavailable in reading mode' : 
+                                  (hasUpvoted ? 'You upvoted this' : 'Click to upvote')}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 评论区域 -->
+                    <div class="comment-section hidden" data-id="${id}">
+                        <div class="comments-list">
+                            ${renderComments(thought.comments || [])}
+                        </div>
+                        
+                        <!-- 添加评论表单 -->
+                        <div class="comment-form ${useStaticMode || isStaticData ? 'hidden' : ''}">
+                            <h4 class="font-medium text-slate-700 mb-3">Add a comment</h4>
+                            <input type="text" class="comment-name w-full p-2 border border-slate-300 rounded mb-2 text-sm" placeholder="Your name (optional, leave blank for Anonymous)">
+                            <textarea class="comment-content w-full p-2 border border-slate-300 rounded mb-3 h-20 resize-none text-sm" placeholder="Write your comment..."></textarea>
+                            <div class="flex space-x-2">
+                                <button class="add-comment-btn px-3 py-1 bg-sky-500 text-white rounded text-sm">Add Comment</button>
+                                <button class="cancel-comment-btn px-3 py-1 bg-slate-300 text-slate-700 rounded text-sm">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -629,15 +735,183 @@
                 const editBtn = article.querySelector('.edit-btn');
                 const deleteBtn = article.querySelector('.delete-btn');
                 const upvoteBtn = article.querySelector('.upvote-btn');
+                const commentToggle = article.querySelector('.comment-toggle');
+                const addCommentBtn = article.querySelector('.add-comment-btn');
+                const cancelCommentBtn = article.querySelector('.cancel-comment-btn');
+                const showMoreBtn = article.querySelector('.show-more-btn');
 
                 if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
                 if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
                 if (upvoteBtn && !upvoteBtn.disabled) {
                     upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
                 }
+                if (commentToggle) {
+                    commentToggle.addEventListener('click', () => toggleComments(id, article));
+                }
+                if (addCommentBtn) {
+                    addCommentBtn.addEventListener('click', () => handleAddComment(id, article));
+                }
+                if (cancelCommentBtn) {
+                    cancelCommentBtn.addEventListener('click', () => cancelComment(article));
+                }
+                if (showMoreBtn) {
+                    showMoreBtn.addEventListener('click', () => toggleShowMore(article));
+                }
             }
 
+            // 检查内容是否需要折叠
+            setTimeout(() => checkContentHeight(article), 100);
+
             return article;
+        }
+
+        // 渲染评论列表
+        function renderComments(comments) {
+            if (!comments || comments.length === 0) {
+                return '<p class="text-slate-500 text-sm">No comments yet. Be the first to comment!</p>';
+            }
+
+            return comments.map(comment => {
+                const date = comment.timestamp ? new Date(comment.timestamp.seconds * 1000).toLocaleDateString() : 'Recently';
+                const authorName = comment.author || 'Anonymous';
+                
+                return `
+                    <div class="comment-item bg-slate-50 p-3 rounded-lg mb-3">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-medium text-slate-700 text-sm">${escapeHtml(authorName)}</span>
+                            <span class="text-xs text-slate-500">${date}</span>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed">${formatThoughtContent(comment.content)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 切换评论显示
+        // 检查内容高度并决定是否需要折叠
+        function checkContentHeight(article) {
+            const thoughtContent = article.querySelector('.thought-content');
+            const showMoreBtn = article.querySelector('.show-more-btn');
+            
+            if (!thoughtContent || !showMoreBtn) return;
+            
+            // 获取视口高度
+            const viewportHeight = window.innerHeight;
+            const maxHeight = viewportHeight * 0.4; // 40% of viewport height
+            
+            // 暂时移除折叠样式来测量实际高度
+            thoughtContent.classList.remove('thought-content-collapsed');
+            const actualHeight = thoughtContent.scrollHeight;
+            
+            // 如果内容高度超过阈值，则折叠
+            if (actualHeight > maxHeight) {
+                thoughtContent.classList.add('thought-content-collapsed');
+                showMoreBtn.style.display = 'inline-block';
+                thoughtContent.dataset.fullHeight = actualHeight + 'px';
+            } else {
+                showMoreBtn.style.display = 'none';
+            }
+        }
+
+        // 切换展开/折叠状态
+        function toggleShowMore(article) {
+            const thoughtContent = article.querySelector('.thought-content');
+            const showMoreBtn = article.querySelector('.show-more-btn');
+            
+            if (!thoughtContent || !showMoreBtn) return;
+            
+            const isCollapsed = thoughtContent.classList.contains('thought-content-collapsed');
+            
+            if (isCollapsed) {
+                // 展开
+                thoughtContent.classList.remove('thought-content-collapsed');
+                showMoreBtn.textContent = 'Show Less';
+            } else {
+                // 折叠
+                thoughtContent.classList.add('thought-content-collapsed');
+                showMoreBtn.textContent = 'Show More';
+                // 滚动到文章顶部
+                article.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function toggleComments(thoughtId, article) {
+            const commentSection = article.querySelector('.comment-section');
+            if (commentSection.classList.contains('hidden')) {
+                commentSection.classList.remove('hidden');
+            } else {
+                commentSection.classList.add('hidden');
+            }
+        }
+
+        // 添加评论
+        async function handleAddComment(thoughtId, article) {
+            const nameInput = article.querySelector('.comment-name');
+            const contentTextarea = article.querySelector('.comment-content');
+            
+            const name = nameInput.value.trim() || 'Anonymous';
+            const content = contentTextarea.value.trim();
+            
+            if (!content) {
+                alert('Please write a comment before submitting.');
+                return;
+            }
+
+            try {
+                const addBtn = article.querySelector('.add-comment-btn');
+                addBtn.disabled = true;
+                addBtn.textContent = 'Adding...';
+
+                const thoughtRef = db.collection('thoughts').doc(thoughtId);
+                
+                await db.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(thoughtRef);
+                    if (!doc.exists) {
+                        throw new Error('Thought does not exist!');
+                    }
+
+                    const data = doc.data();
+                    const comments = data.comments || [];
+                    
+                    const newComment = {
+                        author: name,
+                        content: content,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    comments.push(newComment);
+
+                    transaction.update(thoughtRef, {
+                        comments: comments
+                    });
+                });
+
+                // 重置表单
+                nameInput.value = '';
+                contentTextarea.value = '';
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Comment';
+                
+                // 重新加载这个思想以显示新评论
+                loadThoughts();
+
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                alert('Error adding comment. Please try again.');
+                
+                const addBtn = article.querySelector('.add-comment-btn');
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Comment';
+            }
+        }
+
+        // 取消评论
+        function cancelComment(article) {
+            const nameInput = article.querySelector('.comment-name');
+            const contentTextarea = article.querySelector('.comment-content');
+            
+            nameInput.value = '';
+            contentTextarea.value = '';
         }
 
         // 处理点赞
@@ -687,6 +961,8 @@
                 // 更新UI
                 button.classList.add('voted');
                 button.classList.remove('loading');
+                const heartSpan = button.querySelector('span:first-child');
+                heartSpan.textContent = '♥'; // 变成实心爱心
                 const countSpan = button.querySelector('.upvote-count');
                 countSpan.textContent = parseInt(countSpan.textContent) + 1;
                 
@@ -738,13 +1014,29 @@
             
             const content = article.querySelector('.content');
             const title = content.querySelector('h2').textContent;
-            const text = content.querySelector('.text-slate-700 p').innerHTML.replace(/<br>/g, '\n');
+            const text = content.querySelector('.thought-content div').innerHTML
+                .replace(/<h1[^>]*>(.*?)<\/h1>/g, '# $1')          // 反转一级标题
+                .replace(/<h2[^>]*>(.*?)<\/h2>/g, '## $1')         // 反转二级标题
+                .replace(/<h3[^>]*>(.*?)<\/h3>/g, '### $1')        // 反转三级标题
+                .replace(/<strong>(.*?)<\/strong>/g, '**$1**')     // 反转粗体
+                .replace(/<em>(.*?)<\/em>/g, '*$1*')               // 反转斜体
+                .replace(/<code[^>]*>(.*?)<\/code>/g, '`$1`')      // 反转代码
+                .replace(/<br>/g, '\n');                           // 反转换行
 
             const editForm = document.createElement('div');
             editForm.className = 'edit-form';
             editForm.innerHTML = `
                 <input type="text" class="edit-title w-full p-3 border rounded-lg mb-3" value="${escapeHtml(title)}">
                 <textarea class="edit-content w-full p-3 border rounded-lg mb-3 h-32">${escapeHtml(text)}</textarea>
+                
+                <!-- 编辑时的格式化提示 -->
+                <div class="mb-3 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                    <p class="font-medium mb-2">✨ Formatting:</p>
+                    <div class="space-y-1">
+                        <span><code># ## ###</code> <code>**bold**</code> <code>*italic*</code> <code>\`code\`</code></span>
+                    </div>
+                </div>
+                
                 <div class="flex space-x-3">
                     <button class="save-btn px-4 py-2 bg-sky-500 text-white rounded-lg">Save</button>
                     <button class="cancel-edit-btn px-4 py-2 bg-slate-300 text-slate-700 rounded-lg">Cancel</button>
@@ -767,7 +1059,7 @@
                         });
                         
                         content.querySelector('h2').textContent = newTitle;
-                        content.querySelector('.text-slate-700 p').innerHTML = escapeHtml(newContent).replace(/\n/g, '<br>');
+                        content.querySelector('.thought-content div').innerHTML = formatThoughtContent(newContent);
                         
                         editForm.remove();
                         content.style.display = 'block';
@@ -836,6 +1128,25 @@
             return div.innerHTML;
         }
 
+        // 格式化思想内容（支持简单的Markdown语法）
+        function formatThoughtContent(content) {
+            // 转义HTML
+            let formattedContent = escapeHtml(content);
+            
+            // 支持简单的Markdown语法
+            formattedContent = formattedContent
+                // 标题处理（需要在换行处理之前）
+                .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold text-slate-800 mt-4 mb-2">$1</h3>')     // ### 三级标题
+                .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold text-slate-800 mt-5 mb-3">$1</h2>')      // ## 二级标题  
+                .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold text-slate-900 mt-6 mb-4">$1</h1>')         // # 一级标题
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **粗体**
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // *斜体*
+                .replace(/`(.*?)`/g, '<code class="bg-slate-100 px-1 py-0.5 rounded text-sm">$1</code>') // `代码`
+                .replace(/\n/g, '<br>');                           // 换行
+            
+            return formattedContent;
+        }
+
         // Firebase 认证状态监听
         auth.onAuthStateChanged(async user => {
             if (user && !useStaticMode) {
@@ -890,6 +1201,14 @@
                 showConnectionStatus('static');
                 loadThoughts();
             }
+        });
+
+        // 监听窗口大小变化，重新检查内容高度
+        window.addEventListener('resize', () => {
+            const articles = document.querySelectorAll('.thought-item');
+            articles.forEach(article => {
+                setTimeout(() => checkContentHeight(article), 100);
+            });
         });
     </script>
 
