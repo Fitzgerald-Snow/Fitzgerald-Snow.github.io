@@ -1,11 +1,29 @@
 {
   "neuroscience": [
     {
+      "title": "Recurrent Neural Networks",
+      "description": "try here, I'm snow",
+      "date": "Aug 4, 2025",
+      "tags": [
+        "neural-networks",
+        "learning"
+      ],
+      "image": "",
+      "gradient": "from-blue-100 to-purple-100",
+      "iconColor": "text-blue-500",
+      "icon": "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+      "id": "recurrent-neural-networks"
+    },
+    {
       "id": "neural-dynamics-learning",
       "title": "神经网络学习的动力学机制",
       "description": "深入探讨不同神经网络架构如何适应和学习环境刺激，重点关注生物学上的合理性。从计算神经科学的角度分析学习算法的原理，探索生物神经网络与人工神经网络之间的异同。",
       "date": "Dec 15, 2024",
-      "tags": ["computational-neuroscience", "neural-networks", "learning"],
+      "tags": [
+        "computational-neuroscience",
+        "neural-networks",
+        "learning"
+      ],
       "image": "neural-dynamics.jpg",
       "gradient": "from-blue-100 to-purple-100",
       "iconColor": "text-blue-500",
@@ -16,7 +34,10 @@
       "title": "意识的数学基础：文献综述",
       "description": "综述当前关于意识数学建模的主要理论框架，包括整合信息理论(IIT)、全局工作空间理论等，分析它们的优缺点和未来发展方向。探讨如何用数学语言描述意识现象。",
       "date": "Nov 28, 2024",
-      "tags": ["consciousness", "review"],
+      "tags": [
+        "consciousness",
+        "review"
+      ],
       "image": "consciousness.jpg",
       "gradient": "from-pink-100 to-purple-100",
       "iconColor": "text-pink-500",
@@ -27,7 +48,11 @@
       "title": "记忆的计算模型：从海马体到人工神经网络",
       "description": "探讨记忆形成、存储和检索的计算机制，比较生物系统和人工智能系统中的记忆模型，分析突触可塑性的作用。深入研究海马体的记忆编码机制及其在AI中的应用。",
       "date": "Oct 12, 2024",
-      "tags": ["memory", "plasticity", "computational-neuroscience"],
+      "tags": [
+        "memory",
+        "plasticity",
+        "computational-neuroscience"
+      ],
       "image": "memory-models.jpg",
       "gradient": "from-green-100 to-blue-100",
       "iconColor": "text-green-500",
@@ -38,7 +63,11 @@
       "title": "反向传播算法在大脑中存在吗？",
       "description": "科普文章：深入浅出地解释反向传播算法的原理，探讨大脑是否真的使用类似的学习机制，以及最新的生物学上更合理的学习算法。分析生物可塑性与人工学习的差异。",
       "date": "Sep 5, 2024",
-      "tags": ["neural-networks", "learning", "review"],
+      "tags": [
+        "neural-networks",
+        "learning",
+        "review"
+      ],
       "image": "backpropagation.jpg",
       "gradient": "from-yellow-100 to-orange-100",
       "iconColor": "text-yellow-500",
@@ -51,7 +80,10 @@
       "title": "矩阵分解方法详解",
       "description": "深入讲解各种矩阵分解方法（SVD、LU、QR、特征值分解等）的原理、应用场景和计算实现，结合神经网络中的应用实例。从数学理论到实际编程，全面掌握矩阵分解技术。",
       "date": "Dec 1, 2024",
-      "tags": ["linear-algebra", "optimization"],
+      "tags": [
+        "linear-algebra",
+        "optimization"
+      ],
       "image": "matrix-decomposition.jpg",
       "gradient": "from-blue-100 to-indigo-100",
       "iconColor": "text-blue-500",
@@ -62,7 +94,10 @@
       "title": "熵与信息论基础",
       "description": "从香农熵开始，逐步介绍信息论的核心概念：互信息、KL散度、交叉熵等，并展示它们在机器学习中的应用。理解信息的数学本质及其在AI中的重要作用。",
       "date": "Nov 15, 2024",
-      "tags": ["probability", "information-theory"],
+      "tags": [
+        "probability",
+        "information-theory"
+      ],
       "image": "entropy-information.jpg",
       "gradient": "from-green-100 to-teal-100",
       "iconColor": "text-green-500",
@@ -73,7 +108,10 @@
       "title": "梯度下降法及其变种",
       "description": "详细分析梯度下降法的数学原理，以及Adam、RMSprop、Momentum等优化算法的改进思路和适用场景。从基础微积分到现代优化技术的完整解析。",
       "date": "Oct 20, 2024",
-      "tags": ["calculus", "optimization"],
+      "tags": [
+        "calculus",
+        "optimization"
+      ],
       "image": "gradient-descent.jpg",
       "gradient": "from-red-100 to-pink-100",
       "iconColor": "text-red-500",
@@ -84,7 +122,10 @@
       "title": "贝叶斯推断入门",
       "description": "从贝叶斯定理出发，介绍贝叶斯推断的基本思想、先验后验概念，以及在机器学习中的应用实例。掌握概率思维在不确定性推理中的强大威力。",
       "date": "Sep 18, 2024",
-      "tags": ["statistics", "probability"],
+      "tags": [
+        "statistics",
+        "probability"
+      ],
       "image": "bayesian-inference.jpg",
       "gradient": "from-yellow-100 to-amber-100",
       "iconColor": "text-yellow-500",
