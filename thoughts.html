@@ -738,7 +738,6 @@
                 const commentToggle = article.querySelector('.comment-toggle');
                 const addCommentBtn = article.querySelector('.add-comment-btn');
                 const cancelCommentBtn = article.querySelector('.cancel-comment-btn');
-                const showMoreBtn = article.querySelector('.show-more-btn');
 
                 if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
                 if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
@@ -754,9 +753,12 @@
                 if (cancelCommentBtn) {
                     cancelCommentBtn.addEventListener('click', () => cancelComment(article));
                 }
-                if (showMoreBtn) {
-                    showMoreBtn.addEventListener('click', () => toggleShowMore(article));
-                }
+            }
+
+            // Show more 按钮在所有模式下都应该可用（纯前端功能）
+            const showMoreBtn = article.querySelector('.show-more-btn');
+            if (showMoreBtn) {
+                showMoreBtn.addEventListener('click', () => toggleShowMore(article));
             }
 
             // 检查内容是否需要折叠
