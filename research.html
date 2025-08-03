@@ -37,6 +37,43 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
+        .tag-filter {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            background-color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .tag-filter:hover {
+            background-color: #f1f5f9;
+        }
+        .tag-filter.active {
+            background-color: #0ea5e9;
+            color: white;
+            border-color: #0ea5e9;
+        }
+        .article-card, .math-article-card {
+            transition: all 0.3s ease-in-out;
+            background-color: transparent;
+            cursor: pointer;
+        }
+        .article-card:hover, .math-article-card:hover {
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .article-card.hidden, .math-article-card.hidden {
+            display: none;
+        }
+        .book-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -65,118 +102,289 @@
     </header>
 
     <main>
-        <section class="py-16 md:py-24">
+        <section class="py-16 md:py-24 bg-green-50">
             <div class="container mx-auto px-6">
-                <h2 class="section-title">Current Research Areas</h2>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-                    <div class="card">
-                        <h3 class="text-xl font-semibold text-sky-600 mb-4">Computational Neuroscience</h3>
-                        <p class="text-slate-700 mb-4">Exploring neural network models and learning algorithms that bridge biological and artificial intelligence.</p>
-                        <div class="text-sm text-slate-500">
-                            <span class="bg-slate-100 px-2 py-1 rounded mr-2">Neural Networks</span>
-                            <span class="bg-slate-100 px-2 py-1 rounded">Machine Learning</span>
+                <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 text-slate-700" style="font-family: 'Georgia', serif; font-style: italic;">Neuroscience</h2>
+
+                <!-- Tag Filter Section -->
+                <div class="mb-8 text-center">
+                    <div class="flex flex-wrap justify-center gap-2" id="tagFilters">
+                        <button class="tag-filter active" data-tag="all">All</button>
+                        <button class="tag-filter" data-tag="computational-neuroscience">Computational Neuroscience</button>
+                        <button class="tag-filter" data-tag="neural-networks">Neural Networks</button>
+                        <button class="tag-filter" data-tag="memory">Memory</button>
+                        <button class="tag-filter" data-tag="consciousness">Consciousness</button>
+                        <button class="tag-filter" data-tag="learning">Learning</button>
+                        <button class="tag-filter" data-tag="plasticity">Plasticity</button>
+                        <button class="tag-filter" data-tag="review">Literature Review</button>
+                    </div>
+                </div>
+
+                <!-- Articles List -->
+                <div class="space-y-8" id="articlesGrid">
+                    <div class="article-card rounded-lg p-6 border border-gray-100" data-tags="computational-neuroscience,neural-networks,learning" onclick="openArticle('neural-dynamics-learning')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    神经网络学习的动力学机制
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    深入探讨不同神经网络架构如何适应和学习环境刺激，重点关注生物学上的合理性。从计算神经科学的角度分析学习算法的原理，探索生物神经网络与人工神经网络之间的异同。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Dec 15, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/neural-dynamics.jpg" alt="Neural Network Learning" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="card">
-                        <h3 class="text-xl font-semibold text-sky-600 mb-4">Mathematical Modeling</h3>
-                        <p class="text-slate-700 mb-4">Applying mathematical frameworks to understand complex systems and cognitive processes.</p>
-                        <div class="text-sm text-slate-500">
-                            <span class="bg-slate-100 px-2 py-1 rounded mr-2">Calculus</span>
-                            <span class="bg-slate-100 px-2 py-1 rounded">Linear Algebra</span>
+
+                    <div class="article-card rounded-lg p-6 border border-gray-100" data-tags="consciousness,review" onclick="openArticle('consciousness-mathematical-framework')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    意识的数学基础：文献综述
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    综述当前关于意识数学建模的主要理论框架，包括整合信息理论(IIT)、全局工作空间理论等，分析它们的优缺点和未来发展方向。探讨如何用数学语言描述意识现象。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Nov 28, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-pink-100 to-purple-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/consciousness.jpg" alt="Consciousness Theory" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="card">
-                        <h3 class="text-xl font-semibold text-sky-600 mb-4">Cognitive Psychology</h3>
-                        <p class="text-slate-700 mb-4">Investigating the mechanisms of human cognition and their computational analogues.</p>
-                        <div class="text-sm text-slate-500">
-                            <span class="bg-slate-100 px-2 py-1 rounded mr-2">Cognition</span>
-                            <span class="bg-slate-100 px-2 py-1 rounded">Psychology</span>
+
+                    <div class="article-card rounded-lg p-6 border border-gray-100" data-tags="memory,plasticity,computational-neuroscience" onclick="openArticle('memory-computational-models')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    记忆的计算模型：从海马体到人工神经网络
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    探讨记忆形成、存储和检索的计算机制，比较生物系统和人工智能系统中的记忆模型，分析突触可塑性的作用。深入研究海马体的记忆编码机制及其在AI中的应用。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Oct 12, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/memory-models.jpg" alt="Memory Models" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="article-card rounded-lg p-6 border border-gray-100" data-tags="neural-networks,learning,review" onclick="openArticle('backpropagation-brain')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    反向传播算法在大脑中存在吗？
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    科普文章：深入浅出地解释反向传播算法的原理，探讨大脑是否真的使用类似的学习机制，以及最新的生物学上更合理的学习算法。分析生物可塑性与人工学习的差异。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Sep 5, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/backpropagation.jpg" alt="Backpropagation Algorithm" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="py-16 md:py-24 bg-rose-50">
+        <section class="py-16 md:py-24 bg-yellow-50">
             <div class="container mx-auto px-6">
-                <h2 class="section-title">Research Articles & Progress</h2>
-                <div class="space-y-8">
-                    <div class="card">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-slate-800">Neural Network Dynamics in Learning</h3>
-                            <span class="text-sm text-slate-500 mt-2 md:mt-0">In Progress</span>
+                <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 text-slate-700" style="font-family: 'Georgia', serif; font-style: italic;">Current Readings</h2>
+                
+                <!-- Books Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="booksGrid">
+                    
+
+                    
+
+                    <div class="book-card bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="openBookNotes('deep-learning-book')">
+                        <div class="mb-4">
+                            <div class="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-4">
+                                <img src="images/books/deep-learning.jpg" alt="Deep Learning" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Deep Learning</h3>
+                            <p class="text-sm text-slate-600 mb-2">Ian Goodfellow, Yoshua Bengio, Aaron Courville</p>
+                            <p class="text-sm text-slate-500 mb-3">深度学习领域的权威教材，从基础数学到前沿研究的全面覆盖。</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">进度: 78%</span>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-slate-700 mb-4">
-                            Investigating how different neural network architectures adapt and learn from environmental stimuli, with a focus on biological plausibility.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Python</span>
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">TensorFlow</span>
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Neuroscience</span>
-                        </div>
-                        <a href="#" class="btn btn-secondary">Read More</a>
                     </div>
 
-                    <div class="card">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-slate-800">Mathematical Foundations of Consciousness</h3>
-                            <span class="text-sm text-slate-500 mt-2 md:mt-0">Draft</span>
-                        </div>
-                        <p class="text-slate-700 mb-4">
-                            Exploring mathematical frameworks that might help us understand the emergence of consciousness from neural activity.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Mathematics</span>
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Philosophy</span>
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Consciousness</span>
-                        </div>
-                        <a href="#" class="btn btn-secondary">Read More</a>
-                    </div>
+                    
 
-                    <div class="card">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-slate-800">Computational Models of Memory</h3>
-                            <span class="text-sm text-slate-500 mt-2 md:mt-0">Planning</span>
-                        </div>
-                        <p class="text-slate-700 mb-4">
-                            Developing computational models to understand how memories are formed, stored, and retrieved in both biological and artificial systems.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">MATLAB</span>
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Memory</span>
-                            <span class="bg-sky-100 text-sky-700 px-3 py-1 rounded text-sm">Modeling</span>
-                        </div>
-                        <a href="#" class="btn btn-secondary">Read More</a>
-                    </div>
+                    
+
+                    
                 </div>
             </div>
         </section>
 
-        <section class="py-16 md:py-24">
+        <section class="py-16 md:py-24 bg-blue-50">
             <div class="container mx-auto px-6">
-                <h2 class="section-title">Tools & Methods</h2>
-                <div class="grid md:grid-cols-2 gap-10">
-                    <div>
-                        <h3 class="text-2xl font-semibold text-sky-600 mb-6">Programming & Analysis</h3>
-                        <ul class="list-disc list-inside space-y-2 text-slate-700 text-lg">
-                            <li>Python (NumPy, SciPy, Matplotlib)</li>
-                            <li>MATLAB for mathematical modeling</li>
-                            <li>TensorFlow/PyTorch for neural networks</li>
-                            <li>Git for version control</li>
-                            <li>Jupyter notebooks for research documentation</li>
-                        </ul>
+                <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 text-slate-700" style="font-family: 'Georgia', serif; font-style: italic;">Mathematics</h2>
+
+                <!-- Math Tag Filter Section -->
+                <div class="mb-8 text-center">
+                    <div class="flex flex-wrap justify-center gap-2" id="mathTagFilters">
+                        <button class="tag-filter active" data-tag="all">All</button>
+                        <button class="tag-filter" data-tag="linear-algebra">Linear Algebra</button>
+                        <button class="tag-filter" data-tag="calculus">Calculus</button>
+                        <button class="tag-filter" data-tag="probability">Probability</button>
+                        <button class="tag-filter" data-tag="statistics">Statistics</button>
+                        <button class="tag-filter" data-tag="optimization">Optimization</button>
+                        <button class="tag-filter" data-tag="information-theory">Information Theory</button>
+                        <button class="tag-filter" data-tag="graph-theory">Graph Theory</button>
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-semibold text-sky-600 mb-6">Mathematical Frameworks</h3>
-                        <ul class="list-disc list-inside space-y-2 text-slate-700 text-lg">
-                            <li>Linear algebra and matrix theory</li>
-                            <li>Probability theory and statistics</li>
-                            <li>Differential equations</li>
-                            <li>Information theory</li>
-                            <li>Graph theory and network analysis</li>
-                        </ul>
+                </div>
+
+                <!-- Mathematics Articles List -->
+                <div class="space-y-8" id="mathArticlesGrid">
+                    <div class="math-article-card rounded-lg p-6 border border-gray-100" data-tags="linear-algebra,optimization" onclick="openMathArticle('matrix-decomposition-explained')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    矩阵分解方法详解
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    深入讲解各种矩阵分解方法（SVD、LU、QR、特征值分解等）的原理、应用场景和计算实现，结合神经网络中的应用实例。从数学理论到实际编程，全面掌握矩阵分解技术。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Dec 1, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/matrix-decomposition.jpg" alt="Matrix Decomposition" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="math-article-card rounded-lg p-6 border border-gray-100" data-tags="probability,information-theory" onclick="openMathArticle('entropy-information-theory')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    熵与信息论基础
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    从香农熵开始，逐步介绍信息论的核心概念：互信息、KL散度、交叉熵等，并展示它们在机器学习中的应用。理解信息的数学本质及其在AI中的重要作用。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Nov 15, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-green-100 to-teal-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/entropy-information.jpg" alt="Entropy and Information Theory" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-teal-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="math-article-card rounded-lg p-6 border border-gray-100" data-tags="calculus,optimization" onclick="openMathArticle('gradient-descent-variants')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    梯度下降法及其变种
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    详细分析梯度下降法的数学原理，以及Adam、RMSprop、Momentum等优化算法的改进思路和适用场景。从基础微积分到现代优化技术的完整解析。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Oct 20, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-red-100 to-pink-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/gradient-descent.jpg" alt="Gradient Descent" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-red-100 to-pink-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="math-article-card rounded-lg p-6 border border-gray-100" data-tags="statistics,probability" onclick="openMathArticle('bayesian-inference-intro')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    贝叶斯推断入门
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    从贝叶斯定理出发，介绍贝叶斯推断的基本思想、先验后验概念，以及在机器学习中的应用实例。掌握概率思维在不确定性推理中的强大威力。
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>Sep 18, 2024</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg overflow-hidden">
+                                <img src="images/articles/bayesian-inference.jpg" alt="Bayesian Inference" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg flex items-center justify-center" style="display: none;">
+                                    <svg class="w-12 h-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -192,6 +400,90 @@
 
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Tag filtering functionality for neuroscience articles
+        function initializeTagFilters() {
+            const tagFilters = document.querySelectorAll('#tagFilters .tag-filter');
+            const articles = document.querySelectorAll('.article-card');
+
+            tagFilters.forEach(filter => {
+                filter.addEventListener('click', function() {
+                    // Remove active class from all filters
+                    tagFilters.forEach(f => f.classList.remove('active'));
+                    // Add active class to clicked filter
+                    this.classList.add('active');
+
+                    const selectedTag = this.getAttribute('data-tag');
+
+                    articles.forEach(article => {
+                        if (selectedTag === 'all') {
+                            article.classList.remove('hidden');
+                        } else {
+                            const articleTags = article.getAttribute('data-tags').split(',');
+                            if (articleTags.includes(selectedTag)) {
+                                article.classList.remove('hidden');
+                            } else {
+                                article.classList.add('hidden');
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // Tag filtering functionality for mathematics articles
+        function initializeMathTagFilters() {
+            const mathTagFilters = document.querySelectorAll('#mathTagFilters .tag-filter');
+            const mathArticles = document.querySelectorAll('.math-article-card');
+
+            mathTagFilters.forEach(filter => {
+                filter.addEventListener('click', function() {
+                    // Remove active class from all filters
+                    mathTagFilters.forEach(f => f.classList.remove('active'));
+                    // Add active class to clicked filter
+                    this.classList.add('active');
+
+                    const selectedTag = this.getAttribute('data-tag');
+
+                    mathArticles.forEach(article => {
+                        if (selectedTag === 'all') {
+                            article.classList.remove('hidden');
+                        } else {
+                            const articleTags = article.getAttribute('data-tags').split(',');
+                            if (articleTags.includes(selectedTag)) {
+                                article.classList.remove('hidden');
+                            } else {
+                                article.classList.add('hidden');
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // Function to open neuroscience article
+        function openArticle(articleId) {
+            // For now, we'll create a simple alert. Later this can be replaced with actual navigation
+            window.location.href = `article.html?id=${articleId}&type=neuroscience`;
+        }
+
+        // Function to open mathematics article
+        function openMathArticle(articleId) {
+            // For now, we'll create a simple alert. Later this can be replaced with actual navigation
+            window.location.href = `article.html?id=${articleId}&type=mathematics`;
+        }
+
+        // Function to open book notes
+        function openBookNotes(bookId) {
+            // Navigate to book notes page
+            window.location.href = `article.html?id=${bookId}&type=book-notes`;
+        }
+
+        // Initialize all functionality when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTagFilters();
+            initializeMathTagFilters();
+        });
     </script>
 
 </body>

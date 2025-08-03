@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            scroll-behavior: smooth;
+        }
+        .hero-bg {
+            background-color: #ede9fe;
+        }
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #334155;
+        }
+        .book-notes h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .book-notes blockquote {
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .book-notes ul li {
+            margin-bottom: 0.5rem;
+        }
+        .book-notes code {
+            background-color: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
+            <div class="space-x-4">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
+                <a href="research.html" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
+                <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
+                <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
+                <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-bg py-20 md:py-32">
+        <div class="container mx-auto px-6 text-center">
+            <h1 id="article-title" class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Article Title</h1>
+            <p id="article-date" class="text-lg md:text-xl text-slate-600 mb-8">Published on: </p>
+        </div>
+    </header>
+
+    <main class="py-16 md:py-24">
+        <div class="container mx-auto px-6">
+            <article id="article-content" class="prose max-w-none text-slate-700">
+                <!-- Article content will be dynamically loaded here -->
+            </article>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
+        <div class="container mx-auto px-6">
+            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Simulate fetching article data based on URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+        const articleType = urlParams.get('type');
+
+        // Example article data (replace with actual API or database call)
+        const articles = {
+            'neural-dynamics-learning': {
+                title: '神经网络学习的动力学机制',
+                date: '2024-12-15',
+                content: '<p>深入探讨不同神经网络架构如何适应和学习环境刺激，重点关注生物学上的合理性。从计算神经科学的角度分析学习算法的原理。</p>'
+            },
+            'consciousness-mathematical-framework': {
+                title: '意识的数学基础：文献综述',
+                date: '2024-11-28',
+                content: '<p>综述当前关于意识数学建模的主要理论框架，包括整合信息理论(IIT)、全局工作空间理论等，分析它们的优缺点和未来发展方向。</p>'
+            },
+            'memory-computational-models': {
+                title: '记忆的计算模型：从海马体到人工神经网络',
+                date: '2024-10-12',
+                content: '<p>探讨记忆形成、存储和检索的计算机制，比较生物系统和人工智能系统中的记忆模型，分析突触可塑性的作用。</p>'
+            },
+            'backpropagation-brain': {
+                title: '反向传播算法在大脑中存在吗？',
+                date: '2024-09-05',
+                content: '<p>科普文章：深入浅出地解释反向传播算法的原理，探讨大脑是否真的使用类似的学习机制，以及最新的生物学上更合理的学习算法。</p>'
+            }
+        };
+
+        // Book notes data
+        const bookNotes = {
+            'principles-of-neural-design': {
+                title: 'Principles of Neural Design - 读书笔记',
+                date: '最后更新: 2024-12-01',
+                content: `
+                    <div class="book-notes">
+                        <h2>第一章：能量约束</h2>
+                        <blockquote class="border-l-4 border-blue-500 pl-4 italic my-4">
+                            "大脑消耗的能量占人体总能量的20%，但重量只占2%"
+                        </blockquote>
+                        <p>作者从能量效率的角度分析神经系统设计。关键观点：</p>
+                        <ul class="list-disc pl-6 my-4">
+                            <li>神经元尺寸的权衡：更大的神经元传导更快，但消耗更多能量</li>
+                            <li>稀疏编码：大脑通过稀疏激活模式来降低能耗</li>
+                            <li>局部连接vs全局连接的能量成本分析</li>
+                        </ul>
+                        
+                        <h2>第三章：信息处理的限制</h2>
+                        <p>印象深刻的是关于信息瓶颈理论的讨论。神经系统需要在信息保持和压缩之间找到平衡。</p>
+                        
+                        <h2>个人思考</h2>
+                        <div class="bg-yellow-50 p-4 rounded-lg my-4">
+                            <p class="text-sm"><strong>思考：</strong>这本书让我重新思考人工神经网络的设计。我们是否应该在AI模型中更多地考虑能量效率？当前的深度学习模型在能耗方面与生物神经网络相比如何？</p>
+                        </div>
+                    </div>
+                `
+            },
+            'theoretical-neuroscience': {
+                title: 'Theoretical Neuroscience - 读书笔记',
+                date: '最后更新: 2024-11-25',
+                content: `
+                    <div class="book-notes">
+                        <h2>第二章：神经元模型</h2>
+                        <p>详细介绍了Hodgkin-Huxley模型和integrate-and-fire模型：</p>
+                        <ul class="list-disc pl-6 my-4">
+                            <li>HH模型的数学形式和生物学意义</li>
+                            <li>不同离子通道的作用机制</li>
+                            <li>模型参数对神经元放电模式的影响</li>
+                        </ul>
+                        
+                        <h2>第五章：网络动力学</h2>
+                        <blockquote class="border-l-4 border-purple-500 pl-4 italic my-4">
+                            "网络的集体行为往往无法从单个神经元的性质直接推导"
+                        </blockquote>
+                        
+                        <h2>编程练习笔记</h2>
+                        <div class="bg-gray-100 p-4 rounded-lg my-4">
+                            <code class="text-sm">
+                                # 实现了书中的LIF神经元模型<br>
+                                # 发现调整阈值电位对网络同步性有显著影响
+                            </code>
+                        </div>
+                    </div>
+                `
+            },
+            'deep-learning-book': {
+                title: 'Deep Learning - 读书笔记',
+                date: '最后更新: 2024-12-10',
+                content: `
+                    <div class="book-notes">
+                        <h2>第六章：深度前馈网络</h2>
+                        <p>重点关注了激活函数的选择和初始化策略：</p>
+                        <ul class="list-disc pl-6 my-4">
+                            <li>ReLU vs Sigmoid vs Tanh的优缺点对比</li>
+                            <li>梯度消失和梯度爆炸的根本原因</li>
+                            <li>Xavier和He初始化的数学推导</li>
+                        </ul>
+                        
+                        <h2>第八章：优化</h2>
+                        <blockquote class="border-l-4 border-green-500 pl-4 italic my-4">
+                            "优化深度学习模型的挑战不仅在于找到全局最优，更在于找到泛化性能好的解"
+                        </blockquote>
+                        
+                        <h2>实验记录</h2>
+                        <div class="bg-blue-50 p-4 rounded-lg my-4">
+                            <p class="text-sm"><strong>实验：</strong>在MNIST数据集上比较不同优化器的性能。发现Adam在大多数情况下收敛最快，但SGD+Momentum在最终精度上有时更好。</p>
+                        </div>
+                    </div>
+                `
+            },
+            'information-theory-inference': {
+                title: 'Information Theory, Inference and Learning Algorithms - 读书笔记',
+                date: '最后更新: 2024-11-20',
+                content: `
+                    <div class="book-notes">
+                        <h2>第二章：熵和信息</h2>
+                        <p>MacKay对信息熵的直观解释非常精彩：</p>
+                        <ul class="list-disc pl-6 my-4">
+                            <li>信息量等于"惊讶程度"的数学表达</li>
+                            <li>最大熵原理在机器学习中的应用</li>
+                            <li>KL散度作为"信息距离"的理解</li>
+                        </ul>
+                        
+                        <h2>第二十章：贝叶斯神经网络</h2>
+                        <blockquote class="border-l-4 border-red-500 pl-4 italic my-4">
+                            "不确定性量化是AI系统走向实用的关键"
+                        </blockquote>
+                        
+                        <h2>思考笔记</h2>
+                        <div class="bg-red-50 p-4 rounded-lg my-4">
+                            <p class="text-sm"><strong>连接：</strong>书中的贝叶斯方法与我在研究中使用的变分推断有很多相通之处。特别是在处理模型不确定性方面，这为我的研究提供了新的思路。</p>
+                        </div>
+                    </div>
+                `
+            },
+            'godel-escher-bach': {
+                title: 'Gödel, Escher, Bach - 读书笔记',
+                date: '最后更新: 2024-11-15',
+                content: `
+                    <div class="book-notes">
+                        <h2>第四章：不完备性定理</h2>
+                        <p>Hofstadter对哥德尔不完备性定理的解释令人着迷：</p>
+                        <ul class="list-disc pl-6 my-4">
+                            <li>自指性语句的构造方法</li>
+                            <li>形式系统的局限性</li>
+                            <li>真理vs可证明性的区别</li>
+                        </ul>
+                        
+                        <h2>第十二章：心智和机器</h2>
+                        <blockquote class="border-l-4 border-yellow-500 pl-4 italic my-4">
+                            "意识可能不是一个二元的开关，而是一个连续的光谱"
+                        </blockquote>
+                        
+                        <h2>与AI研究的联系</h2>
+                        <div class="bg-yellow-50 p-4 rounded-lg my-4">
+                            <p class="text-sm"><strong>启发：</strong>书中关于意识和自我参照的讨论对我理解人工智能的局限性很有帮助。特别是关于"理解"vs"模拟"的区别，这在当前大语言模型的辩论中很有现实意义。</p>
+                        </div>
+                    </div>
+                `
+            },
+            'consciousness-explained': {
+                title: 'Consciousness Explained - 读书笔记',
+                date: '最后更新: 2024-12-05',
+                content: `
+                    <div class="book-notes">
+                        <h2>第三章：多重草稿模型</h2>
+                        <p>Dennett提出的意识模型与传统的"意识剧院"模型形成鲜明对比：</p>
+                        <ul class="list-disc pl-6 my-4">
+                            <li>没有中央"观察者"的意识模型</li>
+                            <li>并行处理和竞争机制</li>
+                            <li>意识内容的动态构建过程</li>
+                        </ul>
+                        
+                        <h2>第十一章：原现象</h2>
+                        <blockquote class="border-l-4 border-indigo-500 pl-4 italic my-4">
+                            "原现象是意识研究中最大的幻觉"
+                        </blockquote>
+                        
+                        <h2>批判性思考</h2>
+                        <div class="bg-indigo-50 p-4 rounded-lg my-4">
+                            <p class="text-sm"><strong>质疑：</strong>虽然Dennett的论证很有说服力，但我觉得他可能过于简化了主观体验的复杂性。主观性问题真的可以完全用功能主义来解释吗？这与我在神经科学研究中的观察有一些矛盾。</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        if (articleType === 'book-notes' && bookNotes[articleId]) {
+            const bookNote = bookNotes[articleId];
+            document.getElementById('article-title').textContent = bookNote.title;
+            document.getElementById('article-date').textContent += bookNote.date;
+            document.getElementById('article-content').innerHTML = bookNote.content;
+        } else if (articles[articleId]) {
+            const article = articles[articleId];
+            document.getElementById('article-title').textContent = article.title;
+            document.getElementById('article-date').textContent += article.date;
+            document.getElementById('article-content').innerHTML = article.content;
+        } else {
+            document.getElementById('article-title').textContent = 'Article Not Found';
+            document.getElementById('article-content').innerHTML = '<p>Sorry, the article you are looking for does not exist.</p>';
+        }
+    </script>
+
+</body>
+</html>
