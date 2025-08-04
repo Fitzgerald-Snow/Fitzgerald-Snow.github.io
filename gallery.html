@@ -46,49 +46,76 @@
         </div>
     </header>
 
-    <main class="py-16">
-        <div class="container mx-auto px-6">
-            <!-- 照片网格 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <main class="py-8">
+        <!-- 全屏照片网格 -->
+        <div class="px-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                 <!-- 照片项目 -->
-                <div class="group cursor-pointer">
-                    <div class="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <img src="images/photo1.jpg" alt="Photography 1" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/cbd5e0?text=Photo+1';">
-                        <div class="p-4 bg-white">
-                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Photo Title 1</h3>
-                            <p class="text-slate-600 text-sm">Brief description of the photo...</p>
-                        </div>
-                    </div>
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/404.jpg', '404 Page Image', 'A stylish 404 error page design')">
+                    <img src="images/404.jpg" alt="404 Page" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=404+Image';">
                 </div>
 
-                <div class="group cursor-pointer">
-                    <div class="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <img src="images/photo2.jpg" alt="Photography 2" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/cbd5e0?text=Photo+2';">
-                        <div class="p-4 bg-white">
-                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Photo Title 2</h3>
-                            <p class="text-slate-600 text-sm">Brief description of the photo...</p>
-                        </div>
-                    </div>
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/gallery-cover.jpg', 'Gallery Cover', 'Cover image for the gallery section')">
+                    <img src="images/gallery-cover.jpg" alt="Gallery Cover" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=Gallery+Cover';">
                 </div>
 
-                <div class="group cursor-pointer">
-                    <div class="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <img src="images/photo3.jpg" alt="Photography 3" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e2e8f0/cbd5e0?text=Photo+3';">
-                        <div class="p-4 bg-white">
-                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Photo Title 3</h3>
-                            <p class="text-slate-600 text-sm">Brief description of the photo...</p>
-                        </div>
-                    </div>
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/shoegazer.jpg', 'Shoegazer', 'Music and aesthetic inspiration')">
+                    <img src="images/shoegazer.jpg" alt="Shoegazer" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=Shoegazer';">
                 </div>
 
-                <!-- 你可以添加更多照片 -->
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/books/the neuroscience of emotion.jpg', 'The Neuroscience of Emotion', 'Book cover from the books collection')">
+                    <img src="images/books/the neuroscience of emotion.jpg" alt="The Neuroscience of Emotion" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=Neuroscience+Book';">
+                </div>
+
+                <!-- 占位照片，可以替换为实际图片 -->
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/3b82f6/ffffff?text=Photo+5', 'Photo 5', 'Placeholder image for future content')">
+                    <img src="https://placehold.co/400x400/3b82f6/ffffff?text=Photo+5" alt="Photo 5" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
+                </div>
+
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/8b5cf6/ffffff?text=Photo+6', 'Photo 6', 'Placeholder image for future content')">
+                    <img src="https://placehold.co/400x400/8b5cf6/ffffff?text=Photo+6" alt="Photo 6" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
+                </div>
+
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/06b6d4/ffffff?text=Photo+7', 'Photo 7', 'Placeholder image for future content')">
+                    <img src="https://placehold.co/400x400/06b6d4/ffffff?text=Photo+7" alt="Photo 7" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
+                </div>
+
+                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/10b981/ffffff?text=Photo+8', 'Photo 8', 'Placeholder image for future content')">
+                    <img src="https://placehold.co/400x400/10b981/ffffff?text=Photo+8" alt="Photo 8" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
+                </div>
             </div>
+        </div>
 
-            <!-- 返回首页按钮 -->
-            <div class="text-center mt-12">
-                <a href="index.html" class="inline-block px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors duration-300">
-                    Back to Home
-                </a>
+        <!-- 全屏图片模态框 -->
+        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4">
+            <div class="relative max-w-full max-h-full">
+                <!-- 关闭按钮 -->
+                <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-xl hover:text-gray-300 transition-colors z-10">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- 图片容器 -->
+                <div class="text-center">
+                    <img id="modalImage" src="" alt="" class="max-w-full max-h-[80vh] object-contain rounded-lg">
+                    <div class="mt-4 text-white">
+                        <h3 id="modalTitle" class="text-2xl font-semibold mb-2"></h3>
+                        <p id="modalDescription" class="text-gray-300"></p>
+                    </div>
+                </div>
+
+                <!-- 导航按钮 -->
+                <button onclick="prevImage()" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl hover:text-gray-300 transition-colors">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <button onclick="nextImage()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl hover:text-gray-300 transition-colors">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </main>
@@ -102,6 +129,129 @@
 
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // 图片数据数组
+        const images = [
+            {
+                src: 'images/404.jpg',
+                title: '404 Page Image',
+                description: 'A stylish 404 error page design'
+            },
+            {
+                src: 'images/gallery-cover.jpg',
+                title: 'Gallery Cover',
+                description: 'Cover image for the gallery section'
+            },
+            {
+                src: 'images/shoegazer.jpg',
+                title: 'Shoegazer',
+                description: 'Music and aesthetic inspiration'
+            },
+            {
+                src: 'images/books/the neuroscience of emotion.jpg',
+                title: 'The Neuroscience of Emotion',
+                description: 'Book cover from the books collection'
+            },
+            {
+                src: 'https://placehold.co/800x800/3b82f6/ffffff?text=Photo+5',
+                title: 'Photo 5',
+                description: 'Placeholder image for future content'
+            },
+            {
+                src: 'https://placehold.co/800x800/8b5cf6/ffffff?text=Photo+6',
+                title: 'Photo 6',
+                description: 'Placeholder image for future content'
+            },
+            {
+                src: 'https://placehold.co/800x800/06b6d4/ffffff?text=Photo+7',
+                title: 'Photo 7',
+                description: 'Placeholder image for future content'
+            },
+            {
+                src: 'https://placehold.co/800x800/10b981/ffffff?text=Photo+8',
+                title: 'Photo 8',
+                description: 'Placeholder image for future content'
+            }
+        ];
+
+        let currentImageIndex = 0;
+
+        // 打开模态框
+        function openModal(src, title, description) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+
+            // 找到当前图片的索引
+            currentImageIndex = images.findIndex(img => img.src === src);
+            
+            modalImage.src = src;
+            modalImage.alt = title;
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // 恢复滚动
+        }
+
+        // 上一张图片
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            const img = images[currentImageIndex];
+            updateModalImage(img);
+        }
+
+        // 下一张图片
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            const img = images[currentImageIndex];
+            updateModalImage(img);
+        }
+
+        // 更新模态框图片
+        function updateModalImage(img) {
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+
+            modalImage.src = img.src;
+            modalImage.alt = img.title;
+            modalTitle.textContent = img.title;
+            modalDescription.textContent = img.description;
+        }
+
+        // 键盘事件监听
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('imageModal');
+            if (!modal.classList.contains('hidden')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeModal();
+                        break;
+                    case 'ArrowLeft':
+                        prevImage();
+                        break;
+                    case 'ArrowRight':
+                        nextImage();
+                        break;
+                }
+            }
+        });
+
+        // 点击背景关闭模态框
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
     </script>
 
 </body>
