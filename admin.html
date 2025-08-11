@@ -157,9 +157,17 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-4">
-                        <button class="btn-primary flex-1" onclick="generatePreview()">Preview</button>
-                        <button class="btn-primary flex-1" onclick="generateCode()">Generate HTML</button>
+                    <div class="space-y-4">
+                        <button class="btn-primary w-full" onclick="generatePreview()">🔍 Preview Article</button>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button class="btn-primary" onclick="generateResearchCode()">📄 Copy Research.html Code</button>
+                            <button class="btn-primary" onclick="generateArticleCode()">📝 Copy Article.html Code</button>
+                        </div>
+                        
+                        <div class="text-xs text-center text-slate-500 mt-2">
+                            点击上面两个按钮分别复制代码到对应文件
+                        </div>
                     </div>
                 </div>
 
@@ -173,6 +181,47 @@
             </div>
         </div>
 
+        <!-- Research.html Code Section -->
+        <div id="research-code-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">📄 Research.html 代码</h3>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                <p class="text-blue-800 text-sm">
+                    <strong>使用说明：</strong>复制下面的代码，然后粘贴到 research.html 文件的对应区域中
+                </p>
+            </div>
+            <textarea id="research-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyResearchCode()">📋 复制代码</button>
+                <button class="btn-primary" onclick="showResearchInstructions()">ℹ️ 查看粘贴位置</button>
+            </div>
+        </div>
+
+        <!-- Article.html Code Section -->
+        <div id="article-code-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">📝 Article.html 代码</h3>
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                <p class="text-green-800 text-sm">
+                    <strong>使用说明：</strong>复制下面的代码，然后添加到 article.html 文件的 getStaticArticle 函数中
+                </p>
+            </div>
+            <textarea id="article-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyArticleCode()">📋 复制代码</button>
+                <button class="btn-primary" onclick="showArticleInstructions()">ℹ️ 查看粘贴位置</button>
+            </div>
+        </div>
+
+        <!-- Article Data Section -->
+        <div id="article-data-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">Article Data for article.html</h3>
+            <p class="text-slate-600 mb-4">Copy this data and add it to the appropriate object in article.html's getStaticArticle function:</p>
+            <textarea id="article-data-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyArticleData()">Copy Article Data</button>
+                <button class="btn-primary" onclick="showArticleInstructions()">Show Instructions</button>
+            </div>
+        </div>
+
         <!-- Generated Code -->
         <div id="code-section" class="form-section" style="display: none;">
             <h3 class="text-xl font-bold mb-4">Generated HTML Code</h3>
@@ -182,37 +231,61 @@
                 <button class="btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
                 <button class="btn-primary" onclick="downloadHTML()">Download as File</button>
                 <button class="btn-primary" onclick="openArticlePreview()">Preview Article</button>
+                <button class="btn-primary" onclick="generateArticleData()">Generate Article Data</button>
             </div>
         </div>
 
         <!-- Instructions -->
         <div class="form-section">
-            <h3 class="text-xl font-bold mb-4">How to Use This Static Admin Tool</h3>
-            <div class="space-y-3 text-slate-600">
-                <p><strong>1.</strong> Choose the type of content you want to add (Neuroscience, Mathematics, or Book Note)</p>
-                <p><strong>2.</strong> Fill in the form with your content details</p>
-                <p><strong>3.</strong> Click "Preview" to see how it will look on the website</p>
-                <p><strong>4.</strong> Click "Generate HTML" to get the code</p>
-                <p><strong>5.</strong> Copy the generated HTML and paste it into the appropriate section in research.html</p>
-                <p><strong>6.</strong> For article content, also add the article data to article.html's static data</p>
-            </div>
+            <h3 class="text-xl font-bold mb-4">📝 添加新文章完整流程</h3>
             
-            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 class="font-semibold text-blue-800 mb-2">Available Tags by Section:</h4>
-                <div class="text-sm space-y-2">
-                    <p><strong>Neuroscience:</strong> computational-neuroscience, neural-networks, memory, consciousness, learning, plasticity, review</p>
-                    <p><strong>Mathematics:</strong> linear-algebra, calculus, probability, statistics, optimization, information-theory, graph-theory</p>
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg mb-6">
+                <h4 class="font-bold text-lg mb-4 text-indigo-800">🎯 超简单操作流程</h4>
+                <div class="space-y-3 text-slate-700">
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+                        <p><strong>填写文章信息</strong> → 标题、描述、内容等字段</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+                        <p><strong>点击 "Copy Research.html Code"</strong> → 复制并粘贴到research.html</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+                        <p><strong>点击 "Copy Article.html Code"</strong> → 复制并粘贴到article.html</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-green-100 text-green-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">✓</span>
+                        <p><strong>完成！</strong> → 刷新页面查看新文章</p>
+                    </div>
                 </div>
             </div>
-            
-            <div class="mt-6 p-4 bg-green-50 rounded-lg">
-                <h4 class="font-semibold text-green-800 mb-2">✨ Benefits of Static Approach:</h4>
-                <div class="text-sm space-y-1">
-                    <p>• No database dependencies or external services needed</p>
-                    <p>• Faster loading times</p>
-                    <p>• Works offline</p>
-                    <p>• Easy to backup and version control</p>
-                    <p>• No ongoing costs</p>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <h4 class="font-semibold text-yellow-800 mb-2">💡 两个按钮的作用</h4>
+                <div class="text-sm text-yellow-700 space-y-2">
+                    <p><strong>📄 Research.html Code</strong> → 生成文章卡片显示代码</p>
+                    <p><strong>📝 Article.html Code</strong> → 生成文章详细内容数据</p>
+                    <p class="font-medium">两个都需要复制粘贴，系统会自动告诉您粘贴到哪里！</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                <h4 class="font-semibold text-blue-800 mb-2">📍 Research.html 粘贴位置</h4>
+                <div class="text-sm text-blue-700 space-y-2">
+                    <p><strong>神经科学文章</strong> → 在 <code>&lt;div id="articlesGrid"&gt;</code> 标签内添加</p>
+                    <p><strong>数学文章</strong> → 在 <code>&lt;div id="mathArticlesGrid"&gt;</code> 标签内添加</p>
+                    <p><strong>读书笔记</strong> → 在 <code>&lt;div id="booksGrid"&gt;</code> 标签内添加</p>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                <h4 class="font-semibold text-green-800 mb-2">📄 Article.html 粘贴位置</h4>
+                <p class="text-sm text-green-700 mb-2">在 getStaticArticle 函数的相应对象中添加：</p>
+                <div class="text-sm text-green-700 space-y-1">
+                    <p><strong>神经科学</strong> → const articles = { ... 这里 ... }</p>
+                    <p><strong>数学</strong> → const mathArticles = { ... 这里 ... }</p>
+                    <p><strong>读书笔记</strong> → const bookNotes = { ... 这里 ... }</p>
                 </div>
             </div>
         </div>
@@ -531,8 +604,254 @@
             document.getElementById('code-section').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Initialize preview on page load
-        generatePreview();
+        // Generate article data for article.html
+        // Generate Research.html code
+        function generateResearchCode() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description) {
+                alert('请至少填写标题和描述字段');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            
+            let researchCode = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                researchCode = `                    <div class="book-card bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="openBookNotes('${articleId}')">
+                        <div class="mb-4">
+                            <div class="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-4">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${title}</h3>
+                            <p class="text-sm text-slate-600 mb-2">${author}</p>
+                            <p class="text-sm text-slate-500 mb-3">${description}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">进度: ${progress}%</span>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                const cardClass = currentType === 'mathematics' ? 'math-article-card' : 'article-card';
+                const functionName = currentType === 'mathematics' ? 'openMathArticle' : 'openArticle';
+                
+                researchCode = `                    <div class="${cardClass} rounded-lg p-6 border border-gray-100" data-tags="${tags}" onclick="${functionName}('${articleId}')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    ${title}
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    ${description}
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>${currentDate}</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            
+            document.getElementById('research-code').value = researchCode;
+            document.getElementById('research-code-section').style.display = 'block';
+            document.getElementById('research-code-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate Article.html code
+        function generateArticleCode() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const content = document.getElementById('content').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description || !content) {
+                alert('请填写标题、描述和内容字段');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            let articleCode = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                articleCode = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    author: '${author}',
+    progress: ${progress},
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '最后更新: ${currentDate}',
+    category: 'Book Notes',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            } else {
+                const category = currentType === 'mathematics' ? 'Mathematics' : 'Neuroscience';
+                
+                articleCode = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '${currentDate}',
+    category: '${category}',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            }
+            
+            document.getElementById('article-code').value = articleCode;
+            document.getElementById('article-code-section').style.display = 'block';
+            document.getElementById('article-code-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Copy functions
+        function copyResearchCode() {
+            const codeTextarea = document.getElementById('research-code');
+            codeTextarea.select();
+            document.execCommand('copy');
+            alert('Research.html 代码已复制到剪贴板！');
+        }
+
+        function copyArticleCode() {
+            const codeTextarea = document.getElementById('article-code');
+            codeTextarea.select();
+            document.execCommand('copy');
+            alert('Article.html 代码已复制到剪贴板！');
+        }
+
+        // Instructions functions
+        function showResearchInstructions() {
+            let location = '';
+            if (currentType === 'neuroscience') {
+                location = '在 research.html 中找到 <div id="articlesGrid"> 区域，将代码粘贴到其中';
+            } else if (currentType === 'mathematics') {
+                location = '在 research.html 中找到 <div id="mathArticlesGrid"> 区域，将代码粘贴到其中';
+            } else if (currentType === 'book') {
+                location = '在 research.html 中找到 <div id="booksGrid"> 区域，将代码粘贴到其中';
+            }
+            
+            alert(`📍 粘贴位置说明：\n\n${location}\n\n💡 提示：在现有文章之后添加新的文章代码即可。`);
+        }
+
+        function showArticleInstructions() {
+            let objectName = '';
+            if (currentType === 'neuroscience') {
+                objectName = 'articles';
+            } else if (currentType === 'mathematics') {
+                objectName = 'mathArticles';
+            } else if (currentType === 'book') {
+                objectName = 'bookNotes';
+            }
+            
+            alert(`📍 粘贴位置说明：\n\n在 article.html 文件中找到 getStaticArticle 函数，然后在 ${objectName} 对象中添加复制的代码。\n\n示例：\nconst ${objectName} = {\n    'existing-article': { ... },\n    // 在这里粘贴新的文章数据\n};\n\n💡 注意：确保在对象的最后一个元素后添加逗号。`);
+        }
+
+        function generateArticleData() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const content = document.getElementById('content').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description || !content) {
+                alert('Please fill in title, description, and content fields first');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            
+            let articleData = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                articleData = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    author: '${author}',
+    progress: ${progress},
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '最后更新: ${currentDate}',
+    category: 'Book Notes',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            } else {
+                const category = currentType === 'mathematics' ? 'Mathematics' : 'Neuroscience';
+                
+                articleData = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '${currentDate}',
+    category: '${category}',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            }
+            
+            document.getElementById('article-data-code').value = articleData;
+            document.getElementById('article-data-section').style.display = 'block';
+            document.getElementById('article-data-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function copyArticleData() {
+            const dataTextarea = document.getElementById('article-data-code');
+            dataTextarea.select();
+            document.execCommand('copy');
+            alert('Article data copied to clipboard!');
+        }
+        
+        function showArticleInstructions() {
+            alert(`将复制的数据添加到 article.html 文件中：
+
+1. 打开 article.html 文件
+2. 找到 getStaticArticle 函数
+3. 根据文章类型添加到对应位置：
+   - 神经科学: articles 对象中
+   - 数学: mathArticles 对象中  
+   - 读书笔记: bookNotes 对象中
+4. 保存文件
+
+示例位置：
+const articles = {
+    'existing-article': { ... },
+    // 在这里粘贴新的文章数据
+};`);
+        }
     </script>
 
 </body>
