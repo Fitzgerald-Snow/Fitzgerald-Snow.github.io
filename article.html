@@ -6,53 +6,208 @@
     <title>Article Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- No external dependencies needed - fully static -->
+    
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
             scroll-behavior: smooth;
         }
-        .hero-bg {
-            background-color: #ede9fe;
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        .section-title {
-            font-size: 1.875rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 3rem;
-            color: #334155;
+        
+        .article-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #374151;
         }
-        .book-notes h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-top: 2rem;
+        
+        .article-content h1,
+        .article-content h2,
+        .article-content h3 {
+            color: #1f2937;
+            margin-top: 2.5rem;
             margin-bottom: 1rem;
-            border-bottom: 2px solid #e2e8f0;
+            font-weight: 700;
+        }
+        
+        .article-content h1 { font-size: 2rem; }
+        .article-content h2 { 
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
             padding-bottom: 0.5rem;
         }
-        .book-notes blockquote {
-            background-color: #f8fafc;
+        .article-content h3 { font-size: 1.25rem; }
+        
+        .article-content p {
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+        
+        .article-content blockquote {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-left: 4px solid #6366f1;
+            padding: 1.25rem;
+            margin: 2rem 0;
             border-radius: 0.5rem;
-            padding: 1rem;
-            margin: 1rem 0;
+            font-style: italic;
+            position: relative;
         }
-        .book-notes ul li {
-            margin-bottom: 0.5rem;
+        
+        .article-content blockquote::before {
+            content: '"';
+            font-size: 4rem;
+            color: #6366f1;
+            position: absolute;
+            top: -0.5rem;
+            left: 0.75rem;
+            font-family: serif;
         }
-        .book-notes code {
+        
+        .article-content ul,
+        .article-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+        
+        .article-content li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .article-content code {
             background-color: #f1f5f9;
             padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-family: 'Courier New', monospace;
+            border-radius: 0.375rem;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #7c3aed;
+        }
+        
+        .article-content pre {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        .article-content pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        .article-meta {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+        
+        .related-articles {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .related-article-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .related-article-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .article-image {
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
+    <!-- Reading Progress Bar -->
+    <div class="reading-progress" id="reading-progress"></div>
 
     <nav class="shadow-md">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
-            <div class="space-x-4">
+            <div class="hidden md:flex space-x-4">
                 <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
                 <a href="research.html" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
                 <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
@@ -60,23 +215,132 @@
                 <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
                 <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
             </div>
+            <button class="md:hidden" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </div>
     </nav>
 
-    <header class="hero-bg py-20 md:py-32">
-        <div class="container mx-auto px-6 text-center">
-            <h1 id="article-title" class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Article Title</h1>
-            <p id="article-date" class="text-lg md:text-xl text-slate-600 mb-8">Published on: </p>
+    <!-- Loading State -->
+    <div id="loading-state" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-slate-600">Loading article...</p>
         </div>
-    </header>
+    </div>
 
-    <main class="py-16 md:py-24">
-        <div class="container mx-auto px-6">
-            <article id="article-content" class="prose max-w-none text-slate-700">
-                <!-- Article content will be dynamically loaded here -->
-            </article>
+    <!-- Main Content (Hidden initially) -->
+    <div id="main-content" style="display: none;">
+        <!-- Hero Section -->
+        <header class="hero-gradient py-20 md:py-32 text-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto text-center">
+                    <div class="flex items-center justify-center mb-4">
+                        <a href="research.html" class="inline-flex items-center text-white/80 hover:text-white transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            Back to Research
+                        </a>
+                    </div>
+                    <h1 id="article-title" class="text-4xl md:text-6xl font-bold mb-6">Article Title</h1>
+                    <p id="article-description" class="text-xl md:text-2xl mb-6 text-white/90"></p>
+                    
+                    <!-- Article Meta -->
+                    <div class="flex flex-wrap items-center justify-center gap-6 text-white/80">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span id="article-date">Loading...</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span id="read-time">5 min read</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                            <span id="article-category">Research</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    
+                    <!-- Article Meta Info -->
+                    <div class="article-meta">
+                        <div class="flex flex-wrap items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-800 mb-2">Tags</h3>
+                                <div id="article-tags"></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="shareArticle()" class="text-slate-600 hover:text-blue-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                        </svg>
+                                    </button>
+                                    <button onclick="printArticle()" class="text-slate-600 hover:text-blue-600 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article Image (if exists) -->
+                    <div id="article-image-container" class="mb-8" style="display: none;">
+                        <img id="article-image" class="w-full article-image" alt="Article cover">
+                    </div>
+
+                    <!-- Article Content -->
+                    <article id="article-content" class="article-content">
+                        <!-- Content will be loaded here -->
+                    </article>
+
+                    <!-- Related Articles -->
+                    <div id="related-articles" class="related-articles" style="display: none;">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6">相关文章</h3>
+                        <div id="related-articles-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Related articles will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="flex items-center justify-center min-h-screen" style="display: none;">
+        <div class="text-center max-w-md mx-auto px-6">
+            <div class="text-6xl mb-6">📄</div>
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">文章未找到</h1>
+            <p class="text-slate-600 mb-8">抱歉，您要查找的文章不存在或已被删除。</p>
+            <a href="research.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                返回研究页面
+            </a>
         </div>
-    </main>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+        </svg>
+    </button>
 
     <footer class="bg-slate-800 text-slate-300 py-10 text-center">
         <div class="container mx-auto px-6">
@@ -88,206 +352,400 @@
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // Simulate fetching article data based on URL parameters
+        // Global variables
+        let currentArticle = null;
+
+        // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const articleId = urlParams.get('id');
-        const articleType = urlParams.get('type');
+        const articleType = urlParams.get('type') || 'article';
 
-        // Example article data (replace with actual API or database call)
-        const articles = {
-            'neural-dynamics-learning': {
-                title: '神经网络学习的动力学机制',
-                date: '2024-12-15',
-                content: '<p>深入探讨不同神经网络架构如何适应和学习环境刺激，重点关注生物学上的合理性。从计算神经科学的角度分析学习算法的原理。</p>'
-            },
-            'consciousness-mathematical-framework': {
-                title: '意识的数学基础：文献综述',
-                date: '2024-11-28',
-                content: '<p>综述当前关于意识数学建模的主要理论框架，包括整合信息理论(IIT)、全局工作空间理论等，分析它们的优缺点和未来发展方向。</p>'
-            },
-            'memory-computational-models': {
-                title: '记忆的计算模型：从海马体到人工神经网络',
-                date: '2024-10-12',
-                content: '<p>探讨记忆形成、存储和检索的计算机制，比较生物系统和人工智能系统中的记忆模型，分析突触可塑性的作用。</p>'
-            },
-            'backpropagation-brain': {
-                title: '反向传播算法在大脑中存在吗？',
-                date: '2024-09-05',
-                content: '<p>科普文章：深入浅出地解释反向传播算法的原理，探讨大脑是否真的使用类似的学习机制，以及最新的生物学上更合理的学习算法。</p>'
+        // Initialize the page
+        async function initializePage() {
+            try {
+                loadArticle(articleId, articleType);
+                initializeScrollFeatures();
+                loadRelatedArticles();
+            } catch (error) {
+                console.error('Failed to initialize page:', error);
+                showErrorState();
             }
-        };
+        }
 
-        // Book notes data
-        const bookNotes = {
-            'principles-of-neural-design': {
-                title: 'Principles of Neural Design - 读书笔记',
-                date: '最后更新: 2024-12-01',
-                content: `
-                    <div class="book-notes">
-                        <h2>第一章：能量约束</h2>
-                        <blockquote class="border-l-4 border-blue-500 pl-4 italic my-4">
-                            "大脑消耗的能量占人体总能量的20%，但重量只占2%"
-                        </blockquote>
-                        <p>作者从能量效率的角度分析神经系统设计。关键观点：</p>
-                        <ul class="list-disc pl-6 my-4">
-                            <li>神经元尺寸的权衡：更大的神经元传导更快，但消耗更多能量</li>
-                            <li>稀疏编码：大脑通过稀疏激活模式来降低能耗</li>
-                            <li>局部连接vs全局连接的能量成本分析</li>
+        // Load article from static data
+        function loadArticle(id, type) {
+            if (!id) {
+                showErrorState();
+                return;
+            }
+
+            const staticArticle = getStaticArticle(id, type);
+            if (staticArticle) {
+                displayArticle(staticArticle);
+            } else {
+                showErrorState();
+            }
+        }
+
+        // Get static article data
+        function getStaticArticle(id, type) {
+            const articles = {
+                'neural-dynamics-learning': {
+                    title: '神经网络学习的动力学机制',
+                    description: '深入探讨不同神经网络架构如何适应和学习环境刺激',
+                    content: `
+                        <h2>引言</h2>
+                        <p>神经网络的学习机制一直是计算神经科学研究的核心问题。本文从动力学的角度分析不同神经网络架构如何适应和学习环境刺激，重点关注生物学上的合理性。</p>
+                        
+                        <h2>生物神经网络的学习机制</h2>
+                        <p>生物神经网络通过突触可塑性实现学习，主要包括以下几种机制：</p>
+                        <ul>
+                            <li>Hebbian学习：同时激活的神经元之间的连接强度增加</li>
+                            <li>反Hebbian学习：抑制性调节机制</li>
+                            <li>时序依赖的可塑性（STDP）：考虑时间因素的学习规则</li>
                         </ul>
                         
-                        <h2>第三章：信息处理的限制</h2>
-                        <p>印象深刻的是关于信息瓶颈理论的讨论。神经系统需要在信息保持和压缩之间找到平衡。</p>
+                        <blockquote>
+                            "Neurons that fire together, wire together" - Donald Hebb
+                        </blockquote>
+                        
+                        <h2>人工神经网络中的学习算法</h2>
+                        <p>人工神经网络主要采用以下学习算法：</p>
+                        <ul>
+                            <li>反向传播算法</li>
+                            <li>强化学习</li>
+                            <li>无监督学习方法</li>
+                        </ul>
+                        
+                        <h2>生物合理性分析</h2>
+                        <p>虽然反向传播算法在人工神经网络中非常有效，但其生物合理性存在争议。最新研究提出了更符合生物机制的学习算法，如：</p>
+                        <ul>
+                            <li>预测编码（Predictive Coding）</li>
+                            <li>平衡传播（Equilibrium Propagation）</li>
+                            <li>目标传播（Target Propagation）</li>
+                        </ul>
+                        
+                        <h2>结论</h2>
+                        <p>理解神经网络学习的动力学机制对于开发更高效、更具生物合理性的人工智能系统具有重要意义。未来的研究应该更多地借鉴生物神经系统的工作原理。</p>
+                    `,
+                    date: '2024-12-15',
+                    category: 'Neuroscience',
+                    tags: ['neural-networks', 'learning', 'computational-neuroscience'],
+                    readTime: '8 min read'
+                },
+                'consciousness-mathematical-framework': {
+                    title: '意识的数学基础：文献综述',
+                    description: '综述当前关于意识数学建模的主要理论框架',
+                    content: `
+                        <h2>引言</h2>
+                        <p>意识研究是现代神经科学最前沿的领域之一。本文综述当前关于意识数学建模的主要理论框架，包括整合信息理论(IIT)、全局工作空间理论等。</p>
+                        
+                        <h2>整合信息理论(IIT)</h2>
+                        <p>IIT提出意识的量化指标Φ(phi)，用于测量系统的信息整合程度。</p>
+                        
+                        <h2>全局工作空间理论</h2>
+                        <p>该理论认为意识来源于大脑中信息的全局广播机制。</p>
+                        
+                        <h2>注意图式理论</h2>
+                        <p>Michael Graziano提出的理论，将意识视为大脑对注意过程的内部模型。</p>
+                    `,
+                    date: '2024-11-28',
+                    category: 'Neuroscience',
+                    tags: ['consciousness', 'review', 'mathematical-modeling'],
+                    readTime: '6 min read'
+                },
+                'memory-computational-models': {
+                    title: '记忆的计算模型：从海马体到人工神经网络',
+                    description: '探讨记忆形成、存储和检索的计算机制',
+                    content: `
+                        <h2>海马体的记忆编码</h2>
+                        <p>海马体在记忆形成中起关键作用，特别是在空间记忆和情景记忆方面。</p>
+                        
+                        <h2>Hopfield网络模型</h2>
+                        <p>经典的联想记忆模型，展示了神经网络如何存储和检索模式。</p>
+                        
+                        <h2>现代深度学习中的记忆机制</h2>
+                        <p>LSTM、注意力机制等现代方法如何模拟生物记忆过程。</p>
+                    `,
+                    date: '2024-10-12',
+                    category: 'Neuroscience',
+                    tags: ['memory', 'plasticity', 'computational-neuroscience'],
+                    readTime: '7 min read'
+                },
+                'backpropagation-brain': {
+                    title: '反向传播算法在大脑中存在吗？',
+                    description: '科普文章：探讨大脑是否真的使用类似反向传播的学习机制',
+                    content: `
+                        <h2>反向传播算法简介</h2>
+                        <p>反向传播是训练人工神经网络的核心算法，但它在生物学上是否合理一直存在争议。</p>
+                        
+                        <h2>生物学限制</h2>
+                        <p>真实神经元无法直接传递误差信号，这使得经典反向传播在生物学上不太可能。</p>
+                        
+                        <h2>生物学上可行的替代方案</h2>
+                        <ul>
+                            <li>反馈对齐(Feedback Alignment)</li>
+                            <li>预测编码</li>
+                            <li>突触可塑性的局部学习规则</li>
+                        </ul>
+                    `,
+                    date: '2024-09-05',
+                    category: 'Neuroscience',
+                    tags: ['neural-networks', 'learning', 'review'],
+                    readTime: '5 min read'
+                }
+            };
+
+            const mathArticles = {
+                'matrix-decomposition-explained': {
+                    title: '矩阵分解方法详解',
+                    description: '深入讲解各种矩阵分解方法的原理、应用场景和计算实现',
+                    content: `
+                        <h2>SVD分解</h2>
+                        <p>奇异值分解是最重要的矩阵分解方法之一，广泛应用于降维、数据压缩等领域。</p>
+                        
+                        <h2>特征值分解</h2>
+                        <p>适用于方阵的分解方法，在主成分分析中发挥重要作用。</p>
+                        
+                        <h2>QR分解</h2>
+                        <p>将矩阵分解为正交矩阵和上三角矩阵的乘积。</p>
+                    `,
+                    date: '2024-12-01',
+                    category: 'Mathematics',
+                    tags: ['linear-algebra', 'optimization'],
+                    readTime: '10 min read'
+                },
+                'entropy-information-theory': {
+                    title: '熵与信息论基础',
+                    description: '从香农熵开始，介绍信息论的核心概念',
+                    content: `
+                        <h2>香农熵</h2>
+                        <p>信息论的基础概念，量化信息的不确定性。</p>
+                        
+                        <h2>KL散度</h2>
+                        <p>衡量两个概率分布差异的重要工具。</p>
+                        
+                        <h2>在机器学习中的应用</h2>
+                        <p>交叉熵损失函数、信息增益等在AI中的具体应用。</p>
+                    `,
+                    date: '2024-11-15',
+                    category: 'Mathematics',
+                    tags: ['probability', 'information-theory'],
+                    readTime: '8 min read'
+                }
+            };
+
+            const bookNotes = {
+                'neuroscience-emotion': {
+                    title: 'The Neuroscience of Emotion - 读书笔记',
+                    description: '神经系统设计原理的深度解读',
+                    author: 'Ralph Adolphs, David J. Anderson',
+                    progress: 4,
+                    content: `
+                        <h2>第一章：情感的神经基础</h2>
+                        <blockquote>
+                            "情感不仅仅是主观体验，更是大脑信息处理的重要组成部分"
+                        </blockquote>
+                        <p>作者从进化的角度分析情感的适应性价值。关键观点：</p>
+                        <ul>
+                            <li>情感是快速决策的重要机制</li>
+                            <li>不同情感对应不同的神经回路</li>
+                            <li>情感与认知的相互作用</li>
+                        </ul>
                         
                         <h2>个人思考</h2>
-                        <div class="bg-yellow-50 p-4 rounded-lg my-4">
-                            <p class="text-sm"><strong>思考：</strong>这本书让我重新思考人工神经网络的设计。我们是否应该在AI模型中更多地考虑能量效率？当前的深度学习模型在能耗方面与生物神经网络相比如何？</p>
-                        </div>
-                    </div>
-                `
-            },
-            'theoretical-neuroscience': {
-                title: 'Theoretical Neuroscience - 读书笔记',
-                date: '最后更新: 2024-11-25',
-                content: `
-                    <div class="book-notes">
-                        <h2>第二章：神经元模型</h2>
-                        <p>详细介绍了Hodgkin-Huxley模型和integrate-and-fire模型：</p>
-                        <ul class="list-disc pl-6 my-4">
-                            <li>HH模型的数学形式和生物学意义</li>
-                            <li>不同离子通道的作用机制</li>
-                            <li>模型参数对神经元放电模式的影响</li>
-                        </ul>
-                        
-                        <h2>第五章：网络动力学</h2>
-                        <blockquote class="border-l-4 border-purple-500 pl-4 italic my-4">
-                            "网络的集体行为往往无法从单个神经元的性质直接推导"
-                        </blockquote>
-                        
-                        <h2>编程练习笔记</h2>
-                        <div class="bg-gray-100 p-4 rounded-lg my-4">
-                            <code class="text-sm">
-                                # 实现了书中的LIF神经元模型<br>
-                                # 发现调整阈值电位对网络同步性有显著影响
-                            </code>
-                        </div>
-                    </div>
-                `
-            },
-            'deep-learning-book': {
-                title: 'Deep Learning - 读书笔记',
-                date: '最后更新: 2024-12-10',
-                content: `
-                    <div class="book-notes">
-                        <h2>第六章：深度前馈网络</h2>
-                        <p>重点关注了激活函数的选择和初始化策略：</p>
-                        <ul class="list-disc pl-6 my-4">
-                            <li>ReLU vs Sigmoid vs Tanh的优缺点对比</li>
-                            <li>梯度消失和梯度爆炸的根本原因</li>
-                            <li>Xavier和He初始化的数学推导</li>
-                        </ul>
-                        
-                        <h2>第八章：优化</h2>
-                        <blockquote class="border-l-4 border-green-500 pl-4 italic my-4">
-                            "优化深度学习模型的挑战不仅在于找到全局最优，更在于找到泛化性能好的解"
-                        </blockquote>
-                        
-                        <h2>实验记录</h2>
-                        <div class="bg-blue-50 p-4 rounded-lg my-4">
-                            <p class="text-sm"><strong>实验：</strong>在MNIST数据集上比较不同优化器的性能。发现Adam在大多数情况下收敛最快，但SGD+Momentum在最终精度上有时更好。</p>
-                        </div>
-                    </div>
-                `
-            },
-            'information-theory-inference': {
-                title: 'Information Theory, Inference and Learning Algorithms - 读书笔记',
-                date: '最后更新: 2024-11-20',
-                content: `
-                    <div class="book-notes">
-                        <h2>第二章：熵和信息</h2>
-                        <p>MacKay对信息熵的直观解释非常精彩：</p>
-                        <ul class="list-disc pl-6 my-4">
-                            <li>信息量等于"惊讶程度"的数学表达</li>
-                            <li>最大熵原理在机器学习中的应用</li>
-                            <li>KL散度作为"信息距离"的理解</li>
-                        </ul>
-                        
-                        <h2>第二十章：贝叶斯神经网络</h2>
-                        <blockquote class="border-l-4 border-red-500 pl-4 italic my-4">
-                            "不确定性量化是AI系统走向实用的关键"
-                        </blockquote>
-                        
-                        <h2>思考笔记</h2>
-                        <div class="bg-red-50 p-4 rounded-lg my-4">
-                            <p class="text-sm"><strong>连接：</strong>书中的贝叶斯方法与我在研究中使用的变分推断有很多相通之处。特别是在处理模型不确定性方面，这为我的研究提供了新的思路。</p>
-                        </div>
-                    </div>
-                `
-            },
-            'godel-escher-bach': {
-                title: 'Gödel, Escher, Bach - 读书笔记',
-                date: '最后更新: 2024-11-15',
-                content: `
-                    <div class="book-notes">
-                        <h2>第四章：不完备性定理</h2>
-                        <p>Hofstadter对哥德尔不完备性定理的解释令人着迷：</p>
-                        <ul class="list-disc pl-6 my-4">
-                            <li>自指性语句的构造方法</li>
-                            <li>形式系统的局限性</li>
-                            <li>真理vs可证明性的区别</li>
-                        </ul>
-                        
-                        <h2>第十二章：心智和机器</h2>
-                        <blockquote class="border-l-4 border-yellow-500 pl-4 italic my-4">
-                            "意识可能不是一个二元的开关，而是一个连续的光谱"
-                        </blockquote>
-                        
-                        <h2>与AI研究的联系</h2>
-                        <div class="bg-yellow-50 p-4 rounded-lg my-4">
-                            <p class="text-sm"><strong>启发：</strong>书中关于意识和自我参照的讨论对我理解人工智能的局限性很有帮助。特别是关于"理解"vs"模拟"的区别，这在当前大语言模型的辩论中很有现实意义。</p>
-                        </div>
-                    </div>
-                `
-            },
-            'consciousness-explained': {
-                title: 'Consciousness Explained - 读书笔记',
-                date: '最后更新: 2024-12-05',
-                content: `
-                    <div class="book-notes">
-                        <h2>第三章：多重草稿模型</h2>
-                        <p>Dennett提出的意识模型与传统的"意识剧院"模型形成鲜明对比：</p>
-                        <ul class="list-disc pl-6 my-4">
-                            <li>没有中央"观察者"的意识模型</li>
-                            <li>并行处理和竞争机制</li>
-                            <li>意识内容的动态构建过程</li>
-                        </ul>
-                        
-                        <h2>第十一章：原现象</h2>
-                        <blockquote class="border-l-4 border-indigo-500 pl-4 italic my-4">
-                            "原现象是意识研究中最大的幻觉"
-                        </blockquote>
-                        
-                        <h2>批判性思考</h2>
-                        <div class="bg-indigo-50 p-4 rounded-lg my-4">
-                            <p class="text-sm"><strong>质疑：</strong>虽然Dennett的论证很有说服力，但我觉得他可能过于简化了主观体验的复杂性。主观性问题真的可以完全用功能主义来解释吗？这与我在神经科学研究中的观察有一些矛盾。</p>
-                        </div>
-                    </div>
-                `
-            }
-        };
+                        <p><strong>思考：</strong>这本书让我重新理解了情感在智能系统中的作用。AI系统是否需要情感？情感如何提高决策效率？</p>
+                    `,
+                    date: '最后更新: 2024-12-01',
+                    category: 'Book Notes',
+                    tags: ['neuroscience', 'emotion', 'brain-design'],
+                    readTime: '6 min read'
+                }
+            };
 
-        if (articleType === 'book-notes' && bookNotes[articleId]) {
-            const bookNote = bookNotes[articleId];
-            document.getElementById('article-title').textContent = bookNote.title;
-            document.getElementById('article-date').textContent += bookNote.date;
-            document.getElementById('article-content').innerHTML = bookNote.content;
-        } else if (articles[articleId]) {
-            const article = articles[articleId];
+            if (type === 'book-notes') {
+                return bookNotes[id];
+            } else if (type === 'mathematics') {
+                return mathArticles[id];
+            } else {
+                return articles[id];
+            }
+        }
+
+        // Display article content
+        function displayArticle(article) {
+            currentArticle = article;
+            
+            // Update meta information
+            document.title = `${article.title} - Fitzgerald Snow`;
             document.getElementById('article-title').textContent = article.title;
-            document.getElementById('article-date').textContent += article.date;
+            document.getElementById('article-description').textContent = article.description || '';
+            document.getElementById('article-date').textContent = formatDate(article.date || article.timestamp);
+            document.getElementById('article-category').textContent = article.category || 'Research';
+            document.getElementById('read-time').textContent = article.readTime || calculateReadTime(article.content);
+            
+            // Update tags
+            if (article.tags && article.tags.length > 0) {
+                const tagsContainer = document.getElementById('article-tags');
+                tagsContainer.innerHTML = article.tags.map(tag => 
+                    `<span class="tag">${tag}</span>`
+                ).join('');
+            }
+            
+            // Update image if exists
+            if (article.imageUrl) {
+                const imageContainer = document.getElementById('article-image-container');
+                const imageElement = document.getElementById('article-image');
+                imageElement.src = article.imageUrl;
+                imageElement.alt = article.title;
+                imageContainer.style.display = 'block';
+            }
+            
+            // Update content
             document.getElementById('article-content').innerHTML = article.content;
-        } else {
-            document.getElementById('article-title').textContent = 'Article Not Found';
-            document.getElementById('article-content').innerHTML = '<p>Sorry, the article you are looking for does not exist.</p>';
+            
+            // Show main content and hide loading
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+        // Show error state
+        function showErrorState() {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'flex';
+        }
+
+        // Show reading mode notice (removed - not needed for static version)
+        function showReadingModeNotice() {
+            // No longer needed - this is now the default mode
+        }
+
+        // Initialize scroll features
+        function initializeScrollFeatures() {
+            // Reading progress
+            function updateReadingProgress() {
+                const article = document.getElementById('article-content');
+                if (!article) return;
+                
+                const rect = article.getBoundingClientRect();
+                const articleHeight = article.offsetHeight;
+                const viewportHeight = window.innerHeight;
+                const scrolled = Math.max(0, -rect.top);
+                const progress = Math.min(100, (scrolled / (articleHeight - viewportHeight)) * 100);
+                
+                document.getElementById('reading-progress').style.width = `${progress}%`;
+            }
+
+            // Back to top button
+            function toggleBackToTop() {
+                const button = document.getElementById('back-to-top');
+                if (window.scrollY > 300) {
+                    button.classList.add('visible');
+                } else {
+                    button.classList.remove('visible');
+                }
+            }
+
+            window.addEventListener('scroll', () => {
+                updateReadingProgress();
+                toggleBackToTop();
+            });
+        }
+
+        // Load related articles
+        function loadRelatedArticles() {
+            if (!currentArticle || !currentArticle.tags) return;
+            
+            // Static related articles
+            const relatedContainer = document.getElementById('related-articles');
+            const relatedList = document.getElementById('related-articles-list');
+            
+            // Simple related articles based on category
+            const placeholders = [
+                { 
+                    id: 'consciousness-mathematical-framework', 
+                    title: '意识的数学基础', 
+                    description: '探讨意识的数学建模框架' 
+                },
+                { 
+                    id: 'memory-computational-models', 
+                    title: '记忆的计算模型', 
+                    description: '从海马体到人工神经网络' 
+                }
+            ];
+            
+            if (placeholders.length > 0) {
+                relatedList.innerHTML = placeholders.map(article => `
+                    <div class="related-article-card" onclick="window.location.href='article.html?id=${article.id}'">
+                        <h4 class="font-semibold text-slate-800 mb-2">${article.title}</h4>
+                        <p class="text-sm text-slate-600">${article.description}</p>
+                    </div>
+                `).join('');
+                relatedContainer.style.display = 'block';
+            }
+        }
+
+        // Utility functions
+        function formatDate(date) {
+            if (!date) return 'Unknown date';
+            if (typeof date === 'string') return date;
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function calculateReadTime(content) {
+            const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+            const minutes = Math.ceil(words / 200);
+            return `${minutes} min read`;
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function shareArticle() {
+            if (navigator.share && currentArticle) {
+                navigator.share({
+                    title: currentArticle.title,
+                    text: currentArticle.description,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('链接已复制到剪贴板');
+            }
+        }
+
+        function printArticle() {
+            window.print();
+        }
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle - can be implemented as needed
+            console.log('Toggle mobile menu');
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initializePage);
+
+        // Handle navigation
+        window.addEventListener('popstate', () => {
+            const newUrlParams = new URLSearchParams(window.location.search);
+            const newArticleId = newUrlParams.get('id');
+            const newArticleType = newUrlParams.get('type') || 'article';
+            
+            if (newArticleId !== articleId) {
+                location.reload();
+            }
+        });
+
+        // Legacy compatibility for old URLs
+        if (articleId && !articleType) {
+            // Redirect old URLs to new format if needed
+            console.log('Loading article:', articleId);
         }
     </script>
 
