@@ -25,13 +25,34 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
-    <!-- 静态思想数据作为备用 -->
-    <script src="thoughts-static.js"></script>
+    <!-- 静态思想数据作为备用（延迟加载，见脚本逻辑） -->
     <style>
         body {
             font-family: 'Computer Modern', 'Latin Modern Roman', 'Times New Roman', 'TeX Gyre Termes';
             scroll-behavior: smooth;
         }
+        /* Password Gate overlay covers the page until unlocked */
+        #passwordOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex; /* default visible; will be hidden if already unlocked */
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.9);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+        #passwordOverlay.hidden { display: none; }
+        .gate-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            padding: 1.5rem;
+            width: min(92vw, 28rem);
+            border: 1px solid #e5e7eb;
+        }
+        .gate-card h2 { font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes'; }
         .hero-bg {
             background-color: #fdf2f8;
         }
@@ -326,6 +347,19 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 
+    <!-- Password Gate Overlay -->
+    <div id="passwordOverlay">
+        <div class="gate-card">
+            <h2 class="text-2xl font-bold text-sky-700 mb-2 text-center">Thought Cabinet</h2>
+            <p class="text-slate-600 text-sm mb-4 text-center">此区域受密码保护。请输入访问密码。</p>
+            <label class="block text-sm text-slate-600 mb-1" for="gatePassword">Password</label>
+            <input id="gatePassword" type="password" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 mb-3" placeholder="Enter password" autocomplete="current-password">
+            <button id="gateSubmit" class="w-full px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition-colors">Unlock</button>
+            <p id="gateError" class="text-red-600 text-sm mt-3 hidden">密码错误，请重试。</p>
+            <p class="text-xs text-slate-400 mt-4 text-center">提示：这是前端口令保护，仅用于轻量访问控制。需要强保护请使用身份认证/加密方案。</p>
+        </div>
+    </div>
+
     <nav class="shadow-md">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center md:flex-row flex-col">
             <a href="index.html" class="text-2xl font-bold text-sky-600 mb-2 md:mb-0">Fitzgerald Snow</a>
@@ -414,6 +448,52 @@
     </footer>
 
     <script>
+        // ---------------- Password Gate (lightweight) ----------------
+        // NOTE: This is client-side only. It hides content and defers app init until unlocked.
+        // Change this password to your own. For better security, consider moving to real auth or client-side encryption.
+        const GATE_PASSWORD = 'cabinet2025'; // TODO: change me
+        let gateLocked = true;
+
+        function hideGate() {
+            const ov = document.getElementById('passwordOverlay');
+            ov.classList.add('hidden');
+        }
+        function showGate() {
+            const ov = document.getElementById('passwordOverlay');
+            ov.classList.remove('hidden');
+            const input = document.getElementById('gatePassword');
+            setTimeout(() => input && input.focus(), 0);
+        }
+        function setupGate() {
+            const unlocked = sessionStorage.getItem('thoughts_unlocked') === '1';
+            if (unlocked) {
+                gateLocked = false;
+                hideGate();
+                // Defer init until window load fires or call immediate init as fallback
+                setTimeout(() => { try { if (typeof initAppAfterUnlock === 'function') initAppAfterUnlock(); } catch(_){} }, 0);
+                return;
+            }
+            showGate();
+            const submit = document.getElementById('gateSubmit');
+            const input = document.getElementById('gatePassword');
+            const error = document.getElementById('gateError');
+            const tryUnlock = () => {
+                const val = (input.value || '').trim();
+                if (!val) return;
+                if (val === GATE_PASSWORD) {
+                    sessionStorage.setItem('thoughts_unlocked', '1');
+                    gateLocked = false;
+                    hideGate();
+                    if (typeof initAppAfterUnlock === 'function') initAppAfterUnlock();
+                } else {
+                    error.classList.remove('hidden');
+                    input.select();
+                }
+            };
+            submit.addEventListener('click', tryUnlock);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryUnlock(); } });
+        }
+
         // Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
@@ -443,6 +523,8 @@
         const thoughtsList = document.getElementById('thoughtsList');
         const loadingDiv = document.getElementById('loadingDiv');
         const connectionStatus = document.getElementById('connectionStatus');
+    // 初始化 Gate ASAP
+    setupGate();
 
         // 获取用户ID (使用Firebase认证)
         async function getUserId() {
@@ -595,6 +677,18 @@
             thoughtForm.reset();
         });
 
+        // 延迟加载静态数据脚本（仅在静态模式需要时）
+        function ensureStaticDataLoaded() {
+            return new Promise((resolve, reject) => {
+                if (typeof staticThoughts !== 'undefined') return resolve();
+                const script = document.createElement('script');
+                script.src = 'thoughts-static.js';
+                script.onload = () => resolve();
+                script.onerror = (e) => reject(new Error('Failed to load static thoughts'));
+                document.head.appendChild(script);
+            });
+        }
+
         // 加载思想列表
         async function loadThoughts() {
             try {
@@ -602,6 +696,8 @@
                 thoughtsList.innerHTML = '';
 
                 if (useStaticMode) {
+                    // 确保静态数据已加载
+                    try { await ensureStaticDataLoaded(); } catch (e) { console.error(e); }
                     // 使用静态数据
                     loadingDiv.style.display = 'none';
                     
@@ -1204,6 +1300,7 @@
 
         // Firebase 认证状态监听
         auth.onAuthStateChanged(async user => {
+            if (gateLocked) return; // Do nothing until unlocked
             if (user && !useStaticMode) {
                 console.log('User authenticated:', user.uid);
                 loadThoughts();
@@ -1224,6 +1321,7 @@
 
         // 页面加载时检测连接状态
         window.addEventListener('load', async () => {
+            if (gateLocked) return; // Wait for unlock
             console.log('检测Firebase连接状态...');
             
             // 设置超时检测
@@ -1257,6 +1355,41 @@
                 loadThoughts();
             }
         });
+
+        // 在解锁后手动初始化（当用户在页面加载后才输入密码）
+        async function initAppAfterUnlock() {
+            if (!gateLocked) {
+                console.log('检测Firebase连接状态...');
+                const connectionTimeout = setTimeout(() => {
+                    if (!firebaseConnected && !useStaticMode) {
+                        console.log('Firebase连接超时，切换到静态模式');
+                        useStaticMode = true;
+                        firebaseConnected = false;
+                        showConnectionStatus('static');
+                        loadThoughts();
+                    }
+                }, 5000);
+
+                try {
+                    const connected = await checkFirebaseConnection();
+                    clearTimeout(connectionTimeout);
+                    if (connected) {
+                        console.log('Firebase连接成功');
+                        // auth state listener will handle loadThoughts
+                    } else {
+                        console.log('Firebase连接失败，使用静态模式');
+                        loadThoughts();
+                    }
+                } catch (error) {
+                    clearTimeout(connectionTimeout);
+                    console.error('连接检测出错:', error);
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts();
+                }
+            }
+        }
 
         // 监听窗口大小变化，重新检查内容高度
         window.addEventListener('resize', () => {
