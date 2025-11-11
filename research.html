@@ -224,6 +224,7 @@
                             <li> <span class="font-bold">Meta-RL in the brain:</span> I'm interested in meta-learning (learning to learn) and meta-reinforcement-learning. Human experience thousands of decisions to make everyday, with many unseen before, and they can utilize past experiences where they encounter a similar situation and 'transfer' it to the new situation. Like in the game of go, it's impossible to experience every arrangement of board, but with some kind of generalization you can spot some similar structures as you've encountered before, and decide which might be the best move in a new situation. Botvinick proposed in a 2019 paper that the PFC implement meta-RL. Also, I'm curious how the brain decides in such a large goal space which goal to achieve today, for example to do an experiment or to have a good meal.</li>
                             <li> <span class="font-bold">Metacognition of decision making(?):</span> I'm interested in meta-cognition. Sometimes I wonder what's the relation between the too-often mentioned model free and model based systems apropos of the two-stage-task, and the more realistic situations where human consciously calculate the outcomes of actions and make plans. Also I believe it has something to do with certain psychiatric disorders</li>
                             <li> <span class="font-bold">RL algorithms in the brain:</span> I'm curious whether many of the classic but more complicated reinforcement learning algorithms have their counterpart in the brain. For example in a 2014 paper by Gershman, Markman and Otto, they devised a task to test whether the brain is implementing Dyna-Q, which is an RL algorithm that proposed model based agent's model can be used to train the model free system. There are also other classic algorithms in RL but which have not been studied in human before, for example value function approximation algorithms, Deep Q-Networks etc.</li>
+                            <li> <span class="font-bold">How does working memory affect model based control:</span> I'm curious how to computationally model working memory's affect on model based control. Model based control relies on actively remember the world model, including the transition probabilities and the rewards associated with each states. When you're tired or if the bandwidth of your working memory is small, your model based control's function might be impaired. So far the only notable propositions are from Anne Collins and Otto and their collaborators.</li>
                             
                         </ul>
                     </div>
@@ -238,18 +239,17 @@
         <section id="learned-resources" class="py-16 md:py-24 bg-amber-50">
             <div class="container mx-auto px-6">
                 <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 text-slate-700" style="font-family: 'Georgia', serif; font-style: italic;">What I’ve Learned & Resources</h2>
-                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">Notes to self and a living list of references that shaped my thinking. This section will evolve as projects mature.</p>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
                     <!-- What I've Learned -->
                     <div class="bg-white/70 backdrop-blur rounded-xl p-6 shadow-md border border-slate-200">
                         <h3 class="text-2xl font-semibold mb-4 text-slate-800">What I’ve Learned</h3>
                         <ul class="list-disc pl-6 space-y-3 text-slate-700">
-                            <li><span class="font-semibold">Arbitration can be simple:</span> reliability-based schemes are powerful, but loss- or cost-based criteria often explain behavior with fewer moving parts.</li>
-                            <li><span class="font-semibold">Representation matters for problem solving:</span> casting CSPs as graphical models clarifies when BP-like updates help and when they fail.</li>
-                            <li><span class="font-semibold">Geometry ↔ information:</span> links between manifold geometry (capacity) and linear Fisher information hint at unifying views of “what a population encodes.”</li>
-                            <li><span class="font-semibold">Meta-RL is a useful lens:</span> thinking in terms of learned update rules helps connect prefrontal dynamics with fast adaptation and transfer.</li>
-                            <li><span class="font-semibold">Cost-benefit is everywhere:</span> many “system arbitration” stories reduce to rational control under resource constraints.</li>
+                            <li><span class="font-semibold">Reinforcement Learning:</span> I watched David Silver's lectures at UCL on Reinforcement Learning. I'm also currently enrolled in an offline course on Reinforcement Learning taught by Wei Ke at the School of Data Science, Fudan University.</li>
+                            <li><span class="font-semibold">Neural Modelling:</span> I watched the first eight lectures of Wulfram Gerstner's course on Neuronal Dynamics(up to neuronal populations). I studied the code for various neural models following the Si Wu's lab's book based on BrainPy.</li>
+                            <li><span class="font-semibold">Neuromatch:</span> I participated in 2025 summer's neuromatch on Computational Neuroscience. Our group finished a project on RNN modelling of motor learning.</li>
+                            <li><span class="font-semibold">Labs:</span> In the October of 2023, I first joined Chunhe Li's lab at the Shanghai Center for Mathematical Sciences, where I occasionally attended their lab meetings until the summer of 2024. During that period I learned the advances of computational biology, and learned some concepts like Energy Landscape.</li>
+                            <li><span class="font-semibold">Labs: In the November of 2024 I joined Ruyuan Zhang's lab at Shanghai Jiao Tong University. </span>
                         </ul>
                     </div>
 
