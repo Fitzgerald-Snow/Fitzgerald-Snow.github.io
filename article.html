@@ -312,108 +312,92 @@
         function getStaticArticle(id, type) {
             const articles = {
                 'neural-dynamics-learning': {
-                    title: '神经网络学习的动力学机制',
-                    description: '深入探讨不同神经网络架构如何适应和学习环境刺激',
+                    title: '情绪是大脑建构的产物',
+                    description: '情绪不是对世界的被动反应。它们是大脑基于过往经验，对“当前身体感觉在特定情境下意味着什么”的最佳猜测和行动指南。',
                     content: `
-                        <h2>引言</h2>
-                        <p>神经网络的学习机制一直是计算神经科学研究的核心问题。本文从动力学的角度分析不同神经网络架构如何适应和学习环境刺激，重点关注生物学上的合理性。</p>
-                        
-                        <h2>生物神经网络的学习机制</h2>
-                        <p>生物神经网络通过突触可塑性实现学习，主要包括以下几种机制：</p>
+                        <h2>核心观点</h2>
+                        <p>构建性情绪理论认为：我们体验到的“愤怒”“恐惧”等并非硬编码的模块输出，而是大脑基于<strong>内感受</strong>、情境与过往经验所做的最佳推断。情绪既是对当下内外部状态的解释，也是随之而来的行动倾向。</p>
+
+                        <h2>预测编码与内感受</h2>
+                        <p>在预测加工框架中，大脑持续预测身体信号（呼吸、心率、皮电等）与外界输入，并用预测误差更新内部模型。内感受的先验与情境线索共同塑造了情绪范畴。</p>
+
+                        <h2>实证线索</h2>
                         <ul>
-                            <li>Hebbian学习：同时激活的神经元之间的连接强度增加</li>
-                            <li>反Hebbian学习：抑制性调节机制</li>
-                            <li>时序依赖的可塑性（STDP）：考虑时间因素的学习规则</li>
+                            <li>同一种情绪标签在不同个体和场景下的生理模式差异巨大。</li>
+                            <li>语义与文化学习能改变情绪类别边界与表达。</li>
+                            <li>操纵期待与情境解释可显著改变主观情绪。</li>
                         </ul>
-                        
-                        <blockquote>
-                            "Neurons that fire together, wire together" - Donald Hebb
-                        </blockquote>
-                        
-                        <h2>人工神经网络中的学习算法</h2>
-                        <p>人工神经网络主要采用以下学习算法：</p>
-                        <ul>
-                            <li>反向传播算法</li>
-                            <li>强化学习</li>
-                            <li>无监督学习方法</li>
-                        </ul>
-                        
-                        <h2>生物合理性分析</h2>
-                        <p>虽然反向传播算法在人工神经网络中非常有效，但其生物合理性存在争议。最新研究提出了更符合生物机制的学习算法，如：</p>
-                        <ul>
-                            <li>预测编码（Predictive Coding）</li>
-                            <li>平衡传播（Equilibrium Propagation）</li>
-                            <li>目标传播（Target Propagation）</li>
-                        </ul>
-                        
-                        <h2>结论</h2>
-                        <p>理解神经网络学习的动力学机制对于开发更高效、更具生物合理性的人工智能系统具有重要意义。未来的研究应该更多地借鉴生物神经系统的工作原理。</p>
+
+                        <h2>与AI的联系</h2>
+                        <p>将情绪视为由生成模型产生的<strong>内在状态估计</strong>，可与主动推断/控制框架耦合：情绪影响代价、动机与探索-利用权衡。</p>
+
+                        <h2>结语</h2>
+                        <p>“情绪是建构的”并不削弱其真实性；相反，它强调了学习、语境与身体在智能系统中的基础地位。</p>
                     `,
-                    date: '2024-12-15',
+                    date: '2025-08-23',
                     category: 'Neuroscience',
-                    tags: ['neural-networks', 'learning', 'computational-neuroscience'],
-                    readTime: '8 min read'
-                },
-                'consciousness-mathematical-framework': {
-                    title: '意识的数学基础：文献综述',
-                    description: '综述当前关于意识数学建模的主要理论框架',
-                    content: `
-                        <h2>引言</h2>
-                        <p>意识研究是现代神经科学最前沿的领域之一。本文综述当前关于意识数学建模的主要理论框架，包括整合信息理论(IIT)、全局工作空间理论等。</p>
-                        
-                        <h2>整合信息理论(IIT)</h2>
-                        <p>IIT提出意识的量化指标Φ(phi)，用于测量系统的信息整合程度。</p>
-                        
-                        <h2>全局工作空间理论</h2>
-                        <p>该理论认为意识来源于大脑中信息的全局广播机制。</p>
-                        
-                        <h2>注意图式理论</h2>
-                        <p>Michael Graziano提出的理论，将意识视为大脑对注意过程的内部模型。</p>
-                    `,
-                    date: '2024-11-28',
-                    category: 'Neuroscience',
-                    tags: ['consciousness', 'review', 'mathematical-modeling'],
+                    tags: ['emotion', 'predictive-processing', 'constructivism'],
                     readTime: '6 min read'
                 },
-                'memory-computational-models': {
-                    title: '记忆的计算模型：从海马体到人工神经网络',
-                    description: '探讨记忆形成、存储和检索的计算机制',
+                'consciousness-mathematical-framework': {
+                    title: '认知科学遇上强化学习（上）',
+                    description: 'Goals and Habits in the Brain. Are we of two minds?',
                     content: `
-                        <h2>海马体的记忆编码</h2>
-                        <p>海马体在记忆形成中起关键作用，特别是在空间记忆和情景记忆方面。</p>
-                        
-                        <h2>Hopfield网络模型</h2>
-                        <p>经典的联想记忆模型，展示了神经网络如何存储和检索模式。</p>
-                        
-                        <h2>现代深度学习中的记忆机制</h2>
-                        <p>LSTM、注意力机制等现代方法如何模拟生物记忆过程。</p>
+                        <h2>引言</h2>
+                        <p>从“目标导向（model-based）”与“习惯（model-free）”的二元视角重访决策：我们是否真有两套系统？还是在共享资源约束下的理性分工？</p>
+
+                        <h2>不确定性与代价</h2>
+                        <p>文献表明，控制权的分配与预测不确定性、计算代价和任务结构密切相关。可靠性加权与成本-效益权衡提供了统一的解释框架。</p>
+
+                        <h2>两阶段任务与证据</h2>
+                        <p>以两阶段任务为例，行为与反应时可被简洁的损失/代价模型解释，而无需复杂的仲裁器细节。</p>
+
+                        <h2>小结</h2>
+                        <p>“两系统”更像是算法近似与资源分配的折中视角——上篇聚焦原则，下篇将讨论实现与学习。</p>
                     `,
-                    date: '2024-10-12',
+                    date: '2025-09-07',
                     category: 'Neuroscience',
-                    tags: ['memory', 'plasticity', 'computational-neuroscience'],
+                    tags: ['model-based', 'model-free', 'arbitration'],
+                    readTime: '7 min read'
+                },
+                'memory-computational-models': {
+                    title: '认知科学遇上强化学习（中）',
+                    description: 'Goals and Habits in the Brain. Are we of two minds?',
+                    content: `
+                        <h2>学习到仲裁</h2>
+                        <p>从经验中学习“何时规划、何时习惯”的元策略，可视为一种<strong>元强化学习</strong>。前额叶-纹状体回路可能实现了这种快速适应。</p>
+
+                        <h2>表示与工作记忆</h2>
+                        <p>任务表示与工作记忆带宽直接影响MB性能；在有限资源下，<em>压缩的世界模型</em>与启发式搜索足以获得高性价比。</p>
+
+                        <h2>更好的任务</h2>
+                        <p>仅靠两阶段任务难以区分假设。需要能操纵结构可观测性、转换稀疏性与计算预算的范式。</p>
+                    `,
+                    date: '2025-09-14',
+                    category: 'Neuroscience',
+                    tags: ['meta-RL', 'working-memory', 'representation'],
                     readTime: '7 min read'
                 },
                 'backpropagation-brain': {
-                    title: '反向传播算法在大脑中存在吗？',
-                    description: '科普文章：探讨大脑是否真的使用类似反向传播的学习机制',
+                    title: '规划是一种概率推断',
+                    description: 'Planning as Inference.',
                     content: `
-                        <h2>反向传播算法简介</h2>
-                        <p>反向传播是训练人工神经网络的核心算法，但它在生物学上是否合理一直存在争议。</p>
-                        
-                        <h2>生物学限制</h2>
-                        <p>真实神经元无法直接传递误差信号，这使得经典反向传播在生物学上不太可能。</p>
-                        
-                        <h2>生物学上可行的替代方案</h2>
-                        <ul>
-                            <li>反馈对齐(Feedback Alignment)</li>
-                            <li>预测编码</li>
-                            <li>突触可塑性的局部学习规则</li>
-                        </ul>
+                        <h2>控制即推断</h2>
+                        <p>在控制-即-推断框架中，最优策略可转换为对轨迹的后验推断；偏好通过能量/成本项进入概率模型。</p>
+
+                        <h2>软最优与自由能</h2>
+                        <p>温度调节的软最优（soft optimality）自然引出熵正则化RL，与变分自由能目标等价。</p>
+
+                        <h2>算法联系</h2>
+                        <p>KL控制、路径积分控制与消息传递为高维规划提供了兼顾稳定性与效率的解法。</p>
+
+                        <h2>应用</h2>
+                        <p>将“规划=推断”落地到导航、层级控制与不完全可观测环境中，可获得鲁棒的行为生成。</p>
                     `,
-                    date: '2024-09-05',
+                    date: '2025-07-28',
                     category: 'Neuroscience',
-                    tags: ['neural-networks', 'learning', 'review'],
-                    readTime: '5 min read'
+                    tags: ['planning-as-inference', 'control', 'variational'],
+                    readTime: '6 min read'
                 }
             };
 
