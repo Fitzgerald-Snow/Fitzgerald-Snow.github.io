@@ -94,23 +94,7 @@
         }
         .article-content pre code { background: none; color: inherit; padding: 0; }
 
-        .article-meta {
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
-        }
-        .tag {
-            display: inline-block;
-            font-size: 0.8125rem;
-            color: #334155;
-            border: 1px solid #e2e8f0;
-            padding: 0.125rem 0.5rem;
-            border-radius: 9999px;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            background: #fff;
-        }
+        /* Tags removed - styles intentionally omitted */
 
         .related-articles {
             border: 1px solid #e5e7eb;
@@ -237,14 +221,6 @@
         <main class="py-16 md:py-24">
             <div class="container mx-auto px-6">
                 <div class="max-w-3xl mx-auto">
-
-                    <!-- Tags (minimal) -->
-                    <div class="article-meta">
-                        <div>
-                            <h3 class="text-sm font-medium text-slate-700 mb-2">Tags</h3>
-                            <div id="article-tags"></div>
-                        </div>
-                    </div>
 
                     <!-- Article Image (if exists) -->
                     <div id="article-image-container" class="mb-8" style="display: none;">
@@ -529,13 +505,16 @@
             document.getElementById('article-category').textContent = article.category || 'Research';
             document.getElementById('read-time').textContent = article.readTime || calculateReadTime(article.content);
             
-            // Update tags
-            if (article.tags && article.tags.length > 0) {
+            // Update tags (UI removed). Guard in case container exists in future.
+            (function updateTags() {
                 const tagsContainer = document.getElementById('article-tags');
-                tagsContainer.innerHTML = article.tags.map(tag => 
-                    `<span class="tag">${tag}</span>`
-                ).join('');
-            }
+                if (!tagsContainer) return; // no tags UI present
+                if (article.tags && article.tags.length > 0) {
+                    tagsContainer.innerHTML = article.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                } else {
+                    tagsContainer.innerHTML = '';
+                }
+            })();
             
             // Update image if exists
             if (article.imageUrl) {
