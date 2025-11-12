@@ -40,6 +40,10 @@
         }
         .article-subtitle { /* description */
             color: #475569; /* slate-600 */
+            line-height: 1.6;
+            max-width: 42rem;
+            margin-left: auto;
+            margin-right: auto;
         }
         .meta-line {
             color: #6b7280; /* gray-500 */
@@ -62,10 +66,21 @@
         .article-content h1 { font-size: 2rem; }
         .article-content h2 {
             font-size: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 0.25rem;
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-weight: 700;
+            color: #334155; /* slate-700 */
+            /* removed border for consistency with research section headers */
         }
-        .article-content h3 { font-size: 1.25rem; }
+        .article-content h3 {
+            font-size: 1.25rem;
+            font-family: 'Georgia', serif;
+            font-weight: 600;
+            color: #475569; /* slate-600 */
+        }
+        @media (min-width: 768px) {
+            .article-subtitle { font-size: 1.25rem; }
+        }
         .article-content p { margin-bottom: 1.25rem; }
 
         .article-content blockquote {
@@ -159,6 +174,15 @@
         .article-image {
             border-radius: 0.75rem;
             margin: 1.5rem 0;
+        }
+
+        /* Content images */
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1.25rem 0;
+            background-color: #f1f5f9; /* subtle bg so placeholders look ok */
         }
     </style>
 </head>
@@ -313,31 +337,106 @@
             const articles = {
                 'neural-dynamics-learning': {
                     title: '情绪是大脑建构的产物',
-                    description: '情绪不是对世界的被动反应。它们是大脑基于过往经验，对“当前身体感觉在特定情境下意味着什么”的最佳猜测和行动指南。',
+                    description: '对情绪的历史与现状的回顾：从“恐惧中心”到建构主义、从功能主义到内稳态与内感受，再到预测性大脑与拥抱变异。',
                     content: `
-                        <h2>核心观点</h2>
-                        <p>构建性情绪理论认为：我们体验到的“愤怒”“恐惧”等并非硬编码的模块输出，而是大脑基于<strong>内感受</strong>、情境与过往经验所做的最佳推断。情绪既是对当下内外部状态的解释，也是随之而来的行动倾向。</p>
+                        <h2>历史与背景</h2>
+                        <p>紧接着来到1920-1950年代，行为主义统治了心理学。情绪不再被视为纯粹的心理现象，而是被重新界定为神经系统的一种“神经态”，这种神经态会引发特定的行为：负责“僵住”(freezing)或“逃跑”(fleeing)的神经回路被定义为“恐惧”的神经回路（当然那时候可能并没有神经回路这一说）；负责“战斗”的神经回路则被定义为“愤怒”的神经回路。这种本体论还原让研究变得“科学”，但它也忽视了主观体验，并且同样有许多问题。例如方法论的循环：研究者看到小鼠冻结；主观判断这是“恐惧”，进而研究相关神经回路，但这与其说是研究恐惧的机理，更准确讲是在研究冻结行为，而恐惧和冻结并不等价，Joseph LeDoux提到过，现在很多神经科学家同样在犯这种错误，并且导致媒体也在进行许多错误报道。</p>
+                        <p>1950-60年代的认知革命让心智重回科学视野，但这次的隐喻从身体器官变成了计算机。大脑就是一台计算机，各种心理过程是这台电脑里不同的程序。Tomkins提出“情感程序”(affect program)，Ekman发展为每种基本情绪都有预装的程序，Panksepp则在大脑中寻找FEAR、RAGE等系统。进一步举个例子，情绪是电脑上预装的程序，输入了特定的刺激（如威胁）后，电脑运行affect_program.exe，最后输出恐惧状态+表情+行为。但这些都是些大写的、假设的、从未被真正定位的程序，混淆了隐喻与事实，回到了最初的faculty psychology的老路；情绪被等同于process（造成这种情绪的过程、程序）。面对行为主义扯开了主观体验的问题，这群人承认了内在过程，但仍然将主观体验视为副现象——可有可无的附属品，并指出，动物和人类都有情绪，但是只有人类有情绪体验(emotional experiences)。</p>
+                        <p>1990年代开始的神经影像研究似乎带来了希望。终于，我们可以“看到”大脑中的情绪了！情绪神经科学的研究依旧受faculty psychology很大的影响。不同的神经元族群被视作不同的心理“器官”；此外，人们对认知的认识还受到如三脑理论的影响，他们认为假定为认知中枢的前额叶皮质调节、抑制着被视作情绪中枢的杏仁核。</p>
 
-                        <h2>预测编码与内感受</h2>
-                        <p>在预测加工框架中，大脑持续预测身体信号（呼吸、心率、皮电等）与外界输入，并用预测误差更新内部模型。内感受的先验与情境线索共同塑造了情绪范畴。</p>
-
-                        <h2>实证线索</h2>
+                        <h2>第二部分：当下的情绪神经科学研究状况</h2>
+                        <p>早期研究充满信心地宣称找到了恐惧中心(杏仁核)、厌恶中心(岛叶)等。但历史再次重演。元分析显示（如L.F. Barrett实验室2012年的一篇文章：The brain basis of emotion: a meta-analytic review），没有任何脑区专属于某种情绪。Patient S.M.的案例更是充满矛盾：失去双侧杏仁核的她在大多数情况下无法体验恐惧，却在吸入高浓度CO2时产生强烈恐惧。同卵双胞胎同样患有Urbach-wiethe病损伤杏仁核，却只有一个表现出恐惧缺陷。</p>
+                        <blockquote>
+                            she does not show loss aversion when gambling ... is capable of aversive learning (i.e., ‘fear learning’) in certain circumstances.
+                        </blockquote>
+                        <p>这揭示了恐惧可能依赖于多条功能上退化(可替代)的神经回路，也即生物上说的简并性（在结构上不同的机制能够实现同一种功能）。（作者拿了一个例子来讲什么是简并性：在一些经过基因工程处理、敲除特定基因的动物物种中，仍然有一定数量的个体（最高可达30%）在缺失这些基因的情况下依然表现出相应的表型。）这种假设在许多动物上也有证据。</p>
+                        <p>作者接下来进一步点名批评（引用了两篇Adolphs的文章）Adolphs和David Anderson的approach，我这里直接截一下Claude总结的：</p>
+                        <h3>Adolphs的立场演变</h3>
+                        <p>早期Adolphs（与Anderson合作前）：</p>
                         <ul>
-                            <li>同一种情绪标签在不同个体和场景下的生理模式差异巨大。</li>
-                            <li>语义与文化学习能改变情绪类别边界与表达。</li>
-                            <li>操纵期待与情境解释可显著改变主观情绪。</li>
+                            <li>研究杏仁核与恐惧识别</li>
+                            <li>相对传统的观点</li>
+                            <li>著名的面部表情识别研究</li>
                         </ul>
+                        <p>近期Adolphs（2014-2017）：</p>
+                        <ul>
+                            <li>关键转变：经典观点受挑战 → 采用功能主义框架</li>
+                            <li>提出“中心恐惧状态”(central fear state) 概念</li>
+                            <li>试图调和经典观点与新证据</li>
+                        </ul>
+                        <h3>“中心恐惧状态”是什么？</h3>
+                        <p>Adolphs & Anderson (2014)的框架：</p>
+                        <ul>
+                            <li>不是说：恐惧 = 特定神经回路</li>
+                            <li>而是说：恐惧 = 功能性状态</li>
+                            <li>这个状态可以由不同回路实现，但状态本身是真实存在的</li>
+                        </ul>
+                        <p>这一点看似妥协，但Barrett认为这是换汤不换药。</p>
+                        <h3>2. 科学哲学层面：本质主义陷阱</h3>
+                        <p>心理本质主义的特征：</p>
+                        <ul>
+                            <li>假设隐藏的“本质”(中心状态)</li>
+                            <li>即使找不到也坚持存在</li>
+                            <li>用功能定义代替物理机制</li>
+                            <li>免疫于反证</li>
+                        </ul>
+                        <p>Barrett认为这违反了科学的基本原则。</p>
+                        <h3>3. 策略层面：救援假说</h3>
+                        <p>Barrett可能认为Adolphs在“救援”经典理论：</p>
+                        <ul>
+                            <li>支持Barrett的声音：LeDoux（2015）也批评恐惧的本质化；建构主义阵营的支持；哲学家对本质主义的批判</li>
+                            <li>Adolphs的回应（2017 在 Social Cognitive and Affective Neuroscience）：承认变异性；但坚持功能组织的重要性；认为Barrett过度解构</li>
+                        </ul>
+                        <p><strong>关键分歧：</strong>Adolphs：变异性下仍有功能组织；Barrett：所谓的组织是我们强化的分类。</p>
 
-                        <h2>与AI的联系</h2>
-                        <p>将情绪视为由生成模型产生的<strong>内在状态估计</strong>，可与主动推断/控制框架耦合：情绪影响代价、动机与探索-利用权衡。</p>
+                        <h2>进一步的讨论与引文</h2>
+                        <p>（总之L.F. Barrett那一派是很反对功能主义这个路线的，但最近在看Adolphs的那本书的时候，书中花了很大篇幅在强调function这一层面的重要性：比如进化是看某一个东西的功能的。在那本书中，作者也提到了Barrett他们的建构论的观点，不过并没有就此提出反对意见。）</p>
+                        <p>作者接下来写的一段话我觉得写的很好，直接全文翻译，放在这里：</p>
+                        <p>此外，请考虑这样一个事实：动物在面对威胁时会表现出多种不同的行为，而每种行为都有其自身特定的神经回路支持。例如，当大鼠可以自由活动时(比如在有多个通道的实验箱中), 它们会回避不确定威胁所在的位置；当它们无法自由移动时，则会选择冻结(freezing)。当威胁是确定的且它们无法逃脱时，大鼠会表现出防御性攻击(defensive aggression)：例如，它们会踢垫料向威胁物体覆盖，或者直接跳上去并咬它。而且，支持大鼠对猫（捕食者）的防御性攻击的神经回路，与支持它们对另一只大鼠（笼内的优势入侵者）进行防御性攻击的回路是不相同的。冻结、逃跑、以及针对不同捕食者的防御性攻击，都可以视为对潜在危险的反应，那么一一对应的神经回路才是真正的“恐惧回路”呢？这是不是意味着存在许多不同的恐惧回路？如果是这样，那么“恐惧”这一科学分类的价值何在？除了它能帮助我们向不研究情绪的人传达研究结果之外，它还有什么科学意义吗？此外，我们又如何判断，防御性攻击到底是恐惧的实物，而不是愤怒的实例呢？显然，不同的行为反应并非强地归产生一一行为是与情境强切相关的。因此，理解情境对于理解任何情绪类别内跨的可变生物一行为模式，以及理解不同情绪类别之间可能的相似性，都是非常重要。</p>
+                        <p>放一个Claude举的例子：</p>
+                        <p>研究者A：“我研究恐惧回路”<br/>实际研究：小鼠冻结行为</p>
+                        <p>研究者B：“我也研究恐惧”<br/>实际研究：人类恐惧症</p>
+                        <p>公众/媒体：“科学家发现恐惧的大脑机制！”<br/>问题：他们研究的是同一个东西吗？</p>
+                        <p>Joseph LeDoux在2014年也开始转变了自己的立场，在2014年的PNAS文章Coming to terms with fear中，他写到：The brain mechanisms that detect and respond to threats are not the same as those that give rise to the conscious feeling of fear. 在他2015年出版的Anxious: Using the Brain to Understand and Treat Fear and Anxiety（这是一本文普书，我看了看Goodreads和reddit的评论，貌似对非专业人士不太友好，但是对神经科学等方向的专业人士还是蛮有启发的）中，他写到：I no longer think of fear as the activation of the fear system... Fear is a conscious experience and occurs the same way as any other kind of conscious experience.</p>
+                        <p>作者最后说，“从经典观点的立场来看，在神经科学情绪研究中迄今为止观察到的巨大差异，应对的方法是建立更细致的情绪分类体系，试图通过划分更精细的类别来驯服自然的复杂性，并让研究者更容易识别每种情绪类别所独有的神经本质。然而，目前尚不清楚，这种方法是否已经成功建立起一种具有普遍适用性和生成力的情绪科学。”</p>
 
-                        <h2>结语</h2>
-                        <p>“情绪是建构的”并不削弱其真实性；相反，它强调了学习、语境与身体在智能系统中的基础地位。</p>
+                        <h2>150年的教训与问题转向</h2>
+                        <p>150年的研究史告诉我们一个令人不安的事实：我们一直在用预设的类别寻找不存在的本质。每当证据不支持理论时，我们不是修正理论，而是发明新的逃避方式——从功能主义到行为主义，从计算隐喻到网络模型。</p>
+                        <p>Barrett在下一部分犀利地指出：情绪类别不是被发现的（discovered），而是被规定的（stipulated）。我们先决定什么是“恐惧”，然后去寻找符合定义的现象，最后宣称“发现”了恐惧的机制。这是循环论证，不是科学发现。正如寻找“以太”和“燃素”的科学家最终意识到他们在追逐幽灵，也许是时候承认：我们一直在大脑中寻找的情绪“指纹”可能根本不存在。真正的问题不是“恐惧的本质是什么”，而是“大脑如何建构我们称之为恐惧的体验”。</p>
+
+                        <h2>第三部分：情绪研究的多层次建构主义方法</h2>
+                        <p>作者首先指出，在情绪科学中，过去的建构主义方法在很大程度上忽视了生物学：社会建构主义主要关注情绪如何受到社会角色与社会价值观的影响，心理建构主义则关注情绪如何从更基础的心理过程（与对情感体验赋予意义相关的过程）中生成，而作者这一阵营要做的，便是将他们与神经科学结合在一起，形成情绪建构理论。</p>
+                        <p>接着，作者指出情绪的分类是被规定的，是科学家们先入为主的观念，而非被发现的。与其从既定的情绪类别出发，去寻找它们在大脑及神经系统中的物理基础，情绪建构理论采取了相反的路径：它首先从我们对神经系统结构与功能组织的一般性认识出发，然后探究这些神经机制是如何生成情绪的。也就是说，这是一种逆向工程式(reverse engineering)的研究方法。这种方法最终将揭示：情绪事件是由领域通用型（domain-general）的神经过程动态建构而成的。这意味着，“情绪”这一类别并不是一种“自然种类”(natural kind)，正如情绪类别本身也并非自然种类一样。</p>
+
+                        <h2>内稳态调节、内感受与情感</h2>
+                        <p>作者接下来提出了一个重要的观点：内稳态调节(allostasis)、内感受(interoception)、情感(affect)处于大脑的核心地位。大脑的进化并非为了理性、快乐或精确感知世界。它最核心的功能是高效地管理身体内部系统的资源（即内部环境）——预测和满足身体能量需求。这个动态的资源平衡过程被称为内稳态调节(allostasis)。</p>
+                        <p>内稳态调节(allostasis)和体内稳态(homeostasis)的一个重要区别是，内稳态调节是预测性的，而非反应性的——身体并没有一个固定的“设定点”，而是根据环境的需求和对未来的预测，来主动、动态地调整生理参数，以达到在变化环境中的最优状态。它的目标不是维持稳定，而是为了应对即将到来的挑战，高效地调配资源。</p>
+                        <p>默认模式网络和突显网络是执行内稳态调节的两个重要脑网络，而它们同时也表征这种调节带来的sensory consequence，也即内感受。（作者顺带提到，这两个网络也处于许多其他心理现象如认知、记忆、注意等的核心，因而这些高级认知任务可能本质上也是在执行内稳态调节以服务于行为）。</p>
+                        <p>内感受 (Interoception) 指的是你的大脑感知和解读来自身体内部的各种信号的过程。这包括你的心跳、呼吸速率、体温、胃肠蠕动、肌肉紧张度、血糖水平等等，这是一个具有很高维度的信息流，它们并不会直接涌现于意识。大脑先对它们进行降维处理，再呈现给意识，这也就是所谓的情感(affect)，它包含效价(valence)和唤醒度(arousal)两个维度。</p>
+                        <blockquote>
+                            We hypothesize that emotions (as opposed to cognitions) are constructed when interoceptive sensations are intense or when the change in affect is large and foregrounded in awareness.
+                        </blockquote>
+                        <p>——当内感受信号变得异常强烈，或者情感变化巨大并占据了我们注意力的前景时，情绪就被“建构”出来了。这也解释了为什么杏仁核、脑岛等所谓的“边缘系统”区域总是在情绪研究中被激活——它们并非“恐惧”或“厌恶”中心，而是调节新陈代谢和能量消耗的核心枢纽，与强烈的情感体验密切相关。</p>
+
+                        <h2>预测性大脑：情绪不是反应而是建构</h2>
+                        <p>作者进一步指出大脑的预测性质。情绪并非对世界的反应，而是对世界的建构（更具体地说，情绪是你的大脑为了理解你身体内部的感受（在特定情境下），而主动创造出来的解释）。大脑的预测理论在近些年受到越来越多的关注，如Karl Friston的主动推理、Buzsaki的“Brains are foretelling devices”等等。从预测编码的视角看，大脑并非被动地等待感官输入。相反，它利用过去的经验，不断地对即将到来的内外感官事件做出预测。这些预测信号以神经活动的形式预先准备好身体去应对。</p>
+                        <p>在这个意义下，情绪不是对世界的被动反应。它们是大脑基于过往经验，对“当前身体感觉在特定情境下意味着什么”的最佳猜测和行动指南。你感到的心跳加速，不是恐惧本身，而是大脑预测“在这种情境下，心跳加速意味着危险，我应该逃跑”，这个预测和解释的过程共同构成了你的恐惧体验。情绪的神经基础通常包含和记忆有关的网络，这也很符合这样一种建构理论：情绪由记忆产生，而非被记忆触发或仅仅是有关联。</p>
+                        <p><img alt="插图：情绪与记忆片段" /></p>
+                        <p>[其实美国心理学之父William James当年提出的一个观点已经很接近这种建构主义观念了。他说，“...emotions are a consequence, not a cause, of behavior: I feel afraid because I run from the bear, I do not run because I feel afraid. (James 1884)”（摘自The Neuroscience of Emotion: A New Synthesis，Ralph Adolphs）]</p>
+                        <p>不过受目前技术的限制，较难验证情绪的预测编码观点，一部分原因是目前的研究都得强制让大脑进入某种状态或模式。</p>
+
+                        <h2>拥抱变异：种群思维与简并性</h2>
+                        <p>在最后，作者提出要拥抱变异性。情绪没有唯一的生物“指纹”，我们必须改变研究范式，从寻找共性转向理解差异。</p>
+                        <p>首先是引入种群思维(Population Thinking)，这是达尔文生物学中的一个核心概念。一种情绪（如“恐惧”）不是一个单一、固定的类型，而是一个由大量高度可变的、情境化的实例所构成的“种群”。面对威胁时，你可以僵住、逃跑、攻击甚至发笑——这些都是“恐惧”这个种群中的不同实例。</p>
+                        <p>其次，简并性(Degeneracy) 是关键：生物系统普遍存在简并性，即结构上不同的机制可以实现相同的功能。这意味着，在相同的情境下，不同组合的神经元也可能产生相似的恐惧体验。这种“多对一”的映射是系统稳健性的保障，而非研究中的噪音。因此，未来的研究应该致力于解释和建模这种变异性，而不是试图通过平均来消除它。</p>
+                        <blockquote>
+                            A context change reveals a hidden reservoir of variation for selection processes to act on immediately, without waiting for reproduction and mutation.
+                        </blockquote>
                     `,
                     date: '2025-08-23',
                     category: 'Neuroscience',
                     tags: ['emotion', 'predictive-processing', 'constructivism'],
-                    readTime: '6 min read'
+                    readTime: '10 min read'
                 },
                 'consciousness-mathematical-framework': {
                     title: '认知科学遇上强化学习（上）',
@@ -511,6 +610,23 @@
             
             // Update content
             document.getElementById('article-content').innerHTML = article.content;
+
+            // Fallback for images inside content: replace broken src with placeholder
+            const placeholderSrc = 'images/placeholder.svg';
+            document.querySelectorAll('#article-content img').forEach(img => {
+                img.addEventListener('error', () => {
+                    if (img.getAttribute('data-placeholder-applied') === 'true') return;
+                    img.src = placeholderSrc;
+                    img.setAttribute('data-placeholder-applied', 'true');
+                    img.alt = img.alt || 'Image placeholder';
+                });
+                // If image has no src or empty, set placeholder immediately
+                if (!img.getAttribute('src')) {
+                    img.src = placeholderSrc;
+                    img.setAttribute('data-placeholder-applied', 'true');
+                    img.alt = img.alt || 'Image placeholder';
+                }
+            });
             
             // Show main content and hide loading
             document.getElementById('loading-state').style.display = 'none';
