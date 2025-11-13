@@ -19,6 +19,9 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
+        /* 隐藏横向滚动条（月份导航更简洁） */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -47,44 +50,13 @@
     </header>
 
     <main class="py-8">
-        <!-- 全屏照片网格 -->
-        <div class="px-4">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-                <!-- 照片项目 -->
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/404.jpg', '404 Page Image', 'A stylish 404 error page design')">
-                    <img src="images/404.jpg" alt="404 Page" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=404+Image';">
-                </div>
-
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/gallery-cover.jpg', 'Gallery Cover', 'Cover image for the gallery section')">
-                    <img src="images/gallery-cover.jpg" alt="Gallery Cover" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=Gallery+Cover';">
-                </div>
-
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/shoegazer.jpg', 'Shoegazer', 'Music and aesthetic inspiration')">
-                    <img src="images/shoegazer.jpg" alt="Shoegazer" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=Shoegazer';">
-                </div>
-
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('images/books/the neuroscience of emotion.jpg', 'The Neuroscience of Emotion', 'Book cover from the books collection')">
-                    <img src="images/books/the neuroscience of emotion.jpg" alt="The Neuroscience of Emotion" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=Neuroscience+Book';">
-                </div>
-
-                <!-- 占位照片，可以替换为实际图片 -->
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/3b82f6/ffffff?text=Photo+5', 'Photo 5', 'Placeholder image for future content')">
-                    <img src="https://placehold.co/400x400/3b82f6/ffffff?text=Photo+5" alt="Photo 5" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
-                </div>
-
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/8b5cf6/ffffff?text=Photo+6', 'Photo 6', 'Placeholder image for future content')">
-                    <img src="https://placehold.co/400x400/8b5cf6/ffffff?text=Photo+6" alt="Photo 6" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
-                </div>
-
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/06b6d4/ffffff?text=Photo+7', 'Photo 7', 'Placeholder image for future content')">
-                    <img src="https://placehold.co/400x400/06b6d4/ffffff?text=Photo+7" alt="Photo 7" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
-                </div>
-
-                <div class="aspect-square cursor-pointer gallery-item" onclick="openModal('https://placehold.co/800x800/10b981/ffffff?text=Photo+8', 'Photo 8', 'Placeholder image for future content')">
-                    <img src="https://placehold.co/400x400/10b981/ffffff?text=Photo+8" alt="Photo 8" class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300 rounded-lg">
-                </div>
-            </div>
+        <!-- 月份导航（滚动至分组） -->
+        <div class="sticky top-14 z-40 bg-slate-50/80 backdrop-blur supports-[backdrop-filter]:bg-slate-50/60">
+            <div id="monthNav" class="container mx-auto px-4 py-3 overflow-x-auto no-scrollbar flex gap-2"></div>
         </div>
+
+        <!-- 照片分组容器：按月份渲染 -->
+        <div id="gallery" class="container mx-auto px-4 space-y-10"></div>
 
         <!-- 全屏图片模态框 -->
         <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4">
@@ -130,49 +102,134 @@
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // 图片数据数组
+        // 图片数据数组（新增 date 字段以便按月份分组）
         const images = [
             {
                 src: 'images/404.jpg',
                 title: '404 Page Image',
-                description: 'A stylish 404 error page design'
+                description: 'A stylish 404 error page design',
+                date: '2024-11-01'
             },
             {
                 src: 'images/gallery-cover.jpg',
                 title: 'Gallery Cover',
-                description: 'Cover image for the gallery section'
+                description: 'Cover image for the gallery section',
+                date: '2024-11-05'
             },
             {
                 src: 'images/shoegazer.jpg',
                 title: 'Shoegazer',
-                description: 'Music and aesthetic inspiration'
+                description: 'Music and aesthetic inspiration',
+                date: '2024-09-20'
             },
             {
                 src: 'images/books/the neuroscience of emotion.jpg',
                 title: 'The Neuroscience of Emotion',
-                description: 'Book cover from the books collection'
+                description: 'Book cover from the books collection',
+                date: '2024-07-18'
             },
             {
                 src: 'https://placehold.co/800x800/3b82f6/ffffff?text=Photo+5',
                 title: 'Photo 5',
-                description: 'Placeholder image for future content'
+                description: 'Placeholder image for future content',
+                date: '2024-08-02'
             },
             {
                 src: 'https://placehold.co/800x800/8b5cf6/ffffff?text=Photo+6',
                 title: 'Photo 6',
-                description: 'Placeholder image for future content'
+                description: 'Placeholder image for future content',
+                date: '2024-08-15'
             },
             {
                 src: 'https://placehold.co/800x800/06b6d4/ffffff?text=Photo+7',
                 title: 'Photo 7',
-                description: 'Placeholder image for future content'
+                description: 'Placeholder image for future content',
+                date: '2024-09-05'
             },
             {
                 src: 'https://placehold.co/800x800/10b981/ffffff?text=Photo+8',
                 title: 'Photo 8',
-                description: 'Placeholder image for future content'
+                description: 'Placeholder image for future content',
+                date: '2024-07-10'
             }
         ];
+
+        // 将图片按日期降序排序，作为浏览顺序
+        images.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // 渲染月份导航与分组画廊（使用 CSS 列布局实现简洁 Masonry 效果）
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const monthNav = document.getElementById('monthNav');
+            gallery.innerHTML = '';
+            monthNav.innerHTML = '';
+
+            // 分组：YYYY-MM -> [images]
+            const groups = images.reduce((acc, img, idx) => {
+                const d = new Date(img.date);
+                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                if (!acc[key]) acc[key] = [];
+                // 记录索引以用于模态导航
+                acc[key].push({ ...img, _index: idx });
+                return acc;
+            }, {});
+
+            // 月份按时间降序
+            const monthKeys = Object.keys(groups).sort((a, b) => new Date(b + '-01') - new Date(a + '-01'));
+
+            // 构建月份导航
+            monthKeys.forEach(key => {
+                const d = new Date(key + '-01');
+                const label = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                const a = document.createElement('a');
+                a.href = `#m-${key}`;
+                a.textContent = label;
+                a.className = 'shrink-0 inline-flex items-center rounded-full border border-slate-300 px-3 py-1 text-sm text-slate-700 hover:bg-slate-100';
+                monthNav.appendChild(a);
+            });
+
+            // 渲染每个月份分组
+            monthKeys.forEach(key => {
+                const d = new Date(key + '-01');
+                const label = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+                // Section wrapper
+                const section = document.createElement('section');
+                section.id = `m-${key}`;
+                section.className = 'scroll-mt-24';
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'flex items-baseline justify-between';
+                header.innerHTML = `
+                    <h2 class="text-2xl font-semibold text-slate-800">${label}</h2>
+                    <span class="text-sm text-slate-500">${groups[key].length} photo(s)</span>
+                `;
+
+                // Masonry-like columns
+                const cols = document.createElement('div');
+                cols.className = 'columns-2 md:columns-3 lg:columns-4 gap-4';
+
+                groups[key].forEach(img => {
+                    const item = document.createElement('div');
+                    item.className = 'mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-shadow';
+                    item.innerHTML = `
+                        <img src="${img.src}"
+                             alt="${img.title}"
+                             loading="lazy" decoding="async"
+                             class="w-full h-auto object-cover hover:opacity-90 transition-opacity duration-300"
+                             onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/cbd5e0?text=Image';">
+                    `;
+                    item.addEventListener('click', () => openModal(img.src, img.title, img.description));
+                    cols.appendChild(item);
+                });
+
+                section.appendChild(header);
+                section.appendChild(document.createElement('div')).className = 'h-3';
+                section.appendChild(cols);
+                gallery.appendChild(section);
+            });
+        }
 
         let currentImageIndex = 0;
 
@@ -252,6 +309,9 @@
                 closeModal();
             }
         });
+
+        // 初始渲染
+        renderGallery();
     </script>
 
 </body>
