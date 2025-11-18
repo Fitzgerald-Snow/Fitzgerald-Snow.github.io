@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Presentations - snow's garage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            scroll-behavior: smooth;
+        }
+        .hero-bg {
+            background-color: #ede9fe;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+            margin: 3rem 0;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
+            <div class="space-x-4">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
+                <a href="research.html" class="text-sky-500 font-semibold">Research</a>
+                <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
+                <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
+                <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-bg py-16 md:py-24">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-4">Lab Presentations</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                Slides from talks I have given in various labs. Click any presentation below to view the embedded PDF.
+            </p>
+        </div>
+    </header>
+
+    <main class="py-16 md:py-24 bg-sky-50">
+        <div class="container mx-auto px-6">
+            <div class="space-y-12 max-w-5xl mx-auto">
+
+                <div class="card">
+                    <h2 class="text-2xl font-semibold text-slate-800 mb-2">gridcell.pdf</h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Slides on grid cells / spatial representation. (Filename: <code>gridcell.pdf</code>)
+                    </p>
+                    <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
+                        <iframe src="file/gridcell.pdf" width="100%" height="600"></iframe>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-semibold text-slate-800 mb-2">Causal connectivity measures for pulse.pdf</h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Slides for “Causal connectivity measures for pulse”. (Filename: <code>Causal connectivity measures for pulse.pdf</code>)
+                    </p>
+                    <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
+                        <iframe src="file/Causal connectivity measures for pulse.pdf" width="100%" height="600"></iframe>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-semibold text-slate-800 mb-2">IRC and neural codes.pdf</h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Slides for “IRC and neural codes”. (Filename: <code>IRC and neural codes.pdf</code>)
+                    </p>
+                    <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
+                        <iframe src="file/IRC and neural codes.pdf" width="100%" height="600"></iframe>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-semibold text-slate-800 mb-2">MB MF loss4arbitration.pdf</h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Slides for “MB MF loss4arbitration”. (Filename: <code>MB MF loss4arbitration.pdf</code>)
+                    </p>
+                    <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
+                        <iframe src="file/MB MF loss4arbitration.pdf" width="100%" height="600"></iframe>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-semibold text-slate-800 mb-2">Planning as Inference.pdf</h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Slides for “Planning as Inference”. (Filename: <code>Planning as Inference.pdf</code>)
+                    </p>
+                    <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
+                        <iframe src="file/Planning as Inference.pdf" width="100%" height="600"></iframe>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="text-2xl font-semibold text-slate-800 mb-2">RPEN efficient code.pdf</h2>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Slides for “RPEN efficient code”. (Filename: <code>RPEN efficient code.pdf</code>)
+                    </p>
+                    <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
+                        <iframe src="file/RPEN efficient code.pdf" width="100%" height="600"></iframe>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="text-center mt-8">
+                <a href="research.html#lab-presentations" class="text-sky-600 hover:text-sky-800 underline">
+                    ← Back to Research page
+                </a>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
+
