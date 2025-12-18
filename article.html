@@ -336,6 +336,120 @@
         // Get static article data
         function getStaticArticle(id, type) {
             const articles = {
+                'how-do-we-decide-which-goals-to-pursue': {
+                    title: 'How do we decide which goals to pursue',
+                    description: 'Exploring how habitual and goal-directed systems cooperate in choosing goals from countless possibilities.',
+                    content: `
+                        <p>In a 2018 book chapter <em><strong>Competition and Cooperation Between Multiple Reinforcement Learning Systems</strong></em>, authored by Wouter Kool, Fiery A. Cushman and Samuel J. Gershman, they reviewed past research on how habitual and goal directed control compete against each other, or cooperate to "help" each other and make better decisions. They raised three schemes of cooperation, and one of them is habitual goal selection.</p>
+
+                        <blockquote>
+                            <p>An advantage of model-based control is its capacity to plan toward goals. That is, a model-based agent can specify any particular state of the world that she wishes to attain (e.g., being at the dentist's office at 2 p.m. with a bottle of ibuprofen) and then evaluate candidate policies against their likelihood of attaining that goal state. In many laboratory tasks, the number of possible goal states may be very small, or they may be explicitly stated by the experimenter…. <strong>In the real world, however, the number of possible goal states that we might select at any given moment is very large.</strong> Usually, there are no experimenters restricting this set for you. How do we decide which goals to pursue?</p>
+                        </blockquote>
+
+                        <p>Indeed, human beings are "condemned to be free". We are free to do almost anything in this world, but we cannot possibly evaluate all the options, from "absconding with an aardvark" to "X-raying with a Xerox", due to the overwhelming computational costs of exhaustive searching and evaluation. Nor is there anyone to tell us (authoritatively) what to do. Unlike human, AI agents have a clear (scientist-set) objective as their one and only goal, which probably makes their life simpler and less burdened (and potentially, happier).</p>
+
+                        <p>So how does our brain overcome this dilemma? One possible way is to refer to past experiences in similar situations. One might ask himself: "when I've been in this situation in the past, what have been rewarding goals for me to select?" This falls in the regime of model free control, namely habits. Then after the goal is selected, he can work towards the goal via model based (a.k.a. goal directed) planning, which involves moderate amount of considerations and calculations. Simply put, we "habitualize" the <em>what</em> while planning the <em>how</em>. Fiery Cushman and Adam Morris tested this hypothesis in their 2015 paper <em><strong>Habitual control of goal selection in humans</strong></em>.</p>
+
+                        <p>In more realistic situations, like when you want to buy new clothes for the winter, you have hundreds of brands to choose from. Maybe last time you bought one piece of clothing from Brand A and you were very satisfied; yesterday you saw your friend looked smart in the jacket from Brand B; just now you reviewed people's comments on the internet and find that Brand C have a good reputation… So at one point, you might decide that you need only choose from Brand A, B, C. We then use various sophisticated evaluations and calculations to determine the lucky winner from which we'll purchase. In short, from the myriad options, with habitual control or some kind of heuristics, we reduce it to a relatively small subset that receive further model-based sophisticated evaluation. Kool et al. argued that "investigating this general process of 'choice set construction' is an important direction for future research."</p>
+
+                        <h2>Consideration Set</h2>
+                        <p>Actually researchers from the field of managerial studies have addressed this issue long before. They coined it as "consideration set". The different stages of consumer behavior can be roughly outlined as:</p>
+
+                        <ol>
+                            <li><strong>Universal set</strong>: all the brands in the market</li>
+                            <li><strong>Awareness set</strong>: the brands a consumer actually knows and believes appropriate</li>
+                            <li><strong>Evoked set/Consideration set</strong>: brands salient or accessible on a particular occasion</li>
+                            <li><strong>Choice set</strong>: the final consideration set, i.e., brands considered immediately prior to choice</li>
+                            <li><strong>Choice</strong>: the final decision</li>
+                        </ol>
+
+                        <p>(for more details, see Shocker <em>et al.</em> Consideration set influences on consumer decision-making and choice: Issues, models, and suggestions. (1991). P182-183)</p>
+
+                        <img src="images/articles/goal-pursuit/consideration-set.png" alt="Consideration set framework from Shocker et al., 1991" class="mx-auto my-6">
+                        <p class="text-center text-sm text-slate-500 -mt-4 mb-6">Figure from Shocker et al., 1991</p>
+
+                        <p>They have proposed several models for how consumers form the consideration set from the awareness set. Notably, the <strong>compensatory and non-compensatory</strong> models or heuristics. Here compensatory means that high performance on one feature can make up for (compensate for) low performance on another feature, while non-compensatory refers to heuristic rules where consumers focus on a few specific features to immediately accept or eliminate a product. For instance, if you want to buy clothes, it's very expensive, but really warm and cozy, then you might still buy it under a compensatory model. However, if you have a non-compensatory heuristic that says, price below 100¥, then any clothes above that price will immediately be excluded.</p>
+
+                        <p>(for more details, see <em>NON-COMPENSATORY (AND COMPENSATORY) MODELS OF CONSIDERATION-SET DECISIONS</em>, John R. Hauser et al., 2009, see also <em>An Evaluation Cost Model of Consideration Sets</em>, Hauser & Wernerfelt, 1990.)</p>
+
+                        <h2>Option Generation</h2>
+                        <p>A bit later than the marketing research from the field of managerial studies, psychologists and neuroscientists also start to investigate this problem. In their terminology, it's called option generation. I have not reviewed the literature, but for now I think there are two interesting papers to read. One is Kalis A, Kaiser S and Mojzisch A (2013) <em><strong>Why we should talk about option generation in decision-making research</strong></em>, another is Morris, A., Phillips, J., Huang, K., & Cushman, F. (2021). <em><strong>Generating Options and Choosing Between Them Depend on Distinct Forms of Value Representation</strong></em>. The latter is a follow-up of Adam Morris's 2015 paper mentioned above.</p>
+
+                        <p>Concerning the neural mechanisms, it probably has a lot to do with long term memory, working memory and attention.</p>
+
+                        <h2>Value Function</h2>
+                        <p>In the context of reinforcement learning, a model free agent stores values of state-action pairs, i.e. it assigns a value Q(s, a) to every state s and action a, that tells it how much reward or pay off it's going to get if it takes this action at this state. In contrast, a model based agent learns the structure of the world — transition probability between states P(s, a, s'), and rewards R corresponding to the actions or states. Model based control is more flexible, in the sense that when the goal or the environment has changed, the agent can simply update P and R, then he can re-calculate everything and for instance choose at every encountered state the action that has the highest expected value. But for model free control, since the agent only stores the Q values, they have to encounter the same situation (s, a) for many times before it has an accurate estimation.</p>
+
+                        <p>But in this context, when there are millions of possible goals to pursue, model free control has the counter-intuitive advantage that it does not rely on goals. It maintains cached estimation of values primarily based on past experiences. Hence even if we have not decided on which goals to pursue, the habitual (model free) system can still provide an intuition of what might be the right or desiring thing to do. Following that intuition, the model based system kicks in, and carefully plans toward the goal. (So if this is true, it highlights the importance of good habits and good intuition and judgments on what is right or wrong.)</p>
+
+                        <p>It's interesting that Ilya Sutskever mentioned value functions in his recent interview <a href="https://www.dwarkesh.com/p/ilya-sutskever-2" target="_blank" rel="noopener noreferrer" class="text-sky-500 hover:underline">https://www.dwarkesh.com/p/ilya-sutskever-2</a>.</p>
+
+                        <p>In the field of artificial intelligence, the most common way of doing reinforcement learning is not value-based, but gives a policy directly from the inputs, like policy gradients or policy optimization. (perhaps to be verified) For a cognitive neuroscientist, the most common reinforcement learning models they use are like SARSA, Q learning and simple model based learning. And back to a decade ago, the most influential textbooks (e.g. Barto & Sutton) and courses (e.g. David Silver's course at UCL) teach RL roughly in the order of, bellman equations, dynamic programming—SARSA, Q-learning, TD learning—value function approximation—policy gradient/optimization.</p>
+
+                        <p>But in recent years, policy gradient seems to have become the most natural way for CS students to get their hands on RL. For example, in the renowned CS285 taught by Sergey Levine, he began the course with policy gradient before any value based methods. As I learned RL in the old fashion, I was quite astounded when I watched Levine's derivation of policy gradient methods. I could not help but feel that policy gradient is actually more natural and intuitive in this sense: We want the agent to learn the optimal policy. A policy generates a trajectory of states, actions and rewards, which are akin to the loss function when we do gradient descent, and it's a simple optimization problem of maximizing the total amount of reward. (just a simple reminder of how it differs from value based methods: the latter first learn the values of each states or state-action pairs, then it generates a policy based on the value function, following a softmax translation or ε greedy policy.)</p>
+
+                        <p>Back to our main thread. Ilya mentioned a fascinating case of a person who suffered from brain damage. He remained articulate and could solve puzzles, performed fine on cognitive tests, but <strong>he felt no emotions whatsoever. He also became extremely bad at making decisions. He would take hours to decide which socks to wear and made terrible financial decisions.</strong></p>
+
+                        <blockquote>
+                            <p><strong>Ilya:</strong> What does it say about the role of our built-in emotions in making us a viable agent, essentially? To connect to your question about pre-training, maybe if you are good enough at getting everything out of pre-training, you could get that as well. But that's the kind of thing which seems... Well, it may or may not be possible to get that from pre-training.</p>
+
+                            <p><strong>Dwarkesh Patel:</strong> What is "that"? Clearly not just directly emotion. It seems like some almost value function-like thing which is telling you what the end reward for any decision should be. You think that doesn't sort of implicitly come from pre-training?</p>
+
+                            <p><strong>Ilya:</strong> I think it could. I'm just saying it's not 100% obvious.</p>
+
+                            <p><strong>Dwarkesh Patel:</strong> But what is that? How do you think about emotions? What is the ML analogy for emotions?</p>
+
+                            <p><strong>Ilya:</strong> It should be some kind of a value function thing. But I don't think there is a great ML analogy because right now, value functions don't play a very prominent role in the things people do.</p>
+                        </blockquote>
+
+                        <p>So it kind of corroborated the hierarchy, where a model free system, with its rough estimations based on past experiences or heuristics, narrows down or produces the options and choices for further inspection from the model based planner. In this way, the two systems can cooperate to achieve things efficiently and effectively. Or else if we abandon the habitual system simply because it's erroneous in its computations, we'll probably act like the patient who take overly long time to consider the tiniest thing, which is very inefficient. Perhaps one way to think about the two systems is the following analogy: The habitual (or model free) system is the boss or entrepreneur, who might not be able to do these themselves but tells the employees, i.e. the model based system, what goals to achieve and what standards to meet every day.</p>
+
+                        <p>But I think one problem with value function is that the model free system generally needs <em>some</em> experiences to have a prediction of values, and <em>more</em> to be viable. But in real life, as the saying goes, you cannot enter the same river twice, we are constantly experiencing novel situations very much distinct from what we've seen before. Then how does habits provide such a ground for the careful planner to come on stage? It probably concerns the question of how human generalizes so well (and much, much better than AI), which is also at the heart of research in AGI. For example, there are millions of configurations in the game of go. For an experienced player, whenever he faces the board, he simply has the intuition of which moves are rewarding, narrowing down the tens of possible moves into a few, and based on that, he thinks carefully and does tree search (model based system).</p>
+
+                        <p>I think one possibility is that we implicitly do <em>value function approximations</em> (a class of RL methods). In such reinforcement learning algorithms, we use a weighted linear combination or a neural net to transform the features into values of states. Could it be that the feature thing is a viable media of generalization or transfer learning?</p>
+
+                        <p>Just a side note — It kind of reminds me of the debate between empiricism and rationalism.</p>
+
+                        <h2>Implications</h2>
+                        <p>From the discussions above, we can see several implications in realistic situations.</p>
+
+                        <h3>Problem Solving</h3>
+                        <p>Whether you are a professional student of mathematical contests, or a professional player of go or chess, or simply an everyday decision maker, you probably encounter this scenario very frequently, when you exclaimed "Why haven't I come up with that?!" or "Why haven't I done that?!" after seeing a perfect solution which you omitted. If our cognition do have a middle process of constructing a consideration set, than this probably means that the ability to generate good options is very important. If the best choice or move never appears in your consideration set, there is nothing the model based planner can help. One possibility of failure to include the best option into the consideration set might result from a too inhibitory pruning process. For example, in some classic chess puzzles, the winning move might involve material sacrifice, but actually leads to immediate checkmates.</p>
+
+                        <h3>Procrastination</h3>
+                        <p>Procrastination might result from the failure of our brain to generate clear goals to achieve. Procrastination often happens when you have lots of stuff to do and loads of deadlines to meet. Under this circumstance, if our cognitive process relies on a bad habit or a too meticulous model based system—for the latter we might experience ego-depletion due to an unmanageable amount of computations, we end up making bad choices.</p>
+
+                        <h3>Addiction</h3>
+                        <p>It's really amazing that Ilya mentioned addiction in his recent interview. I've also been thinking about the startling phenomenon.</p>
+
+                        <blockquote>
+                            <p><strong>Ilya:</strong> One of the things that you've been asking about is how can the teenage driver self-correct and learn from their experience without an external teacher? The answer is that they have their value function. They have a general sense which is also, by the way, extremely robust in people. Whatever the human value function is, with a few exceptions around addiction, it's actually very, very robust.</p>
+                        </blockquote>
+
+                        <p>The state of mind of addicts might be best described as "wanting what was never liked", as some psychologists like Kent C. Berridge proposed. Probably they know that the value for taking drugs or doing some addictive behavior is overwhelmingly negative. For a healthy human being, he knows that entering that state leads to high punishment, so he'll actively avoid it. If we assume that the primary motive of creatures is to maximize the total utility during their lifetime, then what is the objective function that an addict is trying to optimize?</p>
+
+                        <p>Here we make a simple note that the total utility is not a simple addition of all the rewards one get. As economists and psychologists pointed out, we are boundedly rational creatures, trying to get maximal rewards under cognitive constraints. So the objective function for a common people might be the reward he gets minus the mental efforts.</p>
+
+                        <p>One possible explanation is that the addict believes the world is so harsh and that nothing he ever does will ever yield rewards (it can be both literally or subjectively, e.g. he might be a nihilist who sees value in nothing). Hence he turns to drugs or addictive behaviors as the only immediate reward he gets, even though a larger loss will be followed.</p>
+
+                        <p>The framework of consideration set might also provide some insights here. Addiction may reflect a collapse of the consideration set itself — the habitual system offering only one salient option while all healthier alternatives fail to enter awareness at all. In that sense, the planner is not choosing poorly; it is choosing from a fatally narrowed menu.</p>
+
+                        <p>Philosophically speaking, apart from addiction, the miscellaneous modern maladies in our world and society might also be but the most normal responses to an environment that overwhelms the very systems meant to regulate us. What if the anxiety, the burnout, the compulsions, the quiet despair so many people carry are not aberrations but understandable outputs of a world whose sensory and emotional inputs exceed what a human mind was ever built to process?</p>
+
+                        <blockquote>
+                            <p><strong>Trant:</strong> Interesting. So at first he dipped his toes into it. Prepared. That's where he would have gotten the idea — yes. Practice. And then he used alcohol to "get there", so to speak...<br>
+                            <strong>Jean:</strong> What do you mean?<br>
+                            <strong>Trant:</strong> Well — here is my theory: What if this is an absolutely normal reaction to the world we're living in? What if this is <em>not</em> a significant anomaly at all, something to be explained, approached as a defect? Look at the sensory input here...<br>
+                            <em>(he gestures toward the scenery)</em><br>
+                            Look at the ruins, the neon, listen to the radio, the multitudes. The people. Live here for forty years... As a police detective, he's like a magnetic reader on the world-tape — to borrow a known metaphor. Harry's been pushed <em>flat against it</em>. Total input. Hard-wired to the free market...<br>
+                            <span class="text-slate-500">—Disco Elysium</span></p>
+                        </blockquote>
+                    `,
+                    date: '2025-12-18',
+                    category: 'Neuroscience',
+                    tags: ['decision-making', 'goal-selection', 'reinforcement-learning', 'model-based', 'model-free', 'value-function'],
+                    readTime: '12 min read'
+                },
                 'neural-dynamics-learning': {
                     title: '情绪是大脑建构的产物',
                     description: '对情绪的历史与现状的回顾：从“恐惧中心”到建构主义、从功能主义到内稳态与内感受，再到预测性大脑与拥抱变异。',
