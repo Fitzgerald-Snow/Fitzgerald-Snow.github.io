@@ -15,13 +15,223 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
         }
         /* 隐藏横向滚动条（月份导航更简洁） */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 图片加载动画 */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .image-loading {
+            background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* 图片容器悬停效果 */
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gallery-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .gallery-item:hover::before {
+            opacity: 1;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .gallery-item img {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* 模态框动画 */
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        #imageModal:not(.hidden) {
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        #imageModal:not(.hidden) .modal-content {
+            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 月份标签美化 */
+        .month-badge {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .month-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .month-badge:hover::before {
+            left: 100%;
+        }
+
+        .month-badge:hover {
+            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 渐变标题 */
+        .gradient-text {
+            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-text-light {
+            background: linear-gradient(135deg, #38bdf8 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 渐变边框 */
+        .border-gradient {
+            border-image: linear-gradient(90deg, #0ea5e9, #8b5cf6) 1;
+        }
+
+        /* 导航按钮美化 */
+        .nav-button {
+            transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            padding: 12px;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: scale(1.1);
+        }
+
+        .nav-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 平滑滚动偏移 */
+        html {
+            scroll-padding-top: 8rem;
+        }
+
+        /* 智能瀑布流布局 */
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            grid-auto-rows: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .masonry-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        /* 图片淡入动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-item.fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* 骨架屏 */
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        .skeleton::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* 图片加载完成状态 */
+        .gallery-item img.loaded {
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -40,54 +250,71 @@
         </div>
     </nav>
 
-    <header class="bg-violet-50 py-20">
-        <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Gallery</h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+    <header class="relative bg-gradient-to-br from-violet-50 via-sky-50 to-indigo-50 py-24 overflow-hidden">
+        <!-- 装饰性背景元素 -->
+        <div class="absolute inset-0 opacity-30">
+            <div class="absolute top-10 left-10 w-72 h-72 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+            <div class="absolute top-40 right-10 w-72 h-72 bg-violet-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="animation-delay: 1s;"></div>
+            <div class="absolute -bottom-8 left-1/2 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="animation-delay: 2s;"></div>
+        </div>
+
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h1 class="text-5xl md:text-7xl font-bold gradient-text mb-8">Gallery</h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-4 max-w-2xl mx-auto leading-relaxed italic">
                 "人类无可救赎地留在柏拉图的洞穴里，老习惯未改，依然在并非真实本身而仅是真实的影像中陶醉。"
+            </p>
+            <p class="text-sm text-slate-500 max-w-xl mx-auto">
+                A curated collection of moments, aesthetics, and inspirations
             </p>
         </div>
     </header>
 
-    <main class="py-8">
+    <main class="py-12">
         <!-- 月份导航（滚动至分组） -->
-        <div class="sticky top-14 z-40 bg-slate-50/80 backdrop-blur supports-[backdrop-filter]:bg-slate-50/60">
-            <div id="monthNav" class="container mx-auto px-4 py-3 overflow-x-auto no-scrollbar flex gap-2"></div>
+        <div class="sticky top-14 z-40 bg-gradient-to-r from-slate-50/95 via-white/95 to-slate-50/95 backdrop-blur-md shadow-sm border-b border-slate-200/50">
+            <div id="monthNav" class="container mx-auto px-6 py-4 overflow-x-auto no-scrollbar flex gap-3"></div>
         </div>
 
         <!-- 照片分组容器：按月份渲染 -->
-        <div id="gallery" class="container mx-auto px-4 space-y-10"></div>
+        <div id="gallery" class="container mx-auto px-6 space-y-16 mt-8"></div>
 
         <!-- 全屏图片模态框 -->
-        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4">
-            <div class="relative max-w-full max-h-full">
+        <div id="imageModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="relative max-w-full max-h-full modal-content">
                 <!-- 关闭按钮 -->
-                <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-xl hover:text-gray-300 transition-colors z-10">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                <button onclick="closeModal()" class="absolute -top-14 right-0 text-white text-xl hover:text-sky-400 transition-all z-10 group">
+                    <div class="bg-white/10 hover:bg-white/20 rounded-full p-2 backdrop-blur">
+                        <svg class="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
                 </button>
-                
+
                 <!-- 图片容器 -->
                 <div class="text-center">
-                    <img id="modalImage" src="" alt="" class="max-w-full max-h-[80vh] object-contain rounded-lg">
-                    <div class="mt-4 text-white">
-                        <h3 id="modalTitle" class="text-2xl font-semibold mb-2"></h3>
-                        <p id="modalDescription" class="text-gray-300"></p>
+                    <img id="modalImage" src="" alt="" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl">
+                    <div class="mt-6 text-white px-4">
+                        <h3 id="modalTitle" class="text-3xl font-semibold mb-3 gradient-text-light"></h3>
+                        <p id="modalDescription" class="text-gray-300 text-lg leading-relaxed"></p>
                     </div>
                 </div>
 
                 <!-- 导航按钮 -->
-                <button onclick="prevImage()" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl hover:text-gray-300 transition-colors">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                <button onclick="prevImage()" class="nav-button absolute left-4 top-1/2 transform -translate-y-1/2 text-white">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </button>
-                <button onclick="nextImage()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl hover:text-gray-300 transition-colors">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                <button onclick="nextImage()" class="nav-button absolute right-4 top-1/2 transform -translate-y-1/2 text-white">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </button>
+
+                <!-- 图片计数器 -->
+                <div class="absolute -bottom-14 left-1/2 transform -translate-x-1/2 text-white/70 text-sm">
+                    <span id="imageCounter"></span>
+                </div>
             </div>
         </div>
     </main>
@@ -184,7 +411,7 @@
                 const a = document.createElement('a');
                 a.href = `#m-${key}`;
                 a.textContent = label;
-                a.className = 'shrink-0 inline-flex items-center rounded-full border border-slate-300 px-3 py-1 text-sm text-slate-700 hover:bg-slate-100';
+                a.className = 'month-badge shrink-0 inline-flex items-center rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm';
                 monthNav.appendChild(a);
             });
 
@@ -196,28 +423,28 @@
                 // Section wrapper
                 const section = document.createElement('section');
                 section.id = `m-${key}`;
-                section.className = 'scroll-mt-24';
+                section.className = 'scroll-mt-28';
 
                 // Header
                 const header = document.createElement('div');
-                header.className = 'flex items-baseline justify-between';
+                header.className = 'flex items-baseline justify-between mb-6 pb-3 border-b-2 border-gradient';
                 header.innerHTML = `
-                    <h2 class="text-2xl font-semibold text-slate-800">${label}</h2>
-                    <span class="text-sm text-slate-500">${groups[key].length} photo(s)</span>
+                    <h2 class="text-3xl font-bold gradient-text">${label}</h2>
+                    <span class="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">${groups[key].length} photo${groups[key].length > 1 ? 's' : ''}</span>
                 `;
 
                 // Masonry-like columns
                 const cols = document.createElement('div');
-                cols.className = 'columns-2 md:columns-3 lg:columns-4 gap-4';
+                cols.className = 'columns-2 md:columns-3 lg:columns-4 gap-5';
 
                 groups[key].forEach(img => {
                     const item = document.createElement('div');
-                    item.className = 'mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-shadow';
+                    item.className = 'gallery-item mb-5 break-inside-avoid rounded-xl overflow-hidden cursor-pointer shadow-md bg-white';
                     item.innerHTML = `
                         <img src="${img.src}"
                              alt="${img.title}"
                              loading="lazy" decoding="async"
-                             class="w-full h-auto object-cover hover:opacity-90 transition-opacity duration-300"
+                             class="w-full h-auto object-cover"
                              onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/cbd5e0?text=Image';">
                     `;
                     item.addEventListener('click', () => openModal(img.src, img.title, img.description));
@@ -225,7 +452,6 @@
                 });
 
                 section.appendChild(header);
-                section.appendChild(document.createElement('div')).className = 'h-3';
                 section.appendChild(cols);
                 gallery.appendChild(section);
             });
@@ -239,15 +465,17 @@
             const modalImage = document.getElementById('modalImage');
             const modalTitle = document.getElementById('modalTitle');
             const modalDescription = document.getElementById('modalDescription');
+            const imageCounter = document.getElementById('imageCounter');
 
             // 找到当前图片的索引
             currentImageIndex = images.findIndex(img => img.src === src);
-            
+
             modalImage.src = src;
             modalImage.alt = title;
             modalTitle.textContent = title;
             modalDescription.textContent = description;
-            
+            imageCounter.textContent = `${currentImageIndex + 1} / ${images.length}`;
+
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // 防止背景滚动
         }
@@ -278,11 +506,13 @@
             const modalImage = document.getElementById('modalImage');
             const modalTitle = document.getElementById('modalTitle');
             const modalDescription = document.getElementById('modalDescription');
+            const imageCounter = document.getElementById('imageCounter');
 
             modalImage.src = img.src;
             modalImage.alt = img.title;
             modalTitle.textContent = img.title;
             modalDescription.textContent = img.description;
+            imageCounter.textContent = `${currentImageIndex + 1} / ${images.length}`;
         }
 
         // 键盘事件监听
