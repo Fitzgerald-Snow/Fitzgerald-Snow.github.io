@@ -1,5 +1,5 @@
 // 静态思想数据 - 作为Firebase的备用方案
-// 这个文件由sync-thoughts.js自动生成，最后更新时间: 2026-03-28T06:55:35.909Z
+// 这个文件由sync-thoughts.js自动生成，最后更新时间: 2026-03-28T12:49:21.594Z
 
 const staticThoughts = [
     {
