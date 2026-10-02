@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Article Details</title>
+    <title>Article · Snow's Garage</title>
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <!-- No external dependencies needed - fully static -->
     
@@ -198,15 +198,24 @@
                 <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
                 <a href="research.html" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
                 <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
-                <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
+                <!-- <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a> -->
                 <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
                 <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
             </div>
-            <button class="md:hidden" onclick="toggleMobileMenu()">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="menuToggle" type="button" class="md:hidden -mr-2 p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-400" onclick="toggleMobileMenu()" aria-controls="mobileMenu" aria-expanded="false" aria-label="Open menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
             </button>
+        </div>
+        <div id="mobileMenu" class="hidden md:hidden border-t border-slate-200">
+            <div class="container mx-auto px-6 py-3 flex flex-col text-lg">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors py-2">About me</a>
+                <a href="research.html" class="text-slate-600 hover:text-sky-500 transition-colors py-2">Research</a>
+                <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors py-2">Thoughts</a>
+                <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors py-2">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors py-2">Contact me</a>
+            </div>
         </div>
     </nav>
 
@@ -762,16 +771,17 @@
             const relatedList = document.getElementById('related-articles-list');
             
             // Simple related articles based on category
-            /*
-                const placeholders = [
-                { 
-                    id: 'consciousness-mathematical-framework', 
-                    title: '意识的数学基础', 
-                    description: '探讨意识的数学建模框架' 
+            // （暂时为空：之前把数组整个注释掉后 placeholders 变成未定义，导致每篇文章底部都会出现“文章未找到”）
+            const placeholders = [
+                /*
+                {
+                    id: 'consciousness-mathematical-framework',
+                    title: '意识的数学基础',
+                    description: '探讨意识的数学建模框架'
                 },
+                */
             ];
-            */
-            
+
             if (placeholders.length > 0) {
                 relatedList.innerHTML = placeholders.map(article => `
                     <div class="related-article-card" onclick="window.location.href='article.html?id=${article.id}'">
@@ -822,8 +832,11 @@
         }
 
         function toggleMobileMenu() {
-            // Mobile menu toggle - can be implemented as needed
-            console.log('Toggle mobile menu');
+            const menu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('menuToggle');
+            const open = !menu.classList.toggle('hidden');
+            toggle.setAttribute('aria-expanded', String(open));
+            toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
         }
 
         // Initialize when page loads

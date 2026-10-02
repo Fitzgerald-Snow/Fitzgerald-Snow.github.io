@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found · Snow's Garage</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .hero-bg {
+            background-color: #ede9fe;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- 404 页面可能在任意路径下被打开，因此这里的链接都用根路径 -->
+    <nav class="shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a>
+            <a href="/" class="text-slate-600 hover:text-sky-500 transition-colors">Back home</a>
+        </div>
+    </nav>
+
+    <main class="hero-bg flex-grow flex items-center">
+        <div class="container mx-auto px-6 py-16 md:py-24 text-center">
+            <img src="/images/404.jpg" alt="" width="896" height="896" class="w-44 h-44 md:w-56 md:h-56 mx-auto mb-8 mix-blend-multiply">
+            <p class="text-sm font-semibold tracking-widest text-sky-600 uppercase mb-3">Error 404</p>
+            <h1 class="text-3xl md:text-5xl font-bold text-sky-700 mb-6">This page wandered off.</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-xl mx-auto mb-10">
+                There is nothing here. Only warm, primordial blackness. The page you were looking for may have been moved, renamed, or never existed at all.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="/" class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold bg-sky-500 hover:bg-sky-600 text-white transition-colors duration-300">Back to the garage</a>
+                <a href="/research.html" class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold bg-white/70 hover:bg-white text-slate-700 border border-slate-200 transition-colors duration-300">Browse research</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
+        <div class="container mx-auto px-6">
+            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

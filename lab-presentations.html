@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Presentations - snow's garage</title>
+    <title>Lab Presentations · Snow's Garage</title>
+    <meta name="description" content="Slides from literature presentations Fitzgerald Snow has given at lab meetings and journal clubs.">
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -48,7 +49,7 @@
                 <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
                 <a href="research.html" class="text-sky-500 font-semibold">Research</a>
                 <a href="thoughts.html" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
-                <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a>
+                <!-- <a href="music.html" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a> -->
                 <a href="gallery.html" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
                 <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
             </div>
@@ -71,35 +72,35 @@
                 <div class="card">
                     <h2 class="text-2xl font-semibold text-slate-800 mb-2">Reward prediction error neurons implement an efficient code for reward</h2>
                     <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
-                        <iframe src="file/RPEN efficient code.pdf" width="100%" height="600"></iframe>
+                        <iframe src="file/RPEN efficient code.pdf" title="Slides: Reward prediction error neurons implement an efficient code for reward" loading="lazy" width="100%" height="600"></iframe>
                     </div>
                 </div>
 
                 <div class="card">
                     <h2 class="text-2xl font-semibold text-slate-800 mb-2">Probable nature of higher-dimensional symmetries underlying mammalian grid cell activity patterns</h2>
                     <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
-                        <iframe src="file/gridcell.pdf" width="100%" height="600"></iframe>
+                        <iframe src="file/gridcell.pdf" title="Slides: Probable nature of higher-dimensional symmetries underlying mammalian grid cell activity patterns" loading="lazy" width="100%" height="600"></iframe>
                     </div>
                 </div>
 
                 <div class="card">
                     <h2 class="text-2xl font-semibold text-slate-800 mb-2">Causal connectivity measures for pulse-output network reconstruction</h2>
                     <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
-                        <iframe src="file/Causal connectivity measures for pulse.pdf" width="100%" height="600"></iframe>
+                        <iframe src="file/Causal connectivity measures for pulse.pdf" title="Slides: Causal connectivity measures for pulse-output network reconstruction" loading="lazy" width="100%" height="600"></iframe>
                     </div>
                 </div>
 
                 <div class="card">
                     <h2 class="text-2xl font-semibold text-slate-800 mb-2">Rational thoughts in neural codes</h2>
                     <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
-                        <iframe src="file/IRC and neural codes.pdf" width="100%" height="600"></iframe>
+                        <iframe src="file/IRC and neural codes.pdf" title="Slides: Rational thoughts in neural codes" loading="lazy" width="100%" height="600"></iframe>
                     </div>
                 </div>
 
                 <div class="card">
                     <h2 class="text-2xl font-semibold text-slate-800 mb-2">Planning as Inference</h2>
                     <div class="w-full border border-slate-200 rounded-lg overflow-hidden">
-                        <iframe src="file/Planning as Inference.pdf" width="100%" height="600"></iframe>
+                        <iframe src="file/Planning as Inference.pdf" title="Slides: Planning as Inference" loading="lazy" width="100%" height="600"></iframe>
                     </div>
                 </div>
 
@@ -114,6 +115,17 @@
             </div>
         </div>
     </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
+        <div class="container mx-auto px-6">
+            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+            <p class="text-sm mt-2">Built with Tailwind CSS</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
 
 </body>
 </html>

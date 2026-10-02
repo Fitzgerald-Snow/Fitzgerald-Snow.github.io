@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research - snow's garage</title>
+    <title>Research · Snow's Garage</title>
+    <meta name="description" content="Fitzgerald Snow's research notes: decision making, emotion, reinforcement learning and computational neuroscience, with articles, readings and lab presentations.">
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -638,6 +639,7 @@
         // Global search functionality
         function initializeGlobalSearch() {
             const searchInput = document.getElementById('globalSearch');
+            if (!searchInput) return; // 页面上没有搜索框时直接跳过，避免报错中断后面的初始化（进度条、平滑滚动）
             const allItems = document.querySelectorAll('.article-card, .math-article-card, .book-card');
 
             searchInput.addEventListener('input', function() {

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Snow's Garage">
+  <rect width="64" height="64" rx="14" fill="#0284c7"/>
+  <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none">
+    <path d="M32 12v40M14.7 22l34.6 20M14.7 42l34.6-20"/>
+    <path d="M32 12l-5 5M32 12l5 5M32 52l-5-5M32 52l5-5"/>
+    <path d="M14.7 22l6.8-1.8M14.7 22l1.8 6.8M49.3 42l-6.8 1.8M49.3 42l-1.8-6.8"/>
+    <path d="M14.7 42l1.8-6.8M14.7 42l6.8 1.8M49.3 22l-1.8 6.8M49.3 22l-6.8-1.8"/>
+  </g>
+</svg>
