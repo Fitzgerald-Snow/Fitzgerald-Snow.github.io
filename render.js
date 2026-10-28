@@ -26,7 +26,7 @@
     document.querySelector('.mast').innerHTML = `${link(site.title, 'index.html')}<nav class="mono" aria-label="Main navigation">${link(nav.research, page === 'home' ? '#research' : 'index.html#research')}${link(nav.writings, 'writings.html')}${link(nav.cv, p.cvUrl)}${link(nav.contact, p.email ? `mailto:${p.email}` : '')}</nav>`;
     document.querySelector('.mast > a')?.classList.add('wordmark');
     if (page === 'writings') document.querySelector('nav a[href="writings.html"]')?.setAttribute('aria-current', 'page');
-    document.querySelector('footer').innerHTML = `<span>${e([p.nameEn, site.updated].filter(Boolean).join(' · '))}</span><div class="footer-links">${link(p.email, p.email ? `mailto:${p.email}` : '')}${link('Archive', 'archive/2026-10-28/')}</div>`;
+    document.querySelector('footer').innerHTML = `<span>${e([p.nameEn, site.updated].filter(Boolean).join(' · '))}</span><div class="footer-links">${link(p.email, p.email ? `mailto:${p.email}` : '')}</div>`;
 
     if (page === 'writings') {
       document.querySelector('main').innerHTML = `<div class="writing-intro"><h1>${e(w.title)}</h1>${text('p', '', w.intro)}</div><div class="writing-list">${list(w.items).filter(item => item.title).map(item => row(item.type, `<h2>${link(item.title, item.fileUrl) || e(item.title)}</h2>${text('p', 'role mono', item.meta)}`)).join('')}</div><a class="back mono" href="index.html">${e(w.backLabel)}</a>`;
