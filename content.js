@@ -10,7 +10,7 @@ window.SITE_CONTENT = {
     "university": "Fudan University",
     "email": "btzhang23@m.fudan.edu.cn",
     "github": "https://github.com/Fitzgerald-Snow",
-    "cvUrl": "assets/Botao_Zhang_CV.pdf",
+    "cvUrl": "assets/Botao_Zhang_CV.pdf?v=8426998243eb",
     "portraitUrl": "assets/portrait.jpg",
     "intro": "I'm a senior undergraduate majoring in Mathematics at Fudan University, Shanghai, China. \n\nMy academic interests lie in computational neuroscience, particularly 1) at the cognition level: decision making, problem solving, learning, memory and also 2) the neural underpinnings of these higher-order cognitions: neural computation, neural representation/geometry/manifold, and neural network modeling.\n\nBeyond academics, I also enjoy reading books, music and photography. I love reading literature and philosophy. Some of my favorite authors are Oscar Wilde, Virginia Woolf, F. Fitzgerald, Maugham, Dostoevsky, Proust, James Joyce, Roland Barthes, Susan Sontag and Michel Foucault. "
   },
