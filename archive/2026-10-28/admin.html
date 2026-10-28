@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Admin - Content Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Pure static admin tool - no external dependencies -->
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .admin-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .form-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+        }
+        .preview-card {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+        }
+        .tag-input {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="admin-nav shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="research.html" class="text-xl font-bold text-white">← Back to Research</a>
+                <span class="text-slate-400">|</span>
+                <h1 class="text-xl font-semibold text-white">Content Admin</h1>
+            </div>
+            <div class="text-sm text-slate-300">
+                Simplified content management for research articles & notes
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4">
+            <h2 class="text-2xl font-bold mb-4 text-center">Admin Access</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2">Password:</label>
+                <input type="password" id="adminPassword" class="input-field" placeholder="Enter admin password">
+            </div>
+            <button class="btn-primary w-full" onclick="checkPassword()">Login</button>
+            <div id="loginError" class="text-red-500 text-sm mt-2 text-center" style="display: none;">
+                Incorrect password. Please try again.
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-6 py-8" id="mainContent" style="display: none;">
+        
+        <!-- Content Type Selector -->
+        <div class="mb-8">
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="btn-primary tab-btn active" data-type="neuroscience">Neuroscience Article</button>
+                <button class="btn-primary tab-btn" data-type="mathematics">Mathematics Article</button>
+                <button class="btn-primary tab-btn" data-type="book">Book Note</button>
+            </div>
+        </div>
+
+        <!-- Article Form -->
+        <div id="article-form" class="form-section">
+            <h2 class="text-2xl font-bold mb-6 text-center">Add New Content</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Form Fields -->
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700">Title</label>
+                        <input type="text" id="title" class="input-field" placeholder="Enter article title">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700">Description</label>
+                        <textarea id="description" rows="4" class="input-field" placeholder="Brief description or abstract"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700">Content</label>
+                        <textarea id="content" rows="12" class="input-field" placeholder="Write your article content here... You can use HTML tags for formatting."></textarea>
+                        <div class="text-xs text-slate-500 mt-1">
+                            Tip: Use HTML tags like &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;blockquote&gt; for formatting
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700">Tags (comma-separated)</label>
+                        <input type="text" id="tags" class="input-field" placeholder="neural-networks, learning, review">
+                        <div class="text-xs text-slate-500 mt-1">Available tags will appear as you type</div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700">Image URL (optional)</label>
+                        <input type="text" id="imageUrl" class="input-field" placeholder="https://example.com/image.jpg">
+                    </div>
+
+                    <!-- Book-specific fields -->
+                    <div id="book-fields" class="space-y-4" style="display: none;">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-slate-700">Author</label>
+                            <input type="text" id="author" class="input-field" placeholder="Author name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-slate-700">Reading Progress (%)</label>
+                            <input type="number" id="progress" class="input-field" placeholder="25" min="0" max="100">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <button class="btn-primary w-full" onclick="generatePreview()">🔍 Preview Article</button>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button class="btn-primary" onclick="generateResearchCode()">📄 Copy Research.html Code</button>
+                            <button class="btn-primary" onclick="generateArticleCode()">📝 Copy Article.html Code</button>
+                        </div>
+                        
+                        <div class="text-xs text-center text-slate-500 mt-2">
+                            点击上面两个按钮分别复制代码到对应文件
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700">Preview</label>
+                    <div id="preview" class="preview-card min-h-64">
+                        <p class="text-slate-500 text-center">Fill in the form to see a preview</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Research.html Code Section -->
+        <div id="research-code-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">📄 Research.html 代码</h3>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                <p class="text-blue-800 text-sm">
+                    <strong>使用说明：</strong>复制下面的代码，然后粘贴到 research.html 文件的对应区域中
+                </p>
+            </div>
+            <textarea id="research-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyResearchCode()">📋 复制代码</button>
+                <button class="btn-primary" onclick="showResearchInstructions()">ℹ️ 查看粘贴位置</button>
+            </div>
+        </div>
+
+        <!-- Article.html Code Section -->
+        <div id="article-code-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">📝 Article.html 代码</h3>
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                <p class="text-green-800 text-sm">
+                    <strong>使用说明：</strong>复制下面的代码，然后添加到 article.html 文件的 getStaticArticle 函数中
+                </p>
+            </div>
+            <textarea id="article-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyArticleCode()">📋 复制代码</button>
+                <button class="btn-primary" onclick="showArticleInstructions()">ℹ️ 查看粘贴位置</button>
+            </div>
+        </div>
+
+        <!-- Article Data Section -->
+        <div id="article-data-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">Article Data for article.html</h3>
+            <p class="text-slate-600 mb-4">Copy this data and add it to the appropriate object in article.html's getStaticArticle function:</p>
+            <textarea id="article-data-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyArticleData()">Copy Article Data</button>
+                <button class="btn-primary" onclick="showArticleInstructions()">Show Instructions</button>
+            </div>
+        </div>
+
+        <!-- Generated Code -->
+        <div id="code-section" class="form-section" style="display: none;">
+            <h3 class="text-xl font-bold mb-4">Generated HTML Code</h3>
+            <p class="text-slate-600 mb-4">Copy and paste this code into your research.html file:</p>
+            <textarea id="generated-code" rows="15" class="input-field font-mono text-sm" readonly></textarea>
+            <div class="mt-4 flex gap-4">
+                <button class="btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                <button class="btn-primary" onclick="downloadHTML()">Download as File</button>
+                <button class="btn-primary" onclick="openArticlePreview()">Preview Article</button>
+                <button class="btn-primary" onclick="generateArticleData()">Generate Article Data</button>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="form-section">
+            <h3 class="text-xl font-bold mb-4">📝 添加新文章完整流程</h3>
+            
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg mb-6">
+                <h4 class="font-bold text-lg mb-4 text-indigo-800">🎯 超简单操作流程</h4>
+                <div class="space-y-3 text-slate-700">
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+                        <p><strong>填写文章信息</strong> → 标题、描述、内容等字段</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+                        <p><strong>点击 "Copy Research.html Code"</strong> → 复制并粘贴到research.html</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+                        <p><strong>点击 "Copy Article.html Code"</strong> → 复制并粘贴到article.html</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="bg-green-100 text-green-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">✓</span>
+                        <p><strong>完成！</strong> → 刷新页面查看新文章</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <h4 class="font-semibold text-yellow-800 mb-2">💡 两个按钮的作用</h4>
+                <div class="text-sm text-yellow-700 space-y-2">
+                    <p><strong>📄 Research.html Code</strong> → 生成文章卡片显示代码</p>
+                    <p><strong>📝 Article.html Code</strong> → 生成文章详细内容数据</p>
+                    <p class="font-medium">两个都需要复制粘贴，系统会自动告诉您粘贴到哪里！</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                <h4 class="font-semibold text-blue-800 mb-2">📍 Research.html 粘贴位置</h4>
+                <div class="text-sm text-blue-700 space-y-2">
+                    <p><strong>神经科学文章</strong> → 在 <code>&lt;div id="articlesGrid"&gt;</code> 标签内添加</p>
+                    <p><strong>数学文章</strong> → 在 <code>&lt;div id="mathArticlesGrid"&gt;</code> 标签内添加</p>
+                    <p><strong>读书笔记</strong> → 在 <code>&lt;div id="booksGrid"&gt;</code> 标签内添加</p>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                <h4 class="font-semibold text-green-800 mb-2">📄 Article.html 粘贴位置</h4>
+                <p class="text-sm text-green-700 mb-2">在 getStaticArticle 函数的相应对象中添加：</p>
+                <div class="text-sm text-green-700 space-y-1">
+                    <p><strong>神经科学</strong> → const articles = { ... 这里 ... }</p>
+                    <p><strong>数学</strong> → const mathArticles = { ... 这里 ... }</p>
+                    <p><strong>读书笔记</strong> → const bookNotes = { ... 这里 ... }</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Simple password protection
+        const ADMIN_PASSWORD = 'snow2025'; // 请更改为您的密码
+        let isAuthenticated = false;
+        let currentType = 'neuroscience';
+
+        function checkPassword() {
+            const inputPassword = document.getElementById('adminPassword').value;
+            const loginError = document.getElementById('loginError');
+            
+            if (inputPassword === ADMIN_PASSWORD) {
+                isAuthenticated = true;
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                // 保存登录状态到sessionStorage (浏览器关闭后失效)
+                sessionStorage.setItem('adminAuth', 'true');
+            } else {
+                loginError.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        // 检查是否已经登录
+        function checkAuthStatus() {
+            if (sessionStorage.getItem('adminAuth') === 'true') {
+                isAuthenticated = true;
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            }
+        }
+
+        // 页面加载时检查认证状态
+        window.addEventListener('load', checkAuthStatus);
+
+        // Enter键登录
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentType = this.dataset.type;
+                
+                // Show/hide book-specific fields
+                const bookFields = document.getElementById('book-fields');
+                bookFields.style.display = currentType === 'book' ? 'block' : 'none';
+                
+                generatePreview();
+            });
+        });
+
+        function generatePreview() {
+            if (!isAuthenticated) return;
+            const title = document.getElementById('title').value || 'Sample Title';
+            const description = document.getElementById('description').value || 'Sample description text...';
+            const content = document.getElementById('content').value || 'Sample content...';
+            const tags = document.getElementById('tags').value || 'sample-tag';
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            let previewHTML = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Author Name';
+                const progress = document.getElementById('progress').value || '25';
+                
+                previewHTML = `
+                    <div class="book-card bg-white rounded-lg p-6 shadow-lg">
+                        <div class="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-4">
+                            ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover">` : 
+                            `<div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div>`}
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">${title}</h3>
+                        <p class="text-sm text-slate-600 mb-2">${author}</p>
+                        <p class="text-sm text-slate-500 mb-3">${description}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-400">Progress: ${progress}%</span>
+                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                const cardClass = currentType === 'mathematics' ? 'math-article-card' : 'article-card';
+                previewHTML = `
+                    <div class="${cardClass} rounded-lg p-6 border border-gray-100" data-tags="${tags}">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 mb-3">${title}</h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">${description}</p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover">` : 
+                                `<div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>`}
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            
+            document.getElementById('preview').innerHTML = previewHTML;
+        }
+
+        function generateCode() {
+            if (!isAuthenticated) return;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description) {
+                alert('Please fill in at least the title and description fields');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            
+            let code = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                code = `                    <div class="book-card bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="openBookNotes('${articleId}')">
+                        <div class="mb-4">
+                            <div class="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-4">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${title}</h3>
+                            <p class="text-sm text-slate-600 mb-2">${author}</p>
+                            <p class="text-sm text-slate-500 mb-3">${description}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">进度: ${progress}%</span>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                const cardClass = currentType === 'mathematics' ? 'math-article-card' : 'article-card';
+                const functionName = currentType === 'mathematics' ? 'openMathArticle' : 'openArticle';
+                
+                code = `                    <div class="${cardClass} rounded-lg p-6 border border-gray-100" data-tags="${tags}" onclick="${functionName}('${articleId}')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    ${title}
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    ${description}
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>${currentDate}</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            
+            document.getElementById('generated-code').value = code;
+            document.getElementById('code-section').style.display = 'block';
+            document.getElementById('code-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyToClipboard() {
+            const codeTextarea = document.getElementById('generated-code');
+            codeTextarea.select();
+            document.execCommand('copy');
+            alert('Code copied to clipboard!');
+        }
+
+        function downloadHTML() {
+            const code = document.getElementById('generated-code').value;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'new-content.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Remove Firebase save functionality - not needed for static approach
+        function saveToFirebase() {
+            alert('This static version doesn\'t need Firebase! Just use the "Generate HTML" feature to get your code, then copy it to your research.html file. This approach is faster, more reliable, and doesn\'t require any external services.');
+        }
+
+        // Open article preview in new tab
+        function openArticlePreview() {
+            const title = document.getElementById('title').value;
+            if (!title) {
+                alert('Please enter a title first');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const type = currentType === 'book' ? 'book-notes' : 'article';
+            const url = `article.html?id=${articleId}&type=${type}`;
+            window.open(url, '_blank');
+        }
+
+        // Enhanced generate code function
+        function generateCode() {
+            if (!isAuthenticated) return;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const content = document.getElementById('content').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description) {
+                alert('Please fill in at least the title and description fields');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            
+            let code = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                code = `                    <div class="book-card bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="openBookNotes('${articleId}')">
+                        <div class="mb-4">
+                            <div class="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-4">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${title}</h3>
+                            <p class="text-sm text-slate-600 mb-2">${author}</p>
+                            <p class="text-sm text-slate-500 mb-3">${description}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">进度: ${progress}%</span>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                const cardClass = currentType === 'mathematics' ? 'math-article-card' : 'article-card';
+                const functionName = currentType === 'mathematics' ? 'openMathArticle' : 'openArticle';
+                
+                code = `                    <div class="${cardClass} rounded-lg p-6 border border-gray-100" data-tags="${tags}" onclick="${functionName}('${articleId}')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    ${title}
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    ${description}
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>${currentDate}</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            
+            document.getElementById('generated-code').value = code;
+            document.getElementById('code-section').style.display = 'block';
+            document.getElementById('code-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate article data for article.html
+        // Generate Research.html code
+        function generateResearchCode() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description) {
+                alert('请至少填写标题和描述字段');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            
+            let researchCode = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                researchCode = `                    <div class="book-card bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="openBookNotes('${articleId}')">
+                        <div class="mb-4">
+                            <div class="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-4">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${title}</h3>
+                            <p class="text-sm text-slate-600 mb-2">${author}</p>
+                            <p class="text-sm text-slate-500 mb-3">${description}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-400">进度: ${progress}%</span>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                const cardClass = currentType === 'mathematics' ? 'math-article-card' : 'article-card';
+                const functionName = currentType === 'mathematics' ? 'openMathArticle' : 'openArticle';
+                
+                researchCode = `                    <div class="${cardClass} rounded-lg p-6 border border-gray-100" data-tags="${tags}" onclick="${functionName}('${articleId}')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-slate-800 hover:text-sky-600 transition-colors mb-3">
+                                    ${title}
+                                </h3>
+                                <p class="text-slate-600 mb-4 leading-relaxed">
+                                    ${description}
+                                </p>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <span>${currentDate}</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-32 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                                <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center"${imageUrl ? ' style="display: none;"' : ''}>
+                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            
+            document.getElementById('research-code').value = researchCode;
+            document.getElementById('research-code-section').style.display = 'block';
+            document.getElementById('research-code-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate Article.html code
+        function generateArticleCode() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const content = document.getElementById('content').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description || !content) {
+                alert('请填写标题、描述和内容字段');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            let articleCode = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                articleCode = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    author: '${author}',
+    progress: ${progress},
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '最后更新: ${currentDate}',
+    category: 'Book Notes',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            } else {
+                const category = currentType === 'mathematics' ? 'Mathematics' : 'Neuroscience';
+                
+                articleCode = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '${currentDate}',
+    category: '${category}',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            }
+            
+            document.getElementById('article-code').value = articleCode;
+            document.getElementById('article-code-section').style.display = 'block';
+            document.getElementById('article-code-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Copy functions
+        function copyResearchCode() {
+            const codeTextarea = document.getElementById('research-code');
+            codeTextarea.select();
+            document.execCommand('copy');
+            alert('Research.html 代码已复制到剪贴板！');
+        }
+
+        function copyArticleCode() {
+            const codeTextarea = document.getElementById('article-code');
+            codeTextarea.select();
+            document.execCommand('copy');
+            alert('Article.html 代码已复制到剪贴板！');
+        }
+
+        // Instructions functions
+        function showResearchInstructions() {
+            let location = '';
+            if (currentType === 'neuroscience') {
+                location = '在 research.html 中找到 <div id="articlesGrid"> 区域，将代码粘贴到其中';
+            } else if (currentType === 'mathematics') {
+                location = '在 research.html 中找到 <div id="mathArticlesGrid"> 区域，将代码粘贴到其中';
+            } else if (currentType === 'book') {
+                location = '在 research.html 中找到 <div id="booksGrid"> 区域，将代码粘贴到其中';
+            }
+            
+            alert(`📍 粘贴位置说明：\n\n${location}\n\n💡 提示：在现有文章之后添加新的文章代码即可。`);
+        }
+
+        function showArticleInstructions() {
+            let objectName = '';
+            if (currentType === 'neuroscience') {
+                objectName = 'articles';
+            } else if (currentType === 'mathematics') {
+                objectName = 'mathArticles';
+            } else if (currentType === 'book') {
+                objectName = 'bookNotes';
+            }
+            
+            alert(`📍 粘贴位置说明：\n\n在 article.html 文件中找到 getStaticArticle 函数，然后在 ${objectName} 对象中添加复制的代码。\n\n示例：\nconst ${objectName} = {\n    'existing-article': { ... },\n    // 在这里粘贴新的文章数据\n};\n\n💡 注意：确保在对象的最后一个元素后添加逗号。`);
+        }
+
+        function generateArticleData() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const content = document.getElementById('content').value;
+            const tags = document.getElementById('tags').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            
+            if (!title || !description || !content) {
+                alert('Please fill in title, description, and content fields first');
+                return;
+            }
+            
+            const articleId = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+            const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            
+            let articleData = '';
+            
+            if (currentType === 'book') {
+                const author = document.getElementById('author').value || 'Unknown Author';
+                const progress = document.getElementById('progress').value || '0';
+                
+                articleData = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    author: '${author}',
+    progress: ${progress},
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '最后更新: ${currentDate}',
+    category: 'Book Notes',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            } else {
+                const category = currentType === 'mathematics' ? 'Mathematics' : 'Neuroscience';
+                
+                articleData = `'${articleId}': {
+    title: '${title}',
+    description: '${description}',
+    content: \`${content.replace(/`/g, '\\`')}\`,
+    date: '${currentDate}',
+    category: '${category}',
+    tags: [${tags.split(',').map(tag => `'${tag.trim()}'`).join(', ')}],
+    readTime: '${Math.ceil(content.split(' ').length / 200)} min read'
+}`;
+            }
+            
+            document.getElementById('article-data-code').value = articleData;
+            document.getElementById('article-data-section').style.display = 'block';
+            document.getElementById('article-data-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function copyArticleData() {
+            const dataTextarea = document.getElementById('article-data-code');
+            dataTextarea.select();
+            document.execCommand('copy');
+            alert('Article data copied to clipboard!');
+        }
+        
+        function showArticleInstructions() {
+            alert(`将复制的数据添加到 article.html 文件中：
+
+1. 打开 article.html 文件
+2. 找到 getStaticArticle 函数
+3. 根据文章类型添加到对应位置：
+   - 神经科学: articles 对象中
+   - 数学: mathArticles 对象中  
+   - 读书笔记: bookNotes 对象中
+4. 保存文件
+
+示例位置：
+const articles = {
+    'existing-article': { ... },
+    // 在这里粘贴新的文章数据
+};`);
+        }
+    </script>
+
+</body>
+</html>

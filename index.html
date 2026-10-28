@@ -1,173 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>snow's garage</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style type="text/tailwindcss">
-        body {
-            font-family: 'Times New Roman', Times, serif;
-            scroll-behavior: smooth; /* 平滑滚动效果 */
-        }
-        .hero-bg {
-            background-color: #ede9fe; /* 偏蓝的淡紫色背景 */
-        }
-        .section-title {
-            @apply text-3xl font-bold text-center mb-12 text-slate-700;
-        }
-        /* Gallery 部分的特殊样式 */
-        #gallery .section-title {
-            @apply text-white;
-        }
-        .card {
-            @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
-        }
-        .btn {
-            @apply px-6 py-3 rounded-lg font-semibold transition-colors duration-300;
-        }
-        .btn-primary {
-            @apply bg-sky-500 hover:bg-sky-600 text-white;
-        }
-        .btn-secondary {
-            @apply bg-slate-200 hover:bg-slate-300 text-slate-700;
-        }
-        /* 导航栏固定在顶部 */
-        nav {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background-color: rgba(255, 255, 255, 0.9); /* 半透明背景 */
-            backdrop-filter: blur(10px); /* 毛玻璃效果 */
-            -webkit-backdrop-filter: blur(10px); /* 兼容 Safari */
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="">
+  <title>Botao Zhang · 张博涛</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="content.js" defer></script>
+  <script src="render.js" defer></script>
 </head>
-<body class="bg-slate-50 text-slate-800">
-
-    <nav class="shadow-md">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-sky-600">Fitzgerald Snow</a> 
-            <div class="space-x-4">
-                <a href="#about" class="text-slate-600 hover:text-sky-500 transition-colors">About me</a>
-                <a href="#research" class="text-slate-600 hover:text-sky-500 transition-colors">Research</a>
-                <a href="#blog" class="text-slate-600 hover:text-sky-500 transition-colors">Thoughts</a>
-                <!-- <a href="#music" class="text-slate-600 hover:text-sky-500 transition-colors">Music</a> -->
-                <a href="#gallery" class="text-slate-600 hover:text-sky-500 transition-colors">Gallery</a>
-                <a href="#contact" class="text-slate-600 hover:text-sky-500 transition-colors">Contact me</a>
-            </div>
-        </div>
-    </nav>
-
-    <header class="hero-bg py-20 md:py-32"> 
-        <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold text-sky-700 mb-6">Welcome to Snow's garage.</h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-                There is nothing. Only warm, primordial blackness. Your conscience ferments in it — no larger than a single grain of malt.
-            </p>
-        </div>
-    </header>
-
-    <main>
-        <section id="research" class="py-16 md:py-24 bg-sky-50">
-            <div class="container mx-auto px-6 text-center">
-                <a href="research.html" class="inline-block">
-                    <h2 class="section-title text-5xl hover:text-sky-500 transition-colors duration-300 mb-4">Research</h2>
-                </a>
-                <p class="text-lg text-slate-600 mt-0 mb-8 max-w-xl mx-auto">"Being able to decide whether we are witnessing the neuronal activity that is underlying the composition of a poem (or the electronic transmission of a love letter) and not just meaningless flicker is one of the most burning problems in neuroscience."
-                </p>
-            </div>
-        </section>
-
-        <section id="blog" class="py-16 md:py-24 bg-rose-50">
-            <div class="container mx-auto px-6 text-center">
-                <a href="thoughts.html" class="inline-block">
-                    <h2 class="section-title text-5xl hover:text-sky-500 transition-colors duration-300 mb-4">Thought Cabinet</h2>
-                </a>
-                <p class="text-lg text-slate-600 mt-0 mb-8 max-w-xl mx-auto"> Am I the ocean or in it — Where is Snow's wandering mind?
-                </p>
-            </div>
-        </section>
-
-        <!-- <section id="music" class="py-16 md:py-24 bg-purple-50">
-            <div class="container mx-auto px-6 text-center">
-                <a href="music.html" class="inline-block">
-                    <h2 class="section-title text-5xl hover:text-sky-500 transition-colors duration-300 mb-4">Music</h2>
-                </a>
-                <p class="text-lg text-slate-600 mt-0 mb-8 max-w-xl mx-auto">
-                    I'll be here in the morning<br>
-                    'Cause I'm just floating
-                </p>
-            </div>
-        </section> -->
-
-        <section id="gallery" class="py-16 md:py-24 bg-cover bg-center bg-fixed relative" style="background-image:url('images/gallery-cover.jpg');">
-            <div class="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30"></div>
-            <div class="container mx-auto px-6 text-center relative z-10">
-            <a href="gallery.html" class="inline-block group">
-                <h2 class="section-title text-5xl text-white mb-4 transition-transform duration-300 ease-out group-hover:scale-110">Gallery</h2>
-            </a>
-            <p class="text-lg text-white mt-0 mb-8 max-w-xl mx-auto drop-shadow-lg">
-                Moments are mixed up but burned on film.
-            </p>
-            </div>
-        </section>
-
-
-        <section id="about" class="py-16 md:py-24">
-            <div class="container mx-auto px-6">
-                <div class="flex flex-col md:flex-row items-center gap-12">
-                    <div class="md:w-1/3">
-                        <img src="images/shoegazer.jpg" alt="Profile" class="rounded-full shadow-lg mx-auto w-64 h-64 md:w-80 md:h-80 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x400/e2e8f0/cbd5e0?text=图片加载失败';">
-                    </div>
-                    <div class="md:w-2/3 text-slate-700 text-lg leading-relaxed">
-                        <p class="mb-4">
-                            Hi! I'm Fitzgerald Snow, currently an undergraduate student at Fudan University, majoring in Mathematics and Applied Mathematics. I have a keen interest in the intersection of mathematics, artificial intelligence, and the human mind.
-                        </p>
-                        <p class="mb-4">
-                            I'm also a lover of literature and philosophy, and an amateur photographer. 
-                        </p>
-                        <p>
-                            This website is a space for me to share and document my thoughts, interests, and what I'm currently working on. I hope you'll find something here that interests you or resonates with you.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact" class="py-16 md:py-24 bg-slate-100">
-            <div class="container mx-auto px-6">
-                <div class="max-w-lg mx-auto text-center">
-                    <p class="text-slate-700 text-lg mb-8">
-                        Have an existential crisis? Neurons on fire? Feel free to reach out!
-                    </p>
-                    <div class="space-y-4">
-                        <p class="text-lg">
-                            <strong class="text-slate-800">Email:</strong>
-                            <a href="mailto:zzzzbbbbtttt20873@gmail.com" class="text-sky-500 hover:underline">zzzzbbbbtttt20873@gmail.com</a>
-                            <a href="mailto:btzhang23@m.fudan.edu.cn" class="text-sky-500 hover:underline ml-2 sm:ml-0">btzhang23@m.fudan.edu.cn</a>
-                        </p>
-                        <p class="text-lg">
-                            <strong class="text-slate-800">GitHub:</strong>
-                            <a href="https://github.com/Fitzgerald-Snow" target="_blank" rel="noopener noreferrer" class="text-sky-500 hover:underline">github.com/Fitzgerald-Snow</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
-        <div class="container mx-auto px-6">
-            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
-            <p class="text-sm mt-2">Powered by Tailwind CSS</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-    </script>
-
+<body data-page="home">
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="page">
+    <header class="mast"></header>
+    <main id="main"></main>
+    <footer class="mono"></footer>
+    <noscript>Please enable JavaScript to view this page.</noscript>
+  </div>
 </body>
 </html>

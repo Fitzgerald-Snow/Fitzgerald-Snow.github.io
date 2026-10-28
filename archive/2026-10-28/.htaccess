@@ -1,0 +1,37 @@
+# 基本安全配置
+RewriteEngine On
+
+# 防止访问敏感文件
+<Files "firebase-service-account.json">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# 可选：为admin.html添加IP限制（取消注释并添加您的IP）
+# <Files "admin.html">
+#     Order Deny,Allow
+#     Deny from all
+#     Allow from 127.0.0.1
+#     Allow from YOUR_IP_ADDRESS
+# </Files>
+
+# 禁用目录浏览
+Options -Indexes
+
+# 安全头
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options DENY
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

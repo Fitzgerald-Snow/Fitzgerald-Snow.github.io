@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Static Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Computer Modern', serif; }
+    </style>
+</head>
+<body class="bg-slate-50 p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">静态模式测试</h1>
+        
+        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+            <h2 class="font-semibold mb-2">测试步骤：</h2>
+            <ol class="list-decimal list-inside space-y-1">
+                <li>打开开发者工具 (F12)</li>
+                <li>进入 Network 标签</li>
+                <li>选择 "Offline" 模式 (模拟网络断开)</li>
+                <li>刷新 thoughts.html 页面</li>
+                <li>观察是否显示"📖 Reading mode"状态</li>
+                <li>检查是否显示静态内容</li>
+                <li>验证点赞按钮是否被禁用</li>
+            </ol>
+        </div>
+
+        <div class="mb-4 p-4 bg-green-50 rounded-lg">
+            <h2 class="font-semibold mb-2">预期结果：</h2>
+            <ul class="list-disc list-inside space-y-1">
+                <li>显示黄色的"📖 Reading mode"提示</li>
+                <li>显示5条静态思想内容</li>
+                <li>点赞按钮呈灰色且不可点击</li>
+                <li>管理员按钮点击时提示网络问题</li>
+                <li>提示文字显示"Interactions unavailable in reading mode"</li>
+            </ul>
+        </div>
+
+        <div class="space-x-4">
+            <a href="thoughts.html" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                访问Thoughts页面
+            </a>
+            <button onclick="testStaticData()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                测试静态数据
+            </button>
+        </div>
+
+        <div id="testResult" class="mt-6 p-4 bg-gray-50 rounded-lg hidden">
+            <h2 class="font-semibold mb-2">静态数据测试结果：</h2>
+            <pre id="dataOutput" class="text-sm overflow-auto"></pre>
+        </div>
+    </div>
+
+    <script src="thoughts-static.js"></script>
+    <script>
+        function testStaticData() {
+            const resultDiv = document.getElementById('testResult');
+            const outputPre = document.getElementById('dataOutput');
+            
+            if (typeof staticThoughts !== 'undefined') {
+                outputPre.textContent = `✅ 静态数据加载成功！\n\n数据概要：\n- 思想数量: ${staticThoughts.length}\n- 最新思想: "${staticThoughts[0]?.title || '无'}"\n- 总点赞数: ${staticThoughts.reduce((sum, t) => sum + (t.upvotes || 0), 0)}\n\n完整数据:\n${JSON.stringify(staticThoughts, null, 2)}`;
+            } else {
+                outputPre.textContent = '❌ 静态数据加载失败！请检查 thoughts-static.js 文件。';
+            }
+            
+            resultDiv.classList.remove('hidden');
+        }
+
+        // 页面加载时自动测试
+        window.addEventListener('load', () => {
+            console.log('静态数据状态:', typeof staticThoughts !== 'undefined' ? '✅ 已加载' : '❌ 未加载');
+            if (typeof staticThoughts !== 'undefined') {
+                console.log('静态数据:', staticThoughts);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thoughts | Snow's Garage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+    <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            /* cm = Computer Modern Serif */
+            cm: ['"Computer Modern Serif"', 'serif'],
+          },
+        },
+      },
+    }
+    </script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- 静态思想数据作为备用（延迟加载，见脚本逻辑） -->
+    <style>
+        body {
+            font-family: 'Computer Modern', 'Latin Modern Roman', 'Times New Roman', 'TeX Gyre Termes';
+            scroll-behavior: smooth;
+        }
+        /* Password Gate overlay covers the page until unlocked */
+        #passwordOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex; /* default visible; will be hidden if already unlocked */
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.9);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+        #passwordOverlay.hidden { display: none; }
+        .gate-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            padding: 1.5rem;
+            width: min(92vw, 28rem);
+            border: 1px solid #e5e7eb;
+        }
+        .gate-card h2 { font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes'; }
+        .hero-bg {
+            background-color: #fdf2f8;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease-in-out;
+        }
+        /* 导航栏隐藏状态 */
+        nav.nav-hidden {
+            transform: translateY(-100%);
+        }
+        .admin-panel {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 2px dashed #d1d5db;
+        }
+        .thought-card {
+            @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6;
+        }
+        /* 确保 admin-only 元素默认隐藏 */
+        .admin-only {
+            display: none !important;
+        }
+        /* 只有在 admin-mode 激活时才显示 */
+        .admin-mode .admin-only {
+            display: block !important;
+        }
+        .edit-form {
+            @apply mt-4 p-4 bg-slate-50 rounded-lg border;
+        }
+        .upvote-btn {
+            @apply flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200;
+        }
+        .upvote-btn:not(.voted) {
+            @apply bg-slate-100 hover:bg-slate-200 text-slate-600;
+        }
+        .upvote-btn.voted {
+            @apply bg-sky-100 text-sky-600;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        /* 评论系统样式 */
+        .comment-section {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+        
+        .comment-item {
+            @apply bg-slate-50 p-3 rounded-lg mb-3;
+        }
+        
+        .comment-form {
+            @apply mt-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300;
+        }
+        
+        .comment-toggle {
+            @apply text-slate-600 hover:text-sky-500 text-sm transition-colors cursor-pointer;
+        }
+        
+        /* 长内容折叠功能 */
+        .thought-content-collapsed {
+            max-height: 40vh; /* 最大高度为视窗高度的40% */
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .thought-content-collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, white);
+            pointer-events: none;
+        }
+        
+        .show-more-btn {
+            @apply mt-3 px-4 py-2 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-lg text-sm font-medium transition-colors cursor-pointer border border-sky-200;
+        }
+        
+        /* LaTeX风格的字体设置 */
+        .thought-content {
+            font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+            font-size: 1.125rem; /* 18px, 比默认大一号 */
+        }
+        
+        .thought-title {
+            font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
+            font-weight: 700;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            /* 导航栏移动端优化 */
+            nav .container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            nav .space-x-4 {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            nav .space-x-4 > * {
+                margin-left: 0;
+                font-size: 0.875rem;
+            }
+            
+            /* 思想卡片移动端优化 */
+            .thought-card {
+                @apply p-4 mb-4;
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+            }
+            
+            /* 标题字体大小调整 */
+            .thought-card h2 {
+                font-size: 1.25rem;
+                line-height: 1.4;
+            }
+            
+            /* 思想内容LaTeX样式优化 */
+            .thought-content {
+                font-size: 1.25rem; /* 移动端稍大一些：20px */
+                line-height: 1.7;
+                text-align: justify;
+                hyphens: auto;
+                word-spacing: 0.1em;
+            }
+            
+            /* 按钮区域优化 */
+            .admin-only {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            
+            .admin-only button {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+            }
+            
+            /* 点赞按钮区域 */
+            .upvote-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            /* 表单优化 */
+            .admin-panel {
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+                border-radius: 0.5rem;
+            }
+            
+            .admin-panel input,
+            .admin-panel textarea {
+                font-size: 1rem; /* 防止iOS缩放 */
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
+            }
+            
+            .admin-panel .flex {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .admin-panel button {
+                width: 100%;
+                padding: 0.75rem;
+            }
+            
+            /* 编辑表单优化 */
+            .edit-form .flex {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .edit-form button {
+                width: 100%;
+            }
+            
+            .edit-form input,
+            .edit-form textarea {
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
+            }
+            
+            /* 评论区域移动端优化 */
+            .comment-section {
+                margin-top: 1rem;
+                padding-top: 1rem;
+            }
+            
+            .comment-form {
+                margin-top: 0.75rem;
+                padding: 0.75rem;
+            }
+            
+            .comment-form .flex {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .comment-form button {
+                width: 100%;
+                padding: 0.5rem;
+            }
+            
+            .comment-item {
+                margin-bottom: 0.75rem;
+                padding: 0.75rem;
+            }
+        }
+        
+        /* 小屏幕设备进一步优化 */
+        @media (max-width: 480px) {
+            /* 更紧凑的间距 */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Hero区域优化 */
+            .hero-bg {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+            
+            .hero-bg h1 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
+            }
+            
+            .hero-bg p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+                font-family: 'Computer Modern', 'Latin Modern Roman', 'TeX Gyre Termes';
+            }
+            
+            /* 主内容区优化 */
+            main {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+            
+            /* 思想卡片进一步优化 */
+            .thought-card {
+                border-radius: 0.5rem;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            }
+            
+            /* 点赞区域优化 */
+            .thought-card .flex:last-child {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .thought-card .flex:last-child .text-xs {
+                margin-left: 0;
+            }
+        }
+        
+        /* 触摸优化 */
+        @media (hover: none) and (pointer: coarse) {
+            /* 移除hover效果，增加触摸目标大小 */
+            .upvote-btn,
+            .edit-btn,
+            .delete-btn,
+            button {
+                min-height: 44px; /* iOS推荐的最小触摸目标 */
+            }
+            
+            /* 移除悬停效果 */
+            .thought-card:hover {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Password Gate Overlay -->
+    <div id="passwordOverlay">
+        <div class="gate-card">
+            <h2 class="text-2xl font-bold text-sky-700 mb-2 text-center">Thought Cabinet</h2>
+            <p class="text-slate-600 text-sm mb-4 text-center">此区域受密码保护。请输入访问密码。Please input the password to continue.</p>
+            <label class="block text-sm text-slate-600 mb-1" for="gatePassword">Password</label>
+            <input id="gatePassword" type="password" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 mb-3" placeholder="Enter password" autocomplete="current-password">
+            <button id="gateSubmit" class="w-full px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition-colors">Unlock</button>
+            <p id="gateError" class="text-red-600 text-sm mt-3 hidden">密码错误，请重试。Wrong Password.</p>
+        </div>
+    </div>
+
+    <nav class="shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center md:flex-row flex-col">
+            <a href="index.html" class="text-2xl font-bold text-sky-600 mb-2 md:mb-0">Fitzgerald Snow</a>
+            <div class="flex flex-wrap justify-center md:space-x-4 space-x-2 space-y-1 md:space-y-0">
+                <a href="index.html#about" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">About me</a>
+                <a href="index.html#research" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Research</a>
+                <a href="thoughts.html" class="text-sky-500 font-semibold px-2 py-1">Thoughts</a>
+                <!-- <a href="index.html#music" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Music</a> -->
+                <a href="index.html#gallery" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Gallery</a>
+                <a href="index.html#contact" class="text-slate-600 hover:text-sky-500 transition-colors px-2 py-1">Contact me</a>
+                <button id="adminBtn" class="text-slate-400 hover:text-sky-500 transition-colors text-sm px-2 py-1">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-bg py-12 md:py-20 lg:py-32">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold text-sky-700 mb-4 md:mb-6">Thought Cabinet</h1>
+            <p class="text-base md:text-lg lg:text-xl text-slate-600 mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed">
+                Après tout, si cela ne conduit qu'à un certain degré d'érudition, plutôt que — d'une manière ou d'une autre — à faire sortir celui qui cherche autant que possible hors de son domaine propre, quelle valeur resterait-il à cette passion de savoir?
+            </p>
+            <p class="text-sm md:text-base text-slate-500 italic">
+                — Préface, <em>Histoire de la sexualité I</em>
+            </p>
+        </div>
+    </header>
+
+    <main class="py-8 md:py-16 lg:py-24">
+        <div class="container mx-auto px-4 md:px-6 max-w-4xl">
+            
+            <!-- 管理员面板 -->
+            <div id="adminPanel" class="admin-only admin-panel p-4 md:p-6 rounded-xl mb-6 md:mb-8">
+                <h3 class="text-lg md:text-xl font-semibold mb-4 text-slate-700">✏️ Add New Thought</h3>
+                <form id="thoughtForm">
+                    <input type="text" id="thoughtTitle" placeholder="Title of your thought..." 
+                           class="w-full p-3 border border-slate-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-sky-500 text-base">
+                    <textarea id="thoughtContent" placeholder="What's on your mind?" 
+                              class="w-full p-3 border border-slate-300 rounded-lg mb-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 text-base"></textarea>
+                    
+                    <!-- 添加格式化提示 -->
+                    <div class="mb-3 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                        <p class="font-medium mb-2">✨ Formatting Tips:</p>
+                        <div class="space-y-1">
+                            <p><code># Heading 1</code> → <span class="text-lg font-bold">Heading 1</span></p>
+                            <p><code>## Heading 2</code> → <span class="text-base font-semibold">Heading 2</span></p>
+                            <p><code>### Heading 3</code> → <span class="text-sm font-semibold">Heading 3</span></p>
+                            <p><code>**bold text**</code> → <strong>bold text</strong></p>
+                            <p><code>*italic text*</code> → <em>italic text</em></p>
+                            <p><code>`code text`</code> → <code class="bg-slate-100 px-1 py-0.5 rounded">code text</code></p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <button type="submit" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
+                            Add Thought
+                        </button>
+                        <button type="button" id="cancelBtn" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loadingDiv" class="text-center py-8">
+                <p class="text-slate-600">Loading thoughts...</p>
+            </div>
+
+            <!-- 连接状态提示 -->
+            <div id="connectionStatus" class="hidden mb-6 p-4 rounded-lg">
+                <!-- 动态生成的状态信息 -->
+            </div>
+
+            <!-- 思想列表 -->
+            <div id="thoughtsList">
+                <!-- 动态加载的思想会出现在这里 -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-10 text-center">
+        <div class="container mx-auto px-6">
+            <p>&copy; <span id="currentYear"></span> Fitzgerald Snow. All rights reserved.</p>
+            <p class="text-sm mt-2">Powered by Tailwind CSS + Firebase</p>
+        </div>
+    </footer>
+
+    <script>
+        // ---------------- Password Gate (lightweight) ----------------
+        // NOTE: This is client-side only. It hides content and defers app init until unlocked.
+        // Change this password to your own. For better security, consider moving to real auth or client-side encryption.
+        const GATE_PASSWORD = 'xuvetyn'; // TODO: change me
+        let gateLocked = true;
+
+        function hideGate() {
+            const ov = document.getElementById('passwordOverlay');
+            ov.classList.add('hidden');
+        }
+        function showGate() {
+            const ov = document.getElementById('passwordOverlay');
+            ov.classList.remove('hidden');
+            const input = document.getElementById('gatePassword');
+            setTimeout(() => input && input.focus(), 0);
+        }
+        function setupGate() {
+            const unlocked = sessionStorage.getItem('thoughts_unlocked') === '1';
+            if (unlocked) {
+                gateLocked = false;
+                hideGate();
+                // Defer init until window load fires or call immediate init as fallback
+                setTimeout(() => { try { if (typeof initAppAfterUnlock === 'function') initAppAfterUnlock(); } catch(_){} }, 0);
+                return;
+            }
+            showGate();
+            const submit = document.getElementById('gateSubmit');
+            const input = document.getElementById('gatePassword');
+            const error = document.getElementById('gateError');
+            const tryUnlock = () => {
+                const val = (input.value || '').trim();
+                if (!val) return;
+                if (val === GATE_PASSWORD) {
+                    sessionStorage.setItem('thoughts_unlocked', '1');
+                    gateLocked = false;
+                    hideGate();
+                    if (typeof initAppAfterUnlock === 'function') initAppAfterUnlock();
+                } else {
+                    error.classList.remove('hidden');
+                    input.select();
+                }
+            };
+            submit.addEventListener('click', tryUnlock);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryUnlock(); } });
+        }
+
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt7edLvrct4nq9cCawz7_umjKA0y2U48A",
+            authDomain: "snow-s-garage.firebaseapp.com",
+            projectId: "snow-s-garage",
+            storageBucket: "snow-s-garage.appspot.com",
+            messagingSenderId: "463583364015",
+            appId: "1:463583364015:web:e0820f3a7b9673d92b255a",
+            measurementId: "G-ZVCMHRMSVB"
+        };
+
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // 设置当前年份
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // 管理员登录状态
+        let isAdmin = false;
+        let useStaticMode = false; // 是否使用静态模式
+        let firebaseConnected = false; // Firebase连接状态
+        const adminBtn = document.getElementById('adminBtn');
+        const adminPanel = document.getElementById('adminPanel');
+        const thoughtForm = document.getElementById('thoughtForm');
+        const thoughtsList = document.getElementById('thoughtsList');
+        const loadingDiv = document.getElementById('loadingDiv');
+        const connectionStatus = document.getElementById('connectionStatus');
+    // 初始化 Gate ASAP
+    setupGate();
+
+        // 获取用户ID (使用Firebase认证)
+        async function getUserId() {
+            if (useStaticMode) return null;
+            
+            const user = auth.currentUser;
+            if (user) return user.uid;
+            
+            // 匿名登录
+            try {
+                const cred = await auth.signInAnonymously();
+                return cred.user.uid;
+            } catch (error) {
+                console.error('匿名登录失败:', error);
+                return null;
+            }
+        }
+
+        // 检测Firebase连接状态
+        async function checkFirebaseConnection() {
+            try {
+                // 尝试连接Firebase
+                await auth.signInAnonymously();
+                
+                // 尝试读取一条数据来验证连接
+                const testQuery = await db.collection('thoughts').limit(1).get();
+                
+                firebaseConnected = true;
+                useStaticMode = false;
+                showConnectionStatus('firebase');
+                return true;
+            } catch (error) {
+                console.log('Firebase连接失败，使用静态模式:', error.message);
+                firebaseConnected = false;
+                useStaticMode = true;
+                showConnectionStatus('static');
+                return false;
+            }
+        }
+
+        // 显示连接状态
+        function showConnectionStatus(mode) {
+            const statusDiv = connectionStatus;
+            
+            if (mode === 'firebase') {
+                // Firebase连接正常时，隐藏状态提示，保持界面简洁
+                statusDiv.classList.add('hidden');
+            } else {
+                // 只在静态模式（阅读模式）下显示提示
+                statusDiv.classList.remove('hidden');
+                statusDiv.className = 'mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200';
+                statusDiv.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-amber-800 font-medium">📖 Reading mode</span>
+                    </div>
+                    <p class="text-amber-700 text-sm mt-1">Showing cached content. Interactive features are temporarily unavailable.</p>
+                `;
+            }
+        }
+
+        // 简单的管理员验证
+        adminBtn.addEventListener('click', () => {
+            if (useStaticMode) {
+                alert('Admin features are not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
+            if (!isAdmin) {
+                const password = prompt('Enter admin password:');
+                if (password === 'snow2025') {
+                    isAdmin = true;
+                    document.body.classList.add('admin-mode');
+                    adminBtn.textContent = 'Logout';
+                    adminBtn.classList.remove('text-slate-400');
+                    adminBtn.classList.add('text-sky-500');
+                } else if (password !== null) {
+                    alert('Incorrect password');
+                }
+            } else {
+                isAdmin = false;
+                document.body.classList.remove('admin-mode');
+                adminBtn.textContent = 'Admin';
+                adminBtn.classList.add('text-slate-400');
+                adminBtn.classList.remove('text-sky-500');
+            }
+        });
+
+        // 添加新思想
+        thoughtForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (useStaticMode) {
+                alert('Adding thoughts is not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
+            if (!isAdmin) {
+                alert('Admin access required');
+                return;
+            }
+            
+            const title = document.getElementById('thoughtTitle').value.trim();
+            const content = document.getElementById('thoughtContent').value.trim();
+            
+            if (title && content) {
+                try {
+                    console.log('Adding thought...');
+                    
+                    // 禁用提交按钮防止重复提交
+                    const submitBtn = thoughtForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Adding...';
+
+                    // 添加思想到 Firestore
+                    const thoughtData = {
+                        title: title,
+                        content: content,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        upvotes: 0,
+                        upvotedBy: [],
+                        comments: []
+                    };
+
+                    await db.collection('thoughts').add(thoughtData);
+                    
+                    // 重置表单
+                    thoughtForm.reset();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Thought';
+                    
+                    // 重新加载思想列表
+                    loadThoughts();
+                } catch (error) {
+                    console.error('Error adding thought:', error);
+                    alert('Error adding thought. Please try again.');
+                    
+                    // 恢复提交按钮
+                    const submitBtn = thoughtForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Thought';
+                }
+            }
+        });
+
+        // 取消按钮
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            thoughtForm.reset();
+        });
+
+        // 延迟加载静态数据脚本（仅在静态模式需要时）
+        function ensureStaticDataLoaded() {
+            return new Promise((resolve, reject) => {
+                if (typeof staticThoughts !== 'undefined') return resolve();
+                const script = document.createElement('script');
+                script.src = 'thoughts-static.js';
+                script.onload = () => resolve();
+                script.onerror = (e) => reject(new Error('Failed to load static thoughts'));
+                document.head.appendChild(script);
+            });
+        }
+
+        // 加载思想列表
+        async function loadThoughts() {
+            try {
+                loadingDiv.style.display = 'block';
+                thoughtsList.innerHTML = '';
+
+                if (useStaticMode) {
+                    // 确保静态数据已加载
+                    try { await ensureStaticDataLoaded(); } catch (e) { console.error(e); }
+                    // 使用静态数据
+                    loadingDiv.style.display = 'none';
+                    
+                    if (!staticThoughts || staticThoughts.length === 0) {
+                        thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts available in offline mode.</p>';
+                        return;
+                    }
+
+                    // 按时间排序静态数据
+                    const sortedThoughts = staticThoughts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    sortedThoughts.forEach(thought => {
+                        const thoughtElement = createThoughtElement(thought.id, thought, true);
+                        thoughtsList.appendChild(thoughtElement);
+                    });
+                } else {
+                    // 使用Firebase数据
+                    const snapshot = await db.collection('thoughts')
+                        .orderBy('timestamp', 'desc')
+                        .get();
+
+                    loadingDiv.style.display = 'none';
+
+                    if (snapshot.empty) {
+                        thoughtsList.innerHTML = '<p class="text-center text-slate-500 py-8">No thoughts yet. Be the first to share!</p>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const thought = doc.data();
+                        const thoughtElement = createThoughtElement(doc.id, thought, false);
+                        thoughtsList.appendChild(thoughtElement);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading thoughts:', error);
+                loadingDiv.style.display = 'none';
+                
+                if (!useStaticMode) {
+                    // 如果Firebase加载失败，尝试使用静态数据
+                    console.log('Firebase failed, switching to static mode...');
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts(); // 递归调用，但这次会使用静态模式
+                } else {
+                    thoughtsList.innerHTML = '<p class="text-center text-red-500 py-8">Error loading thoughts. Please refresh the page.</p>';
+                }
+            }
+        }
+
+        // 创建思想元素
+        function createThoughtElement(id, thought, isStaticData = false) {
+            const userId = (!useStaticMode && auth.currentUser) ? auth.currentUser.uid : null;
+            const hasUpvoted = userId && thought.upvotedBy && thought.upvotedBy.includes(userId);
+            
+            // 处理时间戳
+            let date;
+            if (isStaticData) {
+                date = new Date(thought.timestamp).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else {
+                date = thought.timestamp ? thought.timestamp.toDate().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }) : 'Recently';
+            }
+
+            const article = document.createElement('article');
+            article.className = 'thought-card thought-item';
+            article.setAttribute('data-id', id);
+
+            // 在静态模式下隐藏管理员控制按钮
+            const adminControlsStyle = (useStaticMode || isStaticData) ? 'style="display: none !important;"' : '';
+            
+            article.innerHTML = `
+                <div class="flex justify-between items-start mb-4 admin-only" ${adminControlsStyle}>
+                    <button class="edit-btn text-sky-600 hover:text-sky-700 text-sm" data-id="${id}">Edit</button>
+                    <button class="delete-btn text-red-600 hover:text-red-700 text-sm" data-id="${id}">Delete</button>
+                </div>
+                <div class="content">
+                    <h2 class="thought-title font-cm text-2xl font-semibold text-sky-700 mb-3">${escapeHtml(thought.title)}</h2>
+                    <p class="text-sm text-slate-500 mb-4">${date}</p>
+                    <div class="thought-content font-cm text-slate-700 leading-relaxed mb-4" data-full-height="">
+                        <div>${formatThoughtContent(thought.content)}</div>
+                    </div>
+                    <button class="show-more-btn hidden" data-id="${id}">Show more</button>
+                    <div class="flex justify-between items-center">
+                        <button class="upvote-btn ${hasUpvoted ? 'voted' : ''} ${useStaticMode || isStaticData ? 'opacity-50 cursor-not-allowed' : ''}" data-id="${id}" ${useStaticMode || isStaticData ? 'disabled' : ''}>
+                            <span class="text-lg">${hasUpvoted ? '♥' : '♡'}</span>
+                            <span class="upvote-count">${thought.upvotes || 0}</span>
+                        </button>
+                        <div class="flex items-center space-x-4">
+                            <button class="comment-toggle" data-id="${id}" ${useStaticMode || isStaticData ? 'style="display: none;"' : ''}>
+                                💬 <span class="comment-count">${thought.comments ? thought.comments.length : 0}</span> Comments
+                            </button>
+                            <span class="text-xs text-slate-400">
+                                ${useStaticMode || isStaticData ? 'Interactions unavailable in reading mode' : 
+                                  (hasUpvoted ? 'You upvoted this' : 'Click to upvote')}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 评论区域 -->
+                    <div class="comment-section hidden" data-id="${id}">
+                        <div class="comments-list">
+                            ${renderComments(thought.comments || [])}
+                        </div>
+                        
+                        <!-- 添加评论表单 -->
+                        <div class="comment-form ${useStaticMode || isStaticData ? 'hidden' : ''}">
+                            <h4 class="font-medium text-slate-700 mb-3">Add a comment</h4>
+                            <input type="text" class="comment-name w-full p-2 border border-slate-300 rounded mb-2 text-sm" placeholder="Your name (optional, leave blank for Anonymous)">
+                            <textarea class="comment-content w-full p-2 border border-slate-300 rounded mb-3 h-20 resize-none text-sm" placeholder="Write your comment..."></textarea>
+                            <div class="flex space-x-2">
+                                <button class="add-comment-btn px-3 py-1 bg-sky-500 text-white rounded text-sm">Add Comment</button>
+                                <button class="cancel-comment-btn px-3 py-1 bg-slate-300 text-slate-700 rounded text-sm">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 只在非静态模式下添加事件监听器
+            if (!useStaticMode && !isStaticData) {
+                const editBtn = article.querySelector('.edit-btn');
+                const deleteBtn = article.querySelector('.delete-btn');
+                const upvoteBtn = article.querySelector('.upvote-btn');
+                const commentToggle = article.querySelector('.comment-toggle');
+                const addCommentBtn = article.querySelector('.add-comment-btn');
+                const cancelCommentBtn = article.querySelector('.cancel-comment-btn');
+
+                if (editBtn) editBtn.addEventListener('click', () => handleEdit(id, article));
+                if (deleteBtn) deleteBtn.addEventListener('click', () => handleDelete(id, article));
+                if (upvoteBtn && !upvoteBtn.disabled) {
+                    upvoteBtn.addEventListener('click', () => handleUpvote(id, upvoteBtn));
+                }
+                if (commentToggle) {
+                    commentToggle.addEventListener('click', () => toggleComments(id, article));
+                }
+                if (addCommentBtn) {
+                    addCommentBtn.addEventListener('click', () => handleAddComment(id, article));
+                }
+                if (cancelCommentBtn) {
+                    cancelCommentBtn.addEventListener('click', () => cancelComment(article));
+                }
+            }
+
+            // Show more 按钮在所有模式下都应该可用（纯前端功能）
+            const showMoreBtn = article.querySelector('.show-more-btn');
+            if (showMoreBtn) {
+                showMoreBtn.addEventListener('click', () => toggleShowMore(article));
+            }
+
+            // 检查内容是否需要折叠
+            setTimeout(() => checkContentHeight(article), 100);
+
+            return article;
+        }
+
+        // 渲染评论列表
+        function renderComments(comments) {
+            if (!comments || comments.length === 0) {
+                return '<p class="text-slate-500 text-sm">No comments yet. Be the first to comment!</p>';
+            }
+
+            return comments.map(comment => {
+                let date = 'Recently';
+                
+                try {
+                    if (comment.timestamp) {
+                        // 处理不同类型的时间戳
+                        if (comment.timestamp.seconds) {
+                            // Firestore Timestamp 对象
+                            date = new Date(comment.timestamp.seconds * 1000).toLocaleDateString();
+                        } else if (comment.timestamp.toDate) {
+                            // Firestore Timestamp 对象的另一种形式
+                            date = comment.timestamp.toDate().toLocaleDateString();
+                        } else if (typeof comment.timestamp === 'string') {
+                            // 字符串格式的日期
+                            date = new Date(comment.timestamp).toLocaleDateString();
+                        } else if (comment.timestamp instanceof Date) {
+                            // JavaScript Date 对象
+                            date = comment.timestamp.toLocaleDateString();
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error parsing comment timestamp:', error);
+                    date = 'Recently';
+                }
+                
+                const authorName = comment.author || 'Anonymous';
+                
+                return `
+                    <div class="comment-item bg-slate-50 p-3 rounded-lg mb-3">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-medium text-slate-700 text-sm">${escapeHtml(authorName)}</span>
+                            <span class="text-xs text-slate-500">${date}</span>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed">${formatThoughtContent(comment.content)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 切换评论显示
+        // 检查内容高度并决定是否需要折叠
+        function checkContentHeight(article) {
+            const thoughtContent = article.querySelector('.thought-content');
+            const showMoreBtn = article.querySelector('.show-more-btn');
+            
+            if (!thoughtContent || !showMoreBtn) return;
+            
+            // 获取视口高度
+            const viewportHeight = window.innerHeight;
+            const maxHeight = viewportHeight * 0.4; // 40% of viewport height
+            
+            // 暂时移除折叠样式来测量实际高度
+            thoughtContent.classList.remove('thought-content-collapsed');
+            const actualHeight = thoughtContent.scrollHeight;
+            
+            // 如果内容高度超过阈值，则折叠
+            if (actualHeight > maxHeight) {
+                thoughtContent.classList.add('thought-content-collapsed');
+                showMoreBtn.style.display = 'inline-block';
+                thoughtContent.dataset.fullHeight = actualHeight + 'px';
+            } else {
+                showMoreBtn.style.display = 'none';
+            }
+        }
+
+        // 切换展开/折叠状态
+        function toggleShowMore(article) {
+            const thoughtContent = article.querySelector('.thought-content');
+            const showMoreBtn = article.querySelector('.show-more-btn');
+            
+            if (!thoughtContent || !showMoreBtn) return;
+            
+            const isCollapsed = thoughtContent.classList.contains('thought-content-collapsed');
+            
+            if (isCollapsed) {
+                // 展开
+                thoughtContent.classList.remove('thought-content-collapsed');
+                showMoreBtn.textContent = 'Show Less';
+            } else {
+                // 折叠
+                thoughtContent.classList.add('thought-content-collapsed');
+                showMoreBtn.textContent = 'Show More';
+                // 滚动到文章顶部
+                article.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function toggleComments(thoughtId, article) {
+            const commentSection = article.querySelector('.comment-section');
+            if (commentSection.classList.contains('hidden')) {
+                commentSection.classList.remove('hidden');
+            } else {
+                commentSection.classList.add('hidden');
+            }
+        }
+
+        // 添加评论
+        async function handleAddComment(thoughtId, article) {
+            if (useStaticMode) {
+                alert('Comments are not available in reading mode. Please check your network connection.');
+                return;
+            }
+
+            const nameInput = article.querySelector('.comment-name');
+            const contentTextarea = article.querySelector('.comment-content');
+            
+            const name = nameInput.value.trim() || 'Anonymous';
+            const content = contentTextarea.value.trim();
+            
+            if (!content) {
+                alert('Please write a comment before submitting.');
+                return;
+            }
+
+            try {
+                const addBtn = article.querySelector('.add-comment-btn');
+                addBtn.disabled = true;
+                addBtn.textContent = 'Adding...';
+
+                console.log('Adding comment to thought:', thoughtId);
+
+                // 确保用户已登录
+                const userId = auth.currentUser ? auth.currentUser.uid : null;
+                if (!userId) {
+                    // 尝试匿名登录
+                    await auth.signInAnonymously();
+                }
+
+                const thoughtRef = db.collection('thoughts').doc(thoughtId);
+                
+                // 简化评论添加，直接使用 arrayUnion
+                const newComment = {
+                    author: name,
+                    content: content,
+                    timestamp: firebase.firestore.Timestamp.now() // 使用客户端时间戳
+                };
+
+                await thoughtRef.update({
+                    comments: firebase.firestore.FieldValue.arrayUnion(newComment)
+                });
+
+                console.log('Comment added successfully');
+
+                // 重置表单
+                nameInput.value = '';
+                contentTextarea.value = '';
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Comment';
+                
+                // 立即更新UI而不是重新加载整个列表
+                const commentsListDiv = article.querySelector('.comments-list');
+                const currentComments = commentsListDiv.innerHTML;
+                
+                // 如果当前显示"No comments yet"，则替换
+                if (currentComments.includes('No comments yet')) {
+                    commentsListDiv.innerHTML = '';
+                }
+                
+                // 添加新评论到列表顶部
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment-item bg-slate-50 p-3 rounded-lg mb-3';
+                commentDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-medium text-slate-700 text-sm">${escapeHtml(name)}</span>
+                        <span class="text-xs text-slate-500">Just now</span>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed">${formatThoughtContent(content)}</p>
+                `;
+                commentsListDiv.insertBefore(commentDiv, commentsListDiv.firstChild);
+                
+                // 更新评论计数
+                const commentCount = article.querySelector('.comment-count');
+                if (commentCount) {
+                    const currentCount = parseInt(commentCount.textContent) || 0;
+                    commentCount.textContent = currentCount + 1;
+                }
+
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                alert(`Error adding comment: ${error.message}. Please try again.`);
+                
+                const addBtn = article.querySelector('.add-comment-btn');
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Comment';
+            }
+        }
+
+        // 取消评论
+        function cancelComment(article) {
+            const nameInput = article.querySelector('.comment-name');
+            const contentTextarea = article.querySelector('.comment-content');
+            
+            nameInput.value = '';
+            contentTextarea.value = '';
+        }
+
+        // 处理点赞
+        async function handleUpvote(thoughtId, button) {
+            if (useStaticMode) {
+                alert('Upvoting is not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+            if (!userId) {
+                alert('Please refresh the page to continue');
+                return;
+            }
+            
+            if (button.classList.contains('voted')) {
+                return; // 已经点过赞了
+            }
+
+            try {
+                button.classList.add('loading');
+                
+                const thoughtRef = db.collection('thoughts').doc(thoughtId);
+                
+                await db.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(thoughtRef);
+                    if (!doc.exists) {
+                        throw new Error('Thought does not exist!');
+                    }
+
+                    const data = doc.data();
+                    const upvotedBy = data.upvotedBy || [];
+                    
+                    if (upvotedBy.includes(userId)) {
+                        throw new Error('You have already upvoted this thought');
+                    }
+
+                    const newUpvotes = (data.upvotes || 0) + 1;
+                    const newUpvotedBy = [...upvotedBy, userId];
+
+                    transaction.update(thoughtRef, {
+                        upvotes: newUpvotes,
+                        upvotedBy: newUpvotedBy
+                    });
+                });
+
+                // 更新UI
+                button.classList.add('voted');
+                button.classList.remove('loading');
+                const heartSpan = button.querySelector('span:first-child');
+                heartSpan.textContent = '♥'; // 变成实心爱心
+                const countSpan = button.querySelector('.upvote-count');
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                
+                // 更新提示文字
+                const hint = button.parentElement.querySelector('.text-slate-400');
+                hint.textContent = 'You upvoted this';
+
+            } catch (error) {
+                console.error('Error upvoting:', error);
+                button.classList.remove('loading');
+                alert(error.message || 'Error upvoting. Please try again.');
+            }
+        }
+
+        // 处理删除
+        async function handleDelete(thoughtId, article) {
+            if (useStaticMode) {
+                alert('Editing features are not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
+            if (!isAdmin) {
+                alert('Admin access required');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this thought?')) {
+                try {
+                    await db.collection('thoughts').doc(thoughtId).delete();
+                    article.remove();
+                } catch (error) {
+                    console.error('Error deleting thought:', error);
+                    alert('Error deleting thought. Please try again.');
+                }
+            }
+        }
+
+        // 处理编辑
+        function handleEdit(thoughtId, article) {
+            if (useStaticMode) {
+                alert('Editing features are not available in reading mode. Please check your network connection.');
+                return;
+            }
+            
+            if (!isAdmin) {
+                alert('Admin access required');
+                return;
+            }
+            
+            const content = article.querySelector('.content');
+            const title = content.querySelector('h2').textContent;
+            const text = content.querySelector('.thought-content div').innerHTML
+                .replace(/<h1[^>]*>(.*?)<\/h1>/g, '# $1')          // 反转一级标题
+                .replace(/<h2[^>]*>(.*?)<\/h2>/g, '## $1')         // 反转二级标题
+                .replace(/<h3[^>]*>(.*?)<\/h3>/g, '### $1')        // 反转三级标题
+                .replace(/<strong>(.*?)<\/strong>/g, '**$1**')     // 反转粗体
+                .replace(/<em>(.*?)<\/em>/g, '*$1*')               // 反转斜体
+                .replace(/<code[^>]*>(.*?)<\/code>/g, '`$1`')      // 反转代码
+                .replace(/<br>/g, '\n');                           // 反转换行
+
+            const editForm = document.createElement('div');
+            editForm.className = 'edit-form';
+            editForm.innerHTML = `
+                <input type="text" class="edit-title w-full p-3 border rounded-lg mb-3" value="${escapeHtml(title)}">
+                <textarea class="edit-content w-full p-3 border rounded-lg mb-3 h-32">${escapeHtml(text)}</textarea>
+                
+                <!-- 编辑时的格式化提示 -->
+                <div class="mb-3 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                    <p class="font-medium mb-2">✨ Formatting:</p>
+                    <div class="space-y-1">
+                        <span><code># ## ###</code> <code>**bold**</code> <code>*italic*</code> <code>\`code\`</code></span>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button class="save-btn px-4 py-2 bg-sky-500 text-white rounded-lg">Save</button>
+                    <button class="cancel-edit-btn px-4 py-2 bg-slate-300 text-slate-700 rounded-lg">Cancel</button>
+                </div>
+            `;
+
+            content.insertAdjacentElement('afterend', editForm);
+            content.style.display = 'none';
+
+            // 保存编辑
+            editForm.querySelector('.save-btn').addEventListener('click', async () => {
+                const newTitle = editForm.querySelector('.edit-title').value.trim();
+                const newContent = editForm.querySelector('.edit-content').value.trim();
+                
+                if (newTitle && newContent) {
+                    try {
+                        await db.collection('thoughts').doc(thoughtId).update({
+                            title: newTitle,
+                            content: newContent
+                        });
+                        
+                        content.querySelector('h2').textContent = newTitle;
+                        content.querySelector('.thought-content div').innerHTML = formatThoughtContent(newContent);
+                        
+                        editForm.remove();
+                        content.style.display = 'block';
+                    } catch (error) {
+                        console.error('Error updating thought:', error);
+                        alert('Error updating thought. Please try again.');
+                    }
+                }
+            });
+
+            // 取消编辑
+            editForm.querySelector('.cancel-edit-btn').addEventListener('click', () => {
+                editForm.remove();
+                content.style.display = 'block';
+            });
+        }
+
+        // 移动端导航栏自动隐藏功能
+        let lastScrollTop = 0;
+        const nav = document.querySelector('nav');
+        
+        function handleScroll() {
+            if (window.innerWidth <= 768) { // 只在移动端生效
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // 向下滚动且超过100px，隐藏导航栏
+                    nav.classList.add('nav-hidden');
+                } else if (scrollTop < lastScrollTop) {
+                    // 向上滚动，显示导航栏
+                    nav.classList.remove('nav-hidden');
+                }
+                
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // 防止负值
+            }
+        }
+
+        // 节流函数，避免频繁触发
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // 监听滚动事件
+        window.addEventListener('scroll', throttle(handleScroll, 100));
+
+        // 监听窗口大小变化，桌面端时显示导航栏
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                nav.classList.remove('nav-hidden');
+            }
+        });
+
+        // HTML 转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 格式化思想内容（支持简单的Markdown语法）
+        function formatThoughtContent(content) {
+            // 转义HTML
+            let formattedContent = escapeHtml(content);
+            
+            // 支持简单的Markdown语法
+            formattedContent = formattedContent
+                // 标题处理（需要在换行处理之前）
+                .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold text-slate-800 mt-4 mb-2">$1</h3>')     // ### 三级标题
+                .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold text-slate-800 mt-5 mb-3">$1</h2>')      // ## 二级标题  
+                .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold text-slate-900 mt-6 mb-4">$1</h1>')         // # 一级标题
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **粗体**
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // *斜体*
+                .replace(/`(.*?)`/g, '<code class="bg-slate-100 px-1 py-0.5 rounded text-sm">$1</code>') // `代码`
+                .replace(/\n/g, '<br>');                           // 换行
+            
+            return formattedContent;
+        }
+
+        // Firebase 认证状态监听
+        auth.onAuthStateChanged(async user => {
+            if (gateLocked) return; // Do nothing until unlocked
+            if (user && !useStaticMode) {
+                console.log('User authenticated:', user.uid);
+                loadThoughts();
+            } else if (!useStaticMode) {
+                // 用户未登录，尝试匿名登录
+                try {
+                    await auth.signInAnonymously();
+                } catch (error) {
+                    console.error('匿名登录失败:', error);
+                    // 切换到静态模式
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts();
+                }
+            }
+        });
+
+        // 页面加载时检测连接状态
+        window.addEventListener('load', async () => {
+            if (gateLocked) return; // Wait for unlock
+            console.log('检测Firebase连接状态...');
+            
+            // 设置超时检测
+            const connectionTimeout = setTimeout(() => {
+                if (!firebaseConnected && !useStaticMode) {
+                    console.log('Firebase连接超时，切换到静态模式');
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts();
+                }
+            }, 5000); // 5秒超时
+
+            try {
+                const connected = await checkFirebaseConnection();
+                clearTimeout(connectionTimeout);
+                
+                if (connected) {
+                    console.log('Firebase连接成功');
+                    // Firebase连接成功时，认证状态监听器会处理加载
+                } else {
+                    console.log('Firebase连接失败，使用静态模式');
+                    loadThoughts();
+                }
+            } catch (error) {
+                clearTimeout(connectionTimeout);
+                console.error('连接检测出错:', error);
+                useStaticMode = true;
+                firebaseConnected = false;
+                showConnectionStatus('static');
+                loadThoughts();
+            }
+        });
+
+        // 在解锁后手动初始化（当用户在页面加载后才输入密码）
+        async function initAppAfterUnlock() {
+            if (!gateLocked) {
+                console.log('检测Firebase连接状态...');
+                const connectionTimeout = setTimeout(() => {
+                    if (!firebaseConnected && !useStaticMode) {
+                        console.log('Firebase连接超时，切换到静态模式');
+                        useStaticMode = true;
+                        firebaseConnected = false;
+                        showConnectionStatus('static');
+                        loadThoughts();
+                    }
+                }, 5000);
+
+                try {
+                    const connected = await checkFirebaseConnection();
+                    clearTimeout(connectionTimeout);
+                    if (connected) {
+                        console.log('Firebase连接成功');
+                        // auth state listener will handle loadThoughts
+                    } else {
+                        console.log('Firebase连接失败，使用静态模式');
+                        loadThoughts();
+                    }
+                } catch (error) {
+                    clearTimeout(connectionTimeout);
+                    console.error('连接检测出错:', error);
+                    useStaticMode = true;
+                    firebaseConnected = false;
+                    showConnectionStatus('static');
+                    loadThoughts();
+                }
+            }
+        }
+
+        // 监听窗口大小变化，重新检查内容高度
+        window.addEventListener('resize', () => {
+            const articles = document.querySelectorAll('.thought-item');
+            articles.forEach(article => {
+                setTimeout(() => checkContentHeight(article), 100);
+            });
+        });
+    </script>
+
+</body>
+</html>
