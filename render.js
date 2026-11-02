@@ -42,7 +42,10 @@
     const smallRow = studies.length ? row(small.label, `<h3>${e(small.title)}</h3><ul class="studies">${studies.map(item => `<li>${text('strong', '', item.title)}${item.title && item.description ? ' ' : ''}${e(item.description)}</li>`).join('')}</ul>`) : '';
     const interests = list(c.interests).filter(item => item.topic || description(item)).map(item => `<div class="row interest"><h3 class="topic">${e(item.topic)}</h3><p>${e(description(item))}</p></div>`).join('');
     if (page === 'research') {
-      document.querySelector('main').innerHTML = `<div class="research-intro"><a class="back mono" href="index.html">← Back to home</a><h1>${e(pageTitle)}</h1><div class="research-index mono">${link('Projects', '#research')}${link(headings.interests || 'Research Interests', '#interests')}</div></div>${section('research', 'Research Projects', research + smallRow)}${section('interests', headings.interests, interests)}<a class="back mono" href="index.html">← Back to home</a>`;
+      const talks = list(c.presentations).filter(item => item.title && url(item.fileUrl));
+      const talkRows = talks.map(item => `<li><a class="talk" href="${url(item.fileUrl)}"><span><span class="talk-title">${e(item.title)}</span>${text('span', 'talk-credit mono', item.credit)}</span><span class="talk-file mono">PDF${item.pages ? ' · ' + e(item.pages) + ' pp.' : ''} <span aria-hidden="true">→</span></span></a></li>`).join('');
+      const presentations = talkRows ? section('lab-presentations', 'Literature Presentations', `<ul class="talk-list">${talkRows}</ul>`) : '';
+      document.querySelector('main').innerHTML = `<div class="research-intro"><a class="back mono" href="index.html">← Back to home</a><h1>${e(pageTitle)}</h1><div class="research-index mono">${presentations ? link('Slides', '#lab-presentations') : ''}${link('Projects', '#research')}${link(headings.interests || 'Research Interests', '#interests')}</div></div>${presentations}${section('research', 'Research Projects', research + smallRow)}${section('interests', headings.interests, interests)}<a class="back mono" href="index.html">← Back to home</a>`;
       return;
     }
     const elsewhere = c.elsewhere ?? {};

@@ -43,6 +43,34 @@ window.SITE_CONTENT = {
       "labUrl": "https://ruyuanzhang.github.io"
     }
   ],
+  "presentations": [
+    {
+      "title": "Reward prediction error neurons implement an efficient code for reward",
+      "fileUrl": "assets/notes/reward-prediction-error.pdf",
+      "pages": 68
+    },
+    {
+      "title": "Probable nature of higher-dimensional symmetries underlying mammalian grid cell activity patterns",
+      "fileUrl": "assets/notes/grid-cell-symmetries.pdf",
+      "pages": 24
+    },
+    {
+      "title": "Causal connectivity measures for pulse-output network reconstruction",
+      "fileUrl": "assets/notes/causal-connectivity.pdf",
+      "pages": 16
+    },
+    {
+      "title": "Rational thoughts in neural codes",
+      "credit": "Presented with 陆杨帆",
+      "fileUrl": "assets/notes/rational-thoughts-in-neural-codes.pdf",
+      "pages": 39
+    },
+    {
+      "title": "Planning as Inference",
+      "fileUrl": "assets/notes/planning-as-inference.pdf",
+      "pages": 24
+    }
+  ],
   "smallProjects": {
     "label": "",
     "title": "Smaller projects and independent study",

@@ -86,11 +86,19 @@ footer a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
 .research-intro h1 { margin-top: 24px; font-size: 42px; }
 .research-index { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 20px; }
 .research-page > .section { margin-top: 44px; }
+.talk-list { list-style: none; margin: 0; padding: 0; }
+.talk-list li + li { border-top: 1px solid var(--rule); }
+.talk { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 8px 24px; padding: 17px 0; color: var(--ink); text-decoration: none; }
+.talk-title { font-size: 20px; line-height: 1.35; }
+.talk-credit { display: block; margin-top: 5px; color: var(--body); }
+.talk-file { color: var(--accent); white-space: nowrap; }
+.talk:hover .talk-title, .talk:focus-visible .talk-title { text-decoration: underline; text-decoration-thickness: 1px; }
 .research-page .interest { display: block; max-width: 660px; margin-left: auto; }
 .research-page .topic { font-size: 22px; line-height: 1.35; }
 .research-page .interest p { margin-top: 12px; color: var(--body); font: inherit; }
 .research-page .interest + .interest { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--rule); }
 @media (max-width: 640px) {
+  .talk { grid-template-columns: 1fr; }
   .page { width: calc(100% - 40px); }
   .mast { flex-direction: column; gap: 13px; padding-top: 23px; padding-bottom: 15px; }
   nav { gap: 22px; }
