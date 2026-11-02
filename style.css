@@ -43,7 +43,8 @@ h1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 13px 22px; font
 .intro, .desc, .elsewhere-copy, .interest p, .writing-intro p { white-space: pre-line; }
 .intro { grid-column: 1; grid-row: 2; max-width: 610px; color: var(--body); font-size: 18px; line-height: 1.6; }
 .section { margin-top: 60px; }
-.section-head { padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+.section-link { white-space: nowrap; }
 h2 { font-size: 28px; line-height: 1.3; font-weight: 400; }
 .row { display: grid; grid-template-columns: var(--date) minmax(0, 1fr); column-gap: var(--gap); padding: 25px 0 26px; border-bottom: 1px solid var(--rule); }
 #research > .row:last-child { border-bottom: 0; }
@@ -62,7 +63,7 @@ h3 { font-size: 22px; line-height: 1.3; font-weight: 500; letter-spacing: -.01em
 #interests .section-head { margin-bottom: 26px; }
 .interest { grid-template-columns: 215px minmax(0, 1fr); column-gap: 37px; padding: 0; border-bottom: 0; }
 .interest + .interest { margin-top: 26px; }
-.topic { font-size: 20px; line-height: 1.55; }
+.topic { font-size: 20px; line-height: 1.55; font-weight: 400; letter-spacing: normal; }
 .interest p { color: #555e61; font: 400 15px/1.8 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 .elsewhere .row { padding-top: 22px; }
 .elsewhere-copy { color: var(--body); }
@@ -80,6 +81,15 @@ footer a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
 .writing-list h2 a:hover { color: var(--accent); }
 .writing-list .role { margin-top: 7px; }
 .back { display: inline-block; margin-top: 32px; }
+.research-intro { margin-top: 36px; }
+.research-intro .back { margin-top: 0; }
+.research-intro h1 { margin-top: 24px; font-size: 42px; }
+.research-index { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 20px; }
+.research-page > .section { margin-top: 44px; }
+.research-page .interest { display: block; max-width: 660px; margin-left: auto; }
+.research-page .topic { font-size: 22px; line-height: 1.35; }
+.research-page .interest p { margin-top: 12px; color: var(--body); font: inherit; }
+.research-page .interest + .interest { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--rule); }
 @media (max-width: 640px) {
   .page { width: calc(100% - 40px); }
   .mast { flex-direction: column; gap: 13px; padding-top: 23px; padding-bottom: 15px; }

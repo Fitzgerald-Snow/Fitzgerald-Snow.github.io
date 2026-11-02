@@ -12,7 +12,7 @@
   const link = (label, href, external = false) => url(href) && String(label ?? '').trim() ? `<a${external ? ' class="ext"' : ''} href="${url(href)}">${e(label)}</a>` : '';
   const links = items => items.some(Boolean) ? `<div class="links mono">${items.join('')}</div>` : '';
   const row = (label, content, className = '') => `<div class="row ${className}">${text('div', 'when mono', label) || '<div></div>'}<div>${content}</div></div>`;
-  const section = (id, title, content, className = '') => `<section class="section ${className}" id="${id}" aria-labelledby="${id}-title"><div class="section-head"><h2 id="${id}-title">${e(title)}</h2></div>${content}</section>`;
+  const section = (id, title, content, className = '', action = '') => `<section class="section ${className}" id="${id}" aria-labelledby="${id}-title"><div class="section-head"><h2 id="${id}-title">${e(title)}</h2>${action}</div>${content}</section>`;
 
   function render(content) {
     const c = content;
@@ -21,11 +21,13 @@
     const headings = c.sections ?? {};
     const site = c.site ?? {};
     const w = c.writings ?? {};
-    document.title = page === 'writings' ? `${w.title || 'Writings'} · ${p.nameEn || ''}` : [p.nameEn, p.nameZh].filter(Boolean).join(' · ');
+    const pageTitle = page === 'research' ? headings.research || 'Research' : page === 'writings' ? w.title || 'Writings' : '';
+    document.title = pageTitle ? `${pageTitle} · ${p.nameEn || ''}` : [p.nameEn, p.nameZh].filter(Boolean).join(' · ');
     document.querySelector('meta[name="description"]').content = site.description || '';
-    document.querySelector('.mast').innerHTML = `${link(site.title, 'index.html')}<nav class="mono" aria-label="Main navigation">${link(nav.research, page === 'home' ? '#research' : 'index.html#research')}${link(nav.writings, 'writings.html')}${link(nav.cv, p.cvUrl)}${link(nav.contact, p.email ? `mailto:${p.email}` : '')}</nav>`;
+    document.querySelector('.mast').innerHTML = `${link(site.title, 'index.html')}<nav class="mono" aria-label="Main navigation">${link(nav.research, page === 'home' ? '#research' : 'research.html')}${link(nav.writings, 'writings.html')}${link(nav.cv, p.cvUrl)}${link(nav.contact, p.email ? `mailto:${p.email}` : '')}</nav>`;
     document.querySelector('.mast > a')?.classList.add('wordmark');
     if (page === 'writings') document.querySelector('nav a[href="writings.html"]')?.setAttribute('aria-current', 'page');
+    if (page === 'research') document.querySelector('nav a[href="research.html"]')?.setAttribute('aria-current', 'page');
     document.querySelector('footer').innerHTML = `<span>${e([p.nameEn, site.updated].filter(Boolean).join(' · '))}</span>`;
 
     if (page === 'writings') {
@@ -33,17 +35,23 @@
       return;
     }
 
-    const research = list(c.research).filter(item => item.title).map(item => row(item.date, `<h3>${e(item.title)}</h3>${text('p', 'role mono', item.affiliation)}${text('p', 'desc', item.description)}${links([link('Code', item.codeUrl, true), link('Lab', item.labUrl, true)])}`)).join('');
+    const description = item => page === 'research' && String(item.details ?? '').trim() ? item.details : item.description;
+    const research = list(c.research).filter(item => item.title).map(item => row(item.date, `<h3>${e(item.title)}</h3>${text('p', 'role mono', item.affiliation)}${text('p', 'desc', description(item))}${links([link('Code', item.codeUrl, true), link('Lab', item.labUrl, true)])}`)).join('');
     const small = c.smallProjects ?? {};
     const studies = list(small.items).filter(item => item.title || item.description);
     const smallRow = studies.length ? row(small.label, `<h3>${e(small.title)}</h3><ul class="studies">${studies.map(item => `<li>${text('strong', '', item.title)}${item.title && item.description ? ' ' : ''}${e(item.description)}</li>`).join('')}</ul>`) : '';
-    const interests = list(c.interests).filter(item => item.topic || item.description).map(item => `<div class="row interest"><div class="topic">${e(item.topic)}</div><p>${e(item.description)}</p></div>`).join('');
+    const interests = list(c.interests).filter(item => item.topic || description(item)).map(item => `<div class="row interest"><h3 class="topic">${e(item.topic)}</h3><p>${e(description(item))}</p></div>`).join('');
+    if (page === 'research') {
+      document.querySelector('main').innerHTML = `<div class="research-intro"><a class="back mono" href="index.html">← Back to home</a><h1>${e(pageTitle)}</h1><div class="research-index mono">${link('Projects', '#research')}${link(headings.interests || 'Research Interests', '#interests')}</div></div>${section('research', 'Research Projects', research + smallRow)}${section('interests', headings.interests, interests)}<a class="back mono" href="index.html">← Back to home</a>`;
+      return;
+    }
     const elsewhere = c.elsewhere ?? {};
     const elsewhereCopy = String(elsewhere.description ?? '').trim() ? text('p', 'elsewhere-copy', elsewhere.description) : '';
     const elsewhereLinks = links(list(elsewhere.links).map(item => link(item.label, item.url, true)));
     const elsewhereSection = elsewhereCopy || elsewhereLinks ? section('elsewhere', headings.elsewhere, row(elsewhere.label, elsewhereCopy + elsewhereLinks), 'elsewhere') : '';
     const portrait = url(p.portraitUrl) ? `<img src="${url(p.portraitUrl)}" alt="${e(p.nameEn)}">` : '<span>Portrait</span>';
-    document.querySelector('main').innerHTML = `<div class="hero"><div class="identity"><div><h1><span>${e(p.nameEn)}</span><span class="name-zh" lang="zh-Hans">${e(p.nameZh)}</span></h1>${text('p', 'institution', p.university)}<div class="contacts mono">${link('Email', p.email ? `mailto:${p.email}` : '')}${link('GitHub', p.github, true)}</div></div><div class="portrait">${portrait}</div></div>${text('p', 'intro', p.intro)}</div>${section('research', headings.research, research + smallRow)}${section('interests', headings.interests, interests)}${elsewhereSection}`;
+    const researchLink = '<a class="section-link mono" href="research.html" aria-label="More about my research">More details <span aria-hidden="true">→</span></a>';
+    document.querySelector('main').innerHTML = `<div class="hero"><div class="identity"><div><h1><span>${e(p.nameEn)}</span><span class="name-zh" lang="zh-Hans">${e(p.nameZh)}</span></h1>${text('p', 'institution', p.university)}<div class="contacts mono">${link('Email', p.email ? `mailto:${p.email}` : '')}${link('GitHub', p.github, true)}</div></div><div class="portrait">${portrait}</div></div>${text('p', 'intro', p.intro)}</div>${section('research', headings.research, research + smallRow, '', researchLink)}${section('interests', headings.interests, interests)}${elsewhereSection}`;
     document.querySelector('.portrait img')?.addEventListener('error', event => { event.target.parentElement.innerHTML = '<span>Portrait</span>'; });
   }
 
