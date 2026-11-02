@@ -25,6 +25,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
 .skip { position: absolute; left: 12px; top: -70px; padding: 10px; background: var(--paper); }
 .skip:focus { top: 10px; }
 .mast { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; padding: 30px 0 17px; border-bottom: 1px solid var(--ink); }
+.mast-home { white-space: nowrap; }
 .wordmark { color: var(--ink); font-style: italic; font-size: 19px; text-decoration: none; white-space: nowrap; }
 nav { display: flex; flex-wrap: wrap; gap: 26px; margin-left: auto; }
 nav a { color: var(--body); text-decoration: none; }
@@ -82,8 +83,7 @@ footer a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
 .writing-list .role { margin-top: 7px; }
 .back { display: inline-block; margin-top: 32px; }
 .research-intro { margin-top: 36px; }
-.research-intro .back { margin-top: 0; }
-.research-intro h1 { margin-top: 24px; font-size: 42px; }
+.research-intro h1 { font-size: 42px; }
 .research-index { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 20px; }
 .research-page > .section { margin-top: 44px; }
 .talk-list { list-style: none; margin: 0; padding: 0; }
