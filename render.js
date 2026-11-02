@@ -44,7 +44,7 @@
     if (page === 'research') {
       const talks = list(c.presentations).filter(item => item.title && url(item.fileUrl));
       const talkRows = talks.map(item => `<li><a class="talk" href="${url(item.fileUrl)}"><span><span class="talk-title">${e(item.title)}</span>${text('span', 'talk-credit mono', item.credit)}</span><span class="talk-file mono">PDF${item.pages ? ' · ' + e(item.pages) + ' pp.' : ''} <span aria-hidden="true">→</span></span></a></li>`).join('');
-      const presentations = talkRows ? section('lab-presentations', 'Literature Presentations', `<ul class="talk-list">${talkRows}</ul>`) : '';
+      const presentations = talkRows ? section('lab-presentations', 'Lab Presentations', `<ul class="talk-list">${talkRows}</ul>`) : '';
       document.querySelector('main').innerHTML = `<div class="research-intro"><a class="back mono" href="index.html">← Back to home</a><h1>${e(pageTitle)}</h1><div class="research-index mono">${presentations ? link('Slides', '#lab-presentations') : ''}${link('Projects', '#research')}${link(headings.interests || 'Research Interests', '#interests')}</div></div>${presentations}${section('research', 'Research Projects', research + smallRow)}${section('interests', headings.interests, interests)}<a class="back mono" href="index.html">← Back to home</a>`;
       return;
     }
