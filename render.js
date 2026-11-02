@@ -24,7 +24,7 @@
     const pageTitle = page === 'research' ? headings.research || 'Research' : page === 'writings' ? w.title || 'Writings' : '';
     document.title = pageTitle ? `${pageTitle} · ${p.nameEn || ''}` : [p.nameEn, p.nameZh].filter(Boolean).join(' · ');
     document.querySelector('meta[name="description"]').content = site.description || '';
-    const mastLink = page === 'research' ? '<a class="mast-home mono" href="index.html">← Back to home</a>' : link(site.title, 'index.html');
+    const mastLink = page === 'research' ? '<a class="mast-home mono" href="index.html">Home</a>' : link(site.title, 'index.html');
     document.querySelector('.mast').innerHTML = `${mastLink}<nav class="mono" aria-label="Main navigation">${link(nav.research, page === 'home' ? '#research' : 'research.html')}${link(nav.writings, 'writings.html')}${link(nav.cv, p.cvUrl)}${link(nav.contact, p.email ? `mailto:${p.email}` : '')}</nav>`;
     document.querySelector('.mast > a:not(.mast-home)')?.classList.add('wordmark');
     if (page === 'writings') document.querySelector('nav a[href="writings.html"]')?.setAttribute('aria-current', 'page');
