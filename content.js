@@ -115,7 +115,7 @@ window.SITE_CONTENT = {
   },
   "writings": {
     "title": "Writings",
-    "intro": "A selection of my writings.\n\nI have a WeChat official account(Chinese version of substack) called \"Stochastic Esthetics\", where I share some of my writings, including some where I explain a computational neuroscience paper for a general audience.",
+    "intro": "A selection of my writings.\n\nI have a WeChat official account(Chinese version of substack) called \"Stochastic Esthetics\", where I share some of my writings (articles published under the name of *snow* are mine), including some where I explain a computational neuroscience paper for a general audience.",
     "backLabel": "← Back to home",
     "items": []
   }

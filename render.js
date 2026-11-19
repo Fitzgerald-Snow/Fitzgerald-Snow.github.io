@@ -32,7 +32,7 @@
     document.querySelector('footer').innerHTML = `<span>${e([p.nameEn, site.updated].filter(Boolean).join(' · '))}</span>`;
 
     if (page === 'writings') {
-      document.querySelector('main').innerHTML = `<div class="writing-intro"><h1>${e(w.title)}</h1>${text('p', '', w.intro)}</div><div class="writing-list">${list(w.items).filter(item => item.title).map(item => row(item.type, `<h2>${link(item.title, item.fileUrl) || e(item.title)}</h2>${text('p', 'role mono', item.meta)}`)).join('')}</div><a class="back mono" href="index.html">${e(w.backLabel)}</a>`;
+      document.querySelector('main').innerHTML = `<div class="writing-intro"><h1>${e(w.title)}</h1>${text('p', '', w.intro).replace(/\*([^*\n]+)\*/g, '<em>$1</em>')}</div><div class="writing-list">${list(w.items).filter(item => item.title).map(item => row(item.type, `<h2>${link(item.title, item.fileUrl) || e(item.title)}</h2>${text('p', 'role mono', item.meta)}`)).join('')}</div><a class="back mono" href="index.html">${e(w.backLabel)}</a>`;
       return;
     }
 
